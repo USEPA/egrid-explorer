@@ -1,0 +1,556 @@
+/* @font-face {
+  font-family: "LUI icons";
+  src: url(assets/leonardo-ui/dist/lui-icons.woff) format("woff"),
+    url(assets/leonardo-ui/dist/lui-icons.ttf) format("truetype");
+} */
+
+body {
+  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-size: 15px;
+  padding:20px;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+header {
+  min-height: 80px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.main {
+  padding: .8rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+p {
+  display: block;
+  font-weight: bold;
+  font-size: 1em;
+}
+
+h2 {
+  display: inline-block;
+  font-family: Merriweather, Georgia, Cambria, "Times New Roman", Times, serif;
+  max-width: 85%;
+  vertical-align: middle;
+  margin: 0;
+}
+
+#logo {
+  width: 14%;
+  float: right;
+}
+
+.loading div{
+  display: block;
+  margin: 0 auto;
+  margin-top: 25%;
+}
+
+#content {
+  display: block;
+  margin: 0 auto;
+  width: 90%;
+}
+
+.title {
+  font-family: Merriweather, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 1.2em;
+  font-weight: bold;
+  border: solid #bebebe 0.1px;
+}
+
+/* sentence section */
+#sentence {
+  display: flex;
+  font-size: 1.2em;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+#sentence p {
+  display: inline-block;
+}
+
+#selection {
+  width: 95%;
+  padding-right: 5px;
+  line-height: 1.8em;
+}
+
+select {
+  border: none !important;
+  border-bottom: 1px dashed #000 !important;
+  -webkit-appearance: none;
+  font-size: 1em;
+  font-weight: bold;
+  border: solid #bebebe 0.1px;
+  padding-left: 5px;
+}
+
+option {
+  font-weight: normal;
+}
+
+select {
+  background-image: url('./assets/img/dropdown_arrow.png');
+  background-repeat: no-repeat;
+  background-size: 14px 14px;
+  background-position: 100% 90%;
+  padding-right: 17px;
+  margin-right: 6px;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+select:focus {
+  outline: none !important;
+}
+
+.nodropdown {
+  color: #000 !important;
+  background-color: #fff;
+  border-bottom: none !important;
+  background-image: none !important;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+}
+
+#exeuc {
+  width: 5%;
+  height: 36px;
+}
+
+button {
+  padding: 4px 8px;
+  background-color: #f3f3f4;
+  border-radius: 4px;
+  border: 1px solid #ceced2;
+}
+
+button:hover {
+  background-color: #cecece;
+  cursor: pointer;
+}
+
+.wait {
+  display: inline !important;
+  background-color: rgb(218, 41, 28) !important;
+}
+
+.old {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+button {
+  padding: 4px 8px;
+  background-color: #f3f3f4;
+  border-radius: 4px;
+  border: 1px solid #ceced2;
+}
+
+button:hover {
+  background-color: #cecece;
+  cursor: pointer;
+}
+
+/* visualization */
+#vis {
+  border-top: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+/* export */
+#export {
+  margin: 5px;
+}
+
+.sort_divs {
+  display: inline-block;
+}
+
+.sort_by_amount {
+  float: left;
+  width: 20%;
+  margin: 25px 0;
+}
+
+/* legend */
+.size_legends circle {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2;
+}
+
+#size_legend text {
+  font-size: 0.8em;
+}
+
+.cell rect {
+  stroke: #898d8d;
+  stroke-width: 1px;
+  stroke-opacity: 0.5;
+}
+
+.selected_source>circle,
+.selected_source {
+  stroke: black;
+}
+
+.selected_source>text {
+  font-weight: bold;
+  stroke: none;
+}
+
+.selected_source>rect {
+  opacity: 1 !important;
+}
+
+.highlighted_source>circle,
+.highlighted_source {
+  stroke: black;
+}
+
+.highlighted_source>text {
+  font-weight: bold;
+  stroke: none; 
+}
+
+.highlighted_source>rect{
+  opacity: 0.5 !important;
+}
+
+.legendCells>.cell:hover {
+  cursor: pointer;
+}
+
+.reset {
+  opacity: 0.5 !important;
+}
+
+.reset:hover {
+  cursor: not-allowed;
+}
+
+.reset_clickable {
+  opacity: 1 !important;
+}
+
+.reset_clickable:hover {
+  cursor: pointer !important;
+}
+
+
+.disabled_cells:hover {
+  cursor: not-allowed !important;
+}
+
+/* map container */
+#map_container {
+  width: 68%;
+  display: inline-block;
+  vertical-align: top;
+}
+
+#map_static {
+  position: relative;
+}
+
+#range_legend {
+  position: absolute;
+  left: 36%;
+  /* margin-left: -50px; */
+  top: 105%;
+  margin-top: -50px;
+}
+
+path {
+  stroke: #898d8d;
+  fill: #fff;
+}
+
+.map_notes {
+  fill: #000;
+  text-anchor: middle;
+}
+
+.highlighted_region {
+  font-weight: bold !important;
+  opacity: 1 !important;
+}
+
+.highlighted_plant {
+  stroke: #000 !important;
+  opacity: 1 !important;
+}
+
+.selected_plant {
+  stroke: #000 !important;
+  stroke-width: 2;
+  opacity: 1 !important;
+}
+
+/* a. zoomable map */
+#reset_view_icon{
+  border-radius: 5px;
+  margin-top: 1px;
+}
+
+#leaflet_reset {
+  color: #595959;
+}
+
+#leaflet_reset:hover {
+  cursor: pointer;
+}
+
+.leaflet-top.leaflet-left {
+  margin-top: 160px !important;
+}
+
+/* b. grid gross loss */
+#grid_gross_loss_rates_tab {
+  width: 25%;
+  height: 50%;
+  margin: 10px;
+  float: left;
+}
+
+/* stacked barchart */
+#resource_mix_container {
+  width: 70%;
+  display: inline-block;
+}
+
+#resource_mix_container svg {
+  /* display: block;
+  margin: 0 auto; */
+}
+
+.highlighted_target:hover {
+  cursor: pointer;
+}
+
+.faded_region>text {
+  opacity: 0.5;
+}
+
+.faded_region>rect {
+  opacity: 0.3;
+}
+
+/* bar chart */
+#barchart_container {
+  width: 30%;
+  display: inline-block;
+  vertical-align: top;
+  float: right;
+}
+
+.bar_label {
+  font-size: 0.8em;
+}
+
+.US text,
+text.US {
+  font-weight: bold;
+}
+
+#title_x {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.axis_x>.tick>text {
+  text-anchor: start;
+}
+
+#sort {
+  text-align:center;
+}
+
+/* tooltip */
+.tooltip {
+  background-color: #fff;
+  border: 2px solid #898d8d;
+  padding: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+}
+
+.tooltip_text p {
+  font-size: 0.9em;
+  font-weight: normal;
+}
+
+.var {
+  font-weight: bold;
+}
+
+#bar_tooltip {
+  font-size: 0.9em;
+}
+
+/* table */
+#table {
+  height: 200px;
+  margin-bottom: 100px;
+  border-spacing: 0;
+  overflow: scroll;
+  font-size: 0.9em;
+}
+
+tr {
+  line-height: 1.5;
+}
+
+td {
+  width: 100%;
+  border-top: 0.01em solid #969696;
+  padding: .1em .88235em;
+  text-align: left;
+}
+
+#close_table_row {
+  margin-top: 65px;
+  min-width: 25px;
+  min-height: 25px;
+  background-color: #f2f2f2;
+}
+
+#close_table {
+  float: right;
+  font-weight: bold;
+  border: none !important;
+}
+
+.row_names {
+  border-right: 0.01em solid #969696;
+}
+
+.last_row {
+  border-bottom: 0.01em solid #969696;
+}
+
+.even_row {
+  background-color: #f2f2f2;
+}
+
+.odd_row {
+  background-color: #d9d9d9;
+}
+
+.row_values {
+  text-align: right;
+}
+
+/* timeseries */
+
+#time_series_holder {
+  display: block;
+  height: 250px;
+  width: 500px;
+  margin: -50px auto;
+}
+
+/* responsive design */
+@media only screen and (min-width: 1200px) {
+  #content {
+    width: 1200px;
+  }
+}
+
+@media only screen and (max-width: 1199px) {
+  #content {
+    width: 100%;
+  }
+
+  #time_series_container,
+  #map_container,
+  #barchart_container {
+    display: block;
+  }
+
+  #map_container {
+    width: 100%;
+    margin-bottom: 35px;
+  }
+
+  #time_series_container, #barchart_container{
+    width: 100%;
+    text-align: center;
+  }
+
+  #sort {
+    width: 300px;
+    margin: 0 auto;
+    display: block;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  #resource_mix_container {
+    width: 885px;
+  }
+}
+
+@media print{
+  #map_container{
+    left: 25px;
+  }
+
+  #sentence{
+    display: none;
+    border: initial;
+  }
+
+  header{
+    border: initial;
+  }
+
+  #export{
+    display: none;
+  }
+
+  #viz{
+    border: initial;
+  }
+
+  #sort{
+    display: none;
+  }
+
+  #map_zoomable{
+    display: none;
+  }
+
+  #map_static{
+    position: fixed;
+    left: -165px;
+    transform: scale(0.8, 0.8);
+  }
+
+  #barchart_container{
+    position: fixed;
+    left: 440px;
+    transform: scale(0.9, 0.9);
+  }
+
+  #resource_mix_container{
+    position: fixed;
+    left: -200px;
+    transform: scale(0.9,0.9);
+  }
+
+  .reset{
+    display: none;
+  }
+
+  .toggle{
+    display: none;
+  }
+}

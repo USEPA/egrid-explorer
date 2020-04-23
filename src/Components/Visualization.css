@@ -1,0 +1,12 @@
+.visualization {
+    text-align:center;
+}
+
+.visualization-parts {
+    display: inline-block;
+}
+
+.visualization-parts svg {
+    display: block;
+    margin: 0 auto;
+}
