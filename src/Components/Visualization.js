@@ -201,17 +201,16 @@ function Visualization(props) {
           setData(d);
         });
       } else if (region === "Plant") {
+        let geojson = { type: "FeatureCollection", features: [] };
         d3.csv(plant, (row) => {
-          return {
-            name: row.PNAME,
-            unit: unit,
-            type: row.FUEL,
-            lat: +row.LAT,
-            long: +row.LON,
-            value: +row[field],
-          };
-        }).then((d) => {
-          setData(d);
+          row[field] = +row[field];
+          geojson.features.push({
+            type: "Feature",
+            properties: row,
+            geometry: { type: "Point", coordinates: [+row.LON, +row.LAT] },
+          });
+        }).then(() => {
+          setData(geojson);
         });
       }
     }
@@ -292,17 +291,33 @@ function Visualization(props) {
       );
     } else {
       return (
-        <div className="visualization">
-          <PlantLevelMapZoom title={name} data={data} />
-          <PlantLevelMapStatic
-            width={800}
-            height={600}
-            scale={800}
-            title={name}
-            fuel_label_lookup={fuel_label_lookup}
-            fuel_colors={Object.values(fuel_color_lookup)}
-            data={data}
-          />
+        <div>
+          {data.length === 0 ? (
+            <div className="loading">
+              <Spinner animation="grow" variant="success" />
+            </div>
+          ) : (
+            <div className="visualization">
+              <PlantLevelMapZoom
+                title={name}
+                data={data}
+                init_center={[-97.922211, 42.381266]}
+                init_zoom={3}
+                field={field}
+                fuel_label_lookup={fuel_label_lookup}
+                fuel_color_lookup={fuel_color_lookup}
+              />
+              {/* <PlantLevelMapStatic
+                width={800}
+                height={600}
+                scale={800}
+                title={name}
+                fuel_label_lookup={fuel_label_lookup}
+                fuel_colors={Object.values(fuel_color_lookup)}
+                data={data}
+              /> */}
+            </div>
+          )}
         </div>
       );
     }

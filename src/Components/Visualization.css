@@ -10,3 +10,9 @@
     display: block;
     margin: 0 auto;
 }
+
+.mapbox-container {
+  width: 90%;
+  height: 600px;
+  margin: 0 auto;
+}

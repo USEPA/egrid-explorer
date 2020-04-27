@@ -6,7 +6,7 @@ class ResourceMixChart extends Component {
   render() {
     let data = _.flatten(this.props.data),
       fuel = this.props.fuels,
-      fuel_colors = this.props.fuel_colors,
+      fuel_colors = Object.values(this.props.fuel_color_lookup),
       name = _.uniq(data.map((d) => d.name));
 
     let barFillScale = d3.scaleOrdinal().domain(fuel).range(fuel_colors);
