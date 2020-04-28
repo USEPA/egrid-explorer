@@ -87,6 +87,8 @@ function Visualization(props) {
         setData(d);
       });
     } else if (category === "resource mix (%)") {
+      setFuels(field.replace(/\[|\]|\s/g, "").split(","));
+      console.log(fuels);
       if (region === "eGRID subregion") {
         d3.csv(subrgn, (row) => {
           let data = [],
@@ -151,7 +153,6 @@ function Visualization(props) {
           setData(d);
         });
       }
-      setFuels(field.replace(/\[|\]|\s/g, "").split(","));
     } else {
       let fill = [];
       if (category.split("emission").length > 1) {
@@ -238,7 +239,7 @@ function Visualization(props) {
         <ResourceMixChart
           width={800}
           height={600}
-          fuel_colors={Object.values(fuel_color_lookup)}
+          fuel_color_lookup={fuel_color_lookup}
           fuels={fuels}
           title={name}
           data={data}
