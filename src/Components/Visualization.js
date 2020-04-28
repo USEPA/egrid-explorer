@@ -50,7 +50,9 @@ class Visualization extends Component {
     this.state_layer = topojson.feature(us_topo, "states");
 
     this.ggl_layer.features.map((d) => (d.name = d.properties.GGL));
-    this.nerc_layer.features.map((d) => (d.name = d.properties.NERC)).filter((d) => d.name !== "-");
+    this.nerc_layer.features
+      .map((d) => (d.name = d.properties.NERC))
+      .filter((d) => d.name !== "-");
     this.subrgn_layer.features.map((d) => (d.name = d.properties.Subregions));
   }
 
@@ -275,117 +277,94 @@ class Visualization extends Component {
       OFSL: "rgb(140, 86, 75)",
       OTHF: "rgb(127, 127, 127)",
     };
-    // return (
-    //   <div className="visualization">
 
-    //   </div>
-    // );
-
-    // Subregion-, State-, NERC-level visualizations
+    let vis;
     if (category === "grid gross loss rates") {
-      return (
-        <div className="visualization">
-          <OtherLevelMap
-            title={this.state.name}
-            width={800}
-            height={600}
-            scale={800}
-            layer={this.state.layer}
-            data={this.state.data}
-            layer_type={category}
-            mapfill={this.state.mapfill}
-          />
-        </div>
+      vis = (
+        <OtherLevelMap
+          title={this.state.name}
+          width={800}
+          height={600}
+          scale={800}
+          layer={this.state.layer}
+          data={this.state.data}
+          layer_type={category}
+          mapfill={this.state.mapfill}
+        />
       );
     } else if (category === "resource mix (%)") {
-      return (
-        <div className="visualization">
-          <ResourceMixChart
-            title={this.state.name}
-            width={800}
-            height={600}
-            data={this.state.data}
-            fuels={this.state.fuels}
-            fuel_color_lookup={fuel_color_lookup}
-          />
-        </div>
+      vis = (
+        <ResourceMixChart
+          title={this.state.name}
+          width={800}
+          height={600}
+          data={this.state.data}
+          fuels={this.state.fuels}
+          fuel_color_lookup={fuel_color_lookup}
+        />
       );
     } else {
       if (region !== "Plant") {
-        return (
-          <div className="visualization">
-            {this.state.data.length === 0 ? (
-              <div className="loading">
-                <Spinner animation="grow" variant="success" />
-              </div>
-            ) : (
-              <div className="visualization">
-                <div className="visualization-parts">
-                  <OtherLevelMap
-                    title={this.state.name}
-                    width={600}
-                    height={500}
-                    scale={650}
-                    layer={this.state.layer}
-                    data={this.state.data}
-                    layer_type={region}
-                    mapfill={this.state.mapfill}
-                  />
-                  <OtherLevelMapLegend
-                    width={450}
-                    height={50}
-                    data={this.state.data}
-                    mapfill={this.state.mapfill}
-                  />
-                </div>
-                <div className="visualization-parts">
-                  <OtherLevelBarchart
-                    width={300}
-                    height={600}
-                    data={this.state.data}
-                    layer_type={region}
-                    unit={this.state.unit}
-                    mapfill={this.state.mapfill}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      } else {
-        return (
-          <div>
-            {this.state.data.length === 0 ? (
-              <div className="loading">
-                <Spinner animation="grow" variant="success" />
-              </div>
-            ) : (
-              <div className="visualization">
-                <PlantLevelMapZoom
+        vis =
+          this.state.data.length === 0 ? (
+            <div className="loading">
+              <Spinner animation="grow" variant="success" />
+            </div>
+          ) : (
+            <div className="visualization">
+              <div className="visualization-parts">
+                <OtherLevelMap
                   title={this.state.name}
+                  width={600}
+                  height={500}
+                  scale={650}
+                  layer={this.state.layer}
                   data={this.state.data}
-                  jsondata={this.state.json_data}
-                  init_center={[-97.922211, 42.381266]}
-                  init_zoom={3}
-                  field={this.state.field}
-                  fuel_label_lookup={fuel_label_lookup}
-                  fuel_color_lookup={fuel_color_lookup}
+                  layer_type={region}
+                  mapfill={this.state.mapfill}
                 />
-                {/* <PlantLevelMapStatic
-              width={800}
-              height={600}
-              scale={800}
-              title={name}
-              fuel_label_lookup={fuel_label_lookup}
-              fuel_colors={Object.values(fuel_color_lookup)}
-              data={data}
-            /> */}
+                <OtherLevelMapLegend
+                  width={450}
+                  height={50}
+                  data={this.state.data}
+                  mapfill={this.state.mapfill}
+                />
               </div>
-            )}
-          </div>
-        );
+              <div className="visualization-parts">
+                <OtherLevelBarchart
+                  width={300}
+                  height={600}
+                  data={this.state.data}
+                  layer_type={region}
+                  unit={this.state.unit}
+                  mapfill={this.state.mapfill}
+                />
+              </div>
+            </div>
+          );
+      } else if (region === "Plant") {
+        vis =
+          this.state.data.length === 0 ? (
+            <div className="loading">
+              <Spinner animation="grow" variant="success" />
+            </div>
+          ) : (
+            <div className="visualization">
+              <PlantLevelMapZoom
+                title={this.state.name}
+                data={this.state.data}
+                jsondata={this.state.json_data}
+                init_center={[-97.922211, 42.381266]}
+                init_zoom={3}
+                field={this.state.field}
+                fuel_label_lookup={fuel_label_lookup}
+                fuel_color_lookup={fuel_color_lookup}
+              />
+            </div>
+          );
       }
     }
+    return <div className="visualization">{vis}</div>;
   }
 }
 
