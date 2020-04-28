@@ -1,17 +1,8 @@
-import React, { Component, useState, useEffect } from "react";
-import OtherLevelMap from "./OtherLevelMap";
-import OtherLevelMapLegend from "./OtherLevelMapLegend";
-import OtherLevelBarchart from "./OtherLevelBarchart";
-import PlantLevelMapZoom from "./PlantLevelMapZoom";
-import PlantLevelMapStatic from "./PlantLevelMapStatic";
-
-import ResourceMixChart from "./ResourceMixChart";
-import lookup from "../assets/data/json/eGRID lookup.json";
+import React, { Component } from "react";
+import Spinner from "react-bootstrap/Spinner";
 
 import * as d3 from "d3";
-import * as topojson from 'topojson-client';
-
-import "./Visualization.css";
+import * as topojson from "topojson-client";
 
 import subrgn from "../assets/data/csv/subregion.csv";
 import nerc from "../assets/data/csv/NERC.csv";
@@ -21,12 +12,19 @@ import plant from "../assets/data/csv/plant.csv";
 import ggl from "../assets/data/csv/GGL.csv";
 import us from "../assets/data/csv/US.csv";
 
-import subrgn_topo from '../assets/data/json/SUBRGN.json';
-import nerc_topo from '../assets/data/json/NERC.json';
-import ggl_topo from '../assets/data/json/GGL.json';
-import us_topo from '../assets/data/json/US.json';
+import lookup from "../assets/data/json/eGRID lookup.json";
+import subrgn_topo from "../assets/data/json/SUBRGN.json";
+import nerc_topo from "../assets/data/json/NERC.json";
+import ggl_topo from "../assets/data/json/GGL.json";
+import us_topo from "../assets/data/json/US.json";
 
-import Spinner from "react-bootstrap/Spinner";
+import OtherLevelMap from "./OtherLevelMap";
+import OtherLevelMapLegend from "./OtherLevelMapLegend";
+import OtherLevelBarchart from "./OtherLevelBarchart";
+import PlantLevelMapZoom from "./PlantLevelMapZoom";
+import ResourceMixChart from "./ResourceMixChart";
+
+import "./Visualization.css";
 
 class Visualization extends Component {
   constructor(props) {
@@ -47,17 +45,17 @@ class Visualization extends Component {
     };
 
     this.ggl_layer = topojson.feature(ggl_topo, "GGL");
-    this.subrgn_layer = topojson.feature(subrgn_topo, 'subregion');
-    this.nerc_layer = topojson.feature(nerc_topo, 'NERC');
-    this.state_layer = topojson.feature(us_topo, 'states');
+    this.subrgn_layer = topojson.feature(subrgn_topo, "subregion");
+    this.nerc_layer = topojson.feature(nerc_topo, "NERC");
+    this.state_layer = topojson.feature(us_topo, "states");
 
-    this.ggl_layer.features.map(d=>d.name=d.properties.GGL);
-    this.nerc_layer.features.map(d=>d.name=d.properties.NERC).filter(d=>d.name!=='-');
-    this.subrgn_layer.features.map(d=>d.name=d.properties.Subregions);
+    this.ggl_layer.features.map((d) => (d.name = d.properties.GGL));
+    this.nerc_layer.features.map((d) => (d.name = d.properties.NERC)).filter((d) => d.name !== "-");
+    this.subrgn_layer.features.map((d) => (d.name = d.properties.Subregions));
   }
 
   componentDidMount() {
-    this.updateState();
+    this.initState();
   }
 
   componentDidUpdate(prevProps) {
@@ -66,16 +64,16 @@ class Visualization extends Component {
     }
   }
 
-  updateState() {
+  initState() {
     Promise.all([
       d3.csv(subrgn),
       d3.csv(state),
+      d3.csv(statefullname),
       d3.csv(nerc),
       d3.csv(plant),
       d3.csv(ggl),
       d3.csv(us),
-      d3.csv(statefullname),
-    ]).then(([subrgn, state, nerc, plant, ggl, us, state_fullname]) => {
+    ]).then(([subrgn, state, state_fullname, nerc, plant, ggl, us]) => {
       // process data
       state.map((d) => {
         d.ABBR = d.PSTATABB;
@@ -91,9 +89,13 @@ class Visualization extends Component {
         });
         d.id = d.FIPSST;
       });
-      this.state_layer.features.map(d=>state.filter(e=>e.FIPSST===d.id).length===1 ? d.name=state.filter(e=>e.FIPSST===d.id)[0].name : "");
+      this.state_layer.features.map((d) =>
+        state.filter((e) => e.FIPSST === d.id).length === 1
+          ? (d.name = state.filter((e) => e.FIPSST === d.id)[0].name)
+          : ""
+      );
 
-      plant.map((d,i) => {
+      plant.map((d, i) => {
         d.name = d.PNAME;
         Object.keys(d).forEach((e) => {
           if (!isNaN(+d[e].replace(/,/g, ""))) {
@@ -103,7 +105,7 @@ class Visualization extends Component {
         d.id = i;
       });
 
-      subrgn.map((d,i) => {
+      subrgn.map((d, i) => {
         d.name = d.SUBRGN;
         Object.keys(d).forEach((e) => {
           if (!isNaN(+d[e].replace(/,/g, ""))) {
@@ -114,7 +116,7 @@ class Visualization extends Component {
       });
 
       nerc = nerc.filter((d) => d.NERC !== "NA");
-      nerc.map((d,i) => {
+      nerc.map((d, i) => {
         d.name = d.NERC;
         Object.keys(d).forEach(function (e) {
           if (!isNaN(+d[e].replace(/,/g, ""))) {
@@ -124,7 +126,7 @@ class Visualization extends Component {
         d.id = i;
       });
 
-      ggl.map((d,i) => {
+      ggl.map((d, i) => {
         d.name = d.GGL;
         d.id = i;
         d.unit = "%";
@@ -139,99 +141,114 @@ class Visualization extends Component {
         });
       });
 
-      // load data
-      let category = lookup[this.props.tier1], region = lookup[this.props.tier5];
-      let data_formatted = [], json_data = { type: "FeatureCollection", features: [] }, fuels = [], mapfill = [], layer = { type: "FeatureCollection", features: [] };
+      this.state_data = state;
+      this.plant_data = plant;
+      this.subrgn_data = subrgn;
+      this.nerc_data = nerc;
+      this.ggl_data = ggl;
+      this.us_data = us;
 
-      // assign data depending on region
-      let data = [];
-      if (region === "eGRID subregion") {
-        data = subrgn;
-        layer = this.subrgn_layer;
-      } else if (region === "NERC region") {
-        data = nerc;
-        layer = this.nerc_layer;
-      } else if (region === "state") {
-        data = state;
-        layer = this.state_layer;
-      } else if (region === "Plant") {
-        data = plant;
-      }
+      this.updateState();
+    });
+  }
 
-      if (category === "grid gross loss rates") {
-        data_formatted = ggl;
-        layer = this.ggl_layer;
-      } else if (category === "resource mix (%)") {
-        fuels = this.props.field.replace(/\[|\]|\s/g, "").split(",");
-        data.map((d) => {
-          let cumsum = 0;
-          fuels.map((f) => {
-            data_formatted.push({
-              name: d.name,
-              id: d.id,
-              unit: this.props.unit,
-              type: f,
-              value: +d[f],
-              cumsum: cumsum,
-            });
-            cumsum = cumsum + d[f];
-          });
-        });
-      } else {
-        if (category.split("emission").length > 1) {
-          mapfill = ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"];
-        } else if (category.split("generation").length > 1) {
-          mapfill = ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"];
-        } else if (
-          category.split("non-baseload").length > 1 ||
-          category.split("heat input").length > 1 ||
-          category.split("nameplate").length > 1
-        ) {
-          mapfill = ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"];
-        }
+  updateState() {
+    let category = lookup[this.props.tier1],
+      region = lookup[this.props.tier5];
+    let data_formatted = [],
+      json_data = { type: "FeatureCollection", features: [] },
+      fuels = [],
+      mapfill = [],
+      layer = { type: "FeatureCollection", features: [] };
 
-        data_formatted = data.map(d => {
-          return {
+    // set state depending on region and category
+    let data = [];
+    if (region === "eGRID subregion") {
+      data = this.subrgn_data;
+      layer = this.subrgn_layer;
+    } else if (region === "NERC region") {
+      data = this.nerc_data;
+      layer = this.nerc_layer;
+    } else if (region === "state") {
+      data = this.state_data;
+      layer = this.state_layer;
+    } else if (region === "Plant") {
+      data = this.plant_data;
+    }
+
+    if (category === "grid gross loss rates") {
+      data_formatted = this.ggl_data;
+      layer = this.ggl_layer;
+    } else if (category === "resource mix (%)") {
+      fuels = this.props.field.replace(/\[|\]|\s/g, "").split(",");
+      data.map((d) => {
+        let cumsum = 0;
+        fuels.map((f) => {
+          data_formatted.push({
             name: d.name,
             id: d.id,
             unit: this.props.unit,
-            type: region !== "Plant" ? lookup[this.props.tier5] : d.FUEL,
-            value: d[this.props.field],
-          };
-        });
-
-        if (region === "Plant") {
-          data.map(d => {
-            json_data.features.push({
-              type: "Feature",
-              properties: d,
-              geometry: { type: "Point", coordinates: [+d.LON, +d.LAT] },
-            });
+            type: f,
+            value: +d[f],
+            cumsum: cumsum,
           });
-        }
+          cumsum = cumsum + d[f];
+        });
+      });
+    } else {
+      if (category.split("emission").length > 1) {
+        mapfill = ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"];
+      } else if (category.split("generation").length > 1) {
+        mapfill = ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"];
+      } else if (
+        category.split("non-baseload").length > 1 ||
+        category.split("heat input").length > 1 ||
+        category.split("nameplate").length > 1
+      ) {
+        mapfill = ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"];
       }
 
-      this.setState({
-        field: this.props.field,
-        name: this.props.name,
-        unit: this.props.unit,
-        tier1: this.props.tier1,
-        tier2: this.props.tier2,
-        tier3: this.props.tier3,
-        tier4: this.props.tier4,
-        tier5: this.props.tier5,
-        data: data_formatted,
-        json_data: json_data,
-        fuels: fuels,
-        mapfill: mapfill,
-        layer: layer
+      data_formatted = data.map((d) => {
+        return {
+          name: d.name,
+          id: d.id,
+          unit: this.props.unit,
+          type: region !== "Plant" ? lookup[this.props.tier5] : d.FUEL,
+          value: d[this.props.field],
+        };
       });
-      console.log(this);
+
+      if (region === "Plant") {
+        data.map((d) => {
+          json_data.features.push({
+            type: "Feature",
+            properties: d,
+            geometry: { type: "Point", coordinates: [+d.LON, +d.LAT] },
+          });
+        });
+      }
+    }
+
+    this.setState({
+      field: this.props.field,
+      name: this.props.name,
+      unit: this.props.unit,
+      tier1: this.props.tier1,
+      tier2: this.props.tier2,
+      tier3: this.props.tier3,
+      tier4: this.props.tier4,
+      tier5: this.props.tier5,
+      data: data_formatted,
+      json_data: json_data,
+      fuels: fuels,
+      mapfill: mapfill,
+      layer: layer,
     });
   }
 
   render() {
-    let category = lookup[this.props.tier1], region = lookup[this.props.tier5];
+    let category = lookup[this.props.tier1],
+      region = lookup[this.props.tier5];
     const fuel_label_lookup = {
       COAL: "Coal",
       OIL: "Oil",
@@ -258,11 +275,11 @@ class Visualization extends Component {
       OFSL: "rgb(140, 86, 75)",
       OTHF: "rgb(127, 127, 127)",
     };
-      // return (
-      //   <div className="visualization">
-          
-      //   </div>
-      // );
+    // return (
+    //   <div className="visualization">
+
+    //   </div>
+    // );
 
     // Subregion-, State-, NERC-level visualizations
     if (category === "grid gross loss rates") {
