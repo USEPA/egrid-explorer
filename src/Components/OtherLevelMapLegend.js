@@ -22,13 +22,13 @@ class OtherLevelMapLegend extends Component {
     }
   }
   render() {
-    const fill_colors = this.props.fill_colors;
-    let fill_scale = d3.scaleThreshold().range(fill_colors);
+    const mapfill = this.props.mapfill;
+    let fill_scale = d3.scaleThreshold().range(mapfill);
     let domainArr = this.props.data.map((e) => e.value).sort((a, b) => a - b);
     fill_scale.domain(
       d3
-        .range(fill_colors.length - 1)
-        .map((d) => d3.quantile(domainArr, (d + 1) / fill_colors.length))
+        .range(mapfill.length - 1)
+        .map((d) => d3.quantile(domainArr, (d + 1) / mapfill.length))
     );
 
     let legend = d3_legend

@@ -660,6 +660,9 @@ class Main extends Component {
           name={this.state.name}
           unit={this.state.unit}
           tier1={this.state.tier1}
+          tier2={this.state.tier2}
+          tier3={this.state.tier3}
+          tier4={this.state.tier4}
           tier5={this.state.tier5}
         ></UpdatedVisualization>
       </div>

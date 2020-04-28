@@ -13,37 +13,49 @@ class PlantLevelMapZoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      center: [this.props.init_center[0], this.props.init_center[1]],
-      zoom: this.props.init_zoom,
+      field: this.props.field
     };
   }
 
+  componentDidUpdate(prevProps) {
+    // console.log(this.state.field);
+    // if(this.props.field !== prevProps.field) {
+    //   console.log(1);
+    //   this.setRadius();
+    // }
+  }
+
   componentDidMount() {
-    let map = new mapboxgl.Map({
+    this.map = new mapboxgl.Map({
       container: this.container,
       style: "mapbox://styles/mapbox/light-v10",
-      center: this.state.center,
-      zoom: this.state.zoom
+      center: this.props.init_center,
+      zoom: this.props.init_zoom
     });
-    map.setMaxZoom(17);
-    map.setMinZoom(1);
+    this.map.setMaxZoom(17);
+    this.map.setMinZoom(1);
 
-    map.on("load", () => {
-      map.addSource("plants", {
+    this.map.on("move", () => {
+      this.setState({
+        center: [
+          this.map.getCenter().lng.toFixed(4),
+          this.map.getCenter().lat.toFixed(4),
+        ],
+        zoom: this.map.getZoom().toFixed(2),
+      });
+    });
+
+    this.map.on("load", () => {
+      this.map.addSource("plants", {
         type: "geojson",
-        data: this.props.data,
+        data: this.props.jsondata
       });
 
-      map.addLayer({
+      this.map.addLayer({
         id: "plants",
         type: "circle",
         source: "plants",
         paint: {
-          "circle-radius": [
-            'interpolate', ['exponential', 1000], ['zoom'],
-            1, ['/', ['get',  this.props.field], 2500],
-            17,  ['/', ['get', this.props.field], 100],
-          ],
           "circle-opacity": 0.8,
           "circle-color": [
             "match",
@@ -74,17 +86,8 @@ class PlantLevelMapZoom extends Component {
           ],
         },
       });
-    });
 
-    map.on("move", () => {
-      this.setState({
-        center: [
-          map.getCenter().lng.toFixed(4),
-          map.getCenter().lat.toFixed(4),
-        ],
-        zoom: map.getZoom().toFixed(2),
-      });
-      console.log(map.getZoom());
+      this.setRadius();
     });
 
     // filter
@@ -126,7 +129,16 @@ class PlantLevelMapZoom extends Component {
 
   }
 
+  setRadius(){
+    this.map.setPaintProperty('plants', 'circle-radius', [
+      'interpolate', ['exponential', 1000], ['zoom'],
+      1, ['/', ['get',  this.state.field], 2500],
+      17,  ['/', ['get', this.state.field], 100],
+    ]);
+  }
+  
   render() {
+    // console.log(this.state.field);
     let title = (
       <p
         style={{

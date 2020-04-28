@@ -20,9 +20,9 @@ class ResourceMixChart extends Component {
       .range([0, this.props.height])
       .paddingInner(0.1)
       .paddingOuter(0.2);
-    let bars = data.map((d) => (
+    let bars = data.map((d,i) => (
       <rect
-        key={d.name.toString() + "_" + d.type}
+        key={"bar" + i}
         x={barXScale(d.cumsum)}
         y={barYScale(d.name)}
         width={barXScale(d.value)}

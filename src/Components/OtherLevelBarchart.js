@@ -33,7 +33,7 @@ class OtherLevelBarchart extends Component {
     // scale
     let marginTop = 30,
       marginLeft = 60;
-    let barFillScale = d3.scaleThreshold().range(this.props.fill_colors),
+    let barFillScale = d3.scaleThreshold().range(this.props.mapfill),
       barXScale = d3
         .scaleLinear()
         .range([0, this.props.width - marginLeft * 2])
@@ -49,16 +49,16 @@ class OtherLevelBarchart extends Component {
     let domainArr = this.props.data.map((e) => e.value).sort((a, b) => a - b);
     barFillScale.domain(
       d3
-        .range(this.props.fill_colors.length - 1)
+        .range(this.props.mapfill.length - 1)
         .map((d) =>
-          d3.quantile(domainArr, (d + 1) / this.props.fill_colors.length)
+          d3.quantile(domainArr, (d + 1) / this.props.mapfill.length)
         )
     );
 
     // bars
     let bars = this.props.data.map((d, i) => (
       <rect
-        key={d.name}
+        key={'bar'+i}
         x={0}
         y={barYScale(d.name)}
         width={barXScale(d.value)}
