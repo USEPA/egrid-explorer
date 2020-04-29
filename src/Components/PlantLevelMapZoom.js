@@ -11,7 +11,7 @@ class PlantLevelMapZoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selected_fuel: null,
+      selected_fuel: "",
     };
 
     this.plant_outlier = {
@@ -54,6 +54,8 @@ class PlantLevelMapZoom extends Component {
       PLN2OAN: undefined,
       PLCO2EQA: 17000000,
     };
+    this.filter_text = "Filter by Primary Fuel";
+    this.filter_reset_text = "Show All Fuels";
   }
 
   componentDidUpdate(prevProps) {
@@ -65,7 +67,8 @@ class PlantLevelMapZoom extends Component {
   }
 
   componentDidMount() {
-    let init_zoom = this.props.init_zoom, init_center = this.props.init_center;
+    let init_zoom = this.props.init_zoom,
+      init_center = this.props.init_center;
     // filter
     let w = d3.select("#filter").node().clientWidth,
       h = d3.select("#filter").node().clientHeight;
@@ -80,6 +83,7 @@ class PlantLevelMapZoom extends Component {
       .data(Object.keys(this.props.fuel_color_lookup))
       .enter()
       .append("g")
+      .attr("class", "fuel")
       .attr("transform", (d, i) => "translate(" + (i + 1) * boxlen + ",0)");
 
     fuels
@@ -98,13 +102,18 @@ class PlantLevelMapZoom extends Component {
 
     d3.select("#filter")
       .insert("g", ".fuels")
+      .append("g", "reset")
       .append("text")
-      .attr("x", boxlen / 2)
+      .attr("x", 0)
       .attr("y", Math.min(boxlen, h * 0.5) * 0.75)
-      .text("Filter")
-      .style("text-anchor", "middle")
+      .text(this.filter_text)
+      .style("text-anchor", "start")
       .style("font-weight", "bold")
       .style("font-size", "1.2em");
+    
+    d3.selectAll(".fuel").on("click", d=>{
+      this.setState({selected_fuel: d});
+    });
 
     // set up map
     this.map = new mapboxgl.Map({
@@ -123,13 +132,41 @@ class PlantLevelMapZoom extends Component {
         this._map = map;
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl";
-        this._container.innerHTML = "<span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='Zoom to national view'><img src='reset_view_icon.png' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span>";
+        this._container.innerHTML =
+          "<span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src='reset_view_icon.png' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span>";
         this._container.style.borderRadius = "4px";
         this._container.style.boxShadow = "0 0 0 2px rgba(0,0,0,.1)";
         this._container.style.cursor = "pointer";
         this._container.onclick = function () {
-          map.flyTo({center: init_center, zoom: init_zoom});
+          map.flyTo({ center: init_center, zoom: init_zoom });
         };
+        return this._container;
+      }
+      onRemove() {
+        this._container.parentNode.removeChild(this._container);
+        this._map = undefined;
+      }
+    }
+    this.map.addControl(new ResetControl());
+
+    class LayerControl {
+      onAdd(map) {
+        this._map = map;
+        this._container = document.createElement("div");
+        this._container.className = "mapboxgl-ctrl";
+        this._container.innerHTML =
+          "<span class='mapboxgl-ctrl-group' style='padding: 10px;' aria-haspopup='true' title='change layers'><input id='light-v10' type='radio' name='rtoggle' value='light' checked='checked'/><label for='light'>light</label><input id='satellite-v9' type='radio' name='rtoggle' value='satellite' /><label for='satellite'>satellite</label></span>";
+
+        d3.select(this._container)
+          .selectAll("input")
+          .nodes()
+          .map((n) => {
+            n.onclick = function () {
+              if (map.loaded()) {
+                // map.setStyle("mapbox://styles/mapbox/" + n.id);
+              }
+            };
+          });
         return this._container;
       }
 
@@ -138,17 +175,7 @@ class PlantLevelMapZoom extends Component {
         this._map = undefined;
       }
     }
-    this.map.addControl(new ResetControl());
-
-    this.map.on("move", () => {
-      this.setState({
-        center: [
-          this.map.getCenter().lng.toFixed(4),
-          this.map.getCenter().lat.toFixed(4),
-        ],
-        zoom: this.map.getZoom().toFixed(2),
-      });
-    });
+    this.map.addControl(new LayerControl());
 
     this.map.on("load", () => {
       let cutoff = this.plant_outlier[this.props.field];
@@ -239,6 +266,7 @@ class PlantLevelMapZoom extends Component {
       </p>
     );
 
+    console.log(this.state);
     return (
       <div>
         {title}
