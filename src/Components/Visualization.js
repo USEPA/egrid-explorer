@@ -42,6 +42,8 @@ class Visualization extends Component {
       json_data: [],
       fuels: [],
       mapfill: [],
+      background_layer: {},
+      layer: {}
     };
 
     this.ggl_layer = topojson.feature(ggl_topo, "GGL");
@@ -50,9 +52,12 @@ class Visualization extends Component {
     this.state_layer = topojson.feature(us_topo, "states");
 
     this.ggl_layer.features.map((d) => (d.name = d.properties.GGL));
-    this.nerc_layer.features
-      .map((d) => (d.name = d.properties.NERC))
-      .filter((d) => d.name !== "-");
+    this.nerc_layer.features = this.nerc_layer.features
+      .filter((d) => d.properties.NERC !== "-")
+      .map((d) => {
+        d.name = d.properties.NERC;
+        return d;
+      });
     this.subrgn_layer.features.map((d) => (d.name = d.properties.Subregions));
   }
 
@@ -78,6 +83,7 @@ class Visualization extends Component {
     ]).then(([subrgn, state, state_fullname, nerc, plant, ggl, us]) => {
       // process data
       state.map((d) => {
+        d.label = d.PSTATABB;
         d.ABBR = d.PSTATABB;
         d.PSTATABB = state_fullname
           .filter((e) => e.STATE === d.PSTATABB)
@@ -98,6 +104,7 @@ class Visualization extends Component {
       );
 
       plant.map((d, i) => {
+        d.label = d.PNAME;
         d.name = d.PNAME;
         Object.keys(d).forEach((e) => {
           if (!isNaN(+d[e].replace(/,/g, ""))) {
@@ -108,6 +115,7 @@ class Visualization extends Component {
       });
 
       subrgn.map((d, i) => {
+        d.label = d.SUBRGN;
         d.name = d.SUBRGN;
         Object.keys(d).forEach((e) => {
           if (!isNaN(+d[e].replace(/,/g, ""))) {
@@ -119,6 +127,7 @@ class Visualization extends Component {
 
       nerc = nerc.filter((d) => d.NERC !== "NA");
       nerc.map((d, i) => {
+        d.label = d.NERC;
         d.name = d.NERC;
         Object.keys(d).forEach(function (e) {
           if (!isNaN(+d[e].replace(/,/g, ""))) {
@@ -129,6 +138,7 @@ class Visualization extends Component {
       });
 
       ggl.map((d, i) => {
+        d.label = d.GGL;
         d.name = d.GGL;
         d.id = i;
         d.unit = "%";
@@ -161,6 +171,7 @@ class Visualization extends Component {
       json_data = { type: "FeatureCollection", features: [] },
       fuels = [],
       mapfill = [],
+      background_layer = { type: "FeatureCollection", features: [] },
       layer = { type: "FeatureCollection", features: [] };
 
     // set state depending on region and category
@@ -181,6 +192,7 @@ class Visualization extends Component {
     if (category === "grid gross loss rates") {
       data_formatted = this.ggl_data;
       layer = this.ggl_layer;
+      background_layer = this.state_layer;
     } else if (category === "resource mix (%)") {
       fuels = this.props.field.replace(/\[|\]|\s/g, "").split(",");
       data.map((d) => {
@@ -214,6 +226,7 @@ class Visualization extends Component {
         return {
           name: d.name,
           id: d.id,
+          label: d.label,
           unit: this.props.unit,
           type: region !== "Plant" ? lookup[this.props.tier5] : d.FUEL,
           value: d[this.props.field],
@@ -245,6 +258,7 @@ class Visualization extends Component {
       fuels: fuels,
       mapfill: mapfill,
       layer: layer,
+      background_layer: background_layer
     });
   }
 
@@ -287,6 +301,7 @@ class Visualization extends Component {
           height={600}
           scale={800}
           layer={this.state.layer}
+          background_layer={this.state.background_layer}
           data={this.state.data}
           layer_type={category}
           mapfill={this.state.mapfill}
@@ -300,6 +315,8 @@ class Visualization extends Component {
           height={600}
           data={this.state.data}
           fuels={this.state.fuels}
+          layer_type={region}
+          fuel_label_lookup={fuel_label_lookup}
           fuel_color_lookup={fuel_color_lookup}
         />
       );

@@ -32,11 +32,12 @@ class OtherLevelBarchart extends Component {
   render() {
     // scale
     let marginTop = 30,
-      marginLeft = 60;
+      marginRight = 60,
+      marginLeft = this.props.layer_type === "state" ? 130 : 60;
     let barFillScale = d3.scaleThreshold().range(this.props.mapfill),
       barXScale = d3
         .scaleLinear()
-        .range([0, this.props.width - marginLeft * 2])
+        .range([0, this.props.width - marginLeft - marginRight])
         .domain(d3.extent(this.props.data, (e) => e.value)),
       barYScale = d3
         .scaleBand()
@@ -50,15 +51,13 @@ class OtherLevelBarchart extends Component {
     barFillScale.domain(
       d3
         .range(this.props.mapfill.length - 1)
-        .map((d) =>
-          d3.quantile(domainArr, (d + 1) / this.props.mapfill.length)
-        )
+        .map((d) => d3.quantile(domainArr, (d + 1) / this.props.mapfill.length))
     );
 
     // bars
     let bars = this.props.data.map((d, i) => (
       <rect
-        key={'bar'+i}
+        key={"bar" + i}
         x={0}
         y={barYScale(d.name)}
         width={barXScale(d.value)}
@@ -69,39 +68,44 @@ class OtherLevelBarchart extends Component {
 
     return (
       <svg width={this.props.width} height={this.props.height}>
-        <g
-          className={"axis axis_x"}
-          transform={"translate(" + marginLeft + "," + marginTop + ")"}
-          ref={(node) =>
-            d3
-              .select(node)
-              .call(d3.axisTop(barXScale).ticks(5).tickFormat(this.formatXaxis))
-              .selectAll("text")
-              .attr("transform", "rotate(-30)")
-          }
-        ></g>
-        <text
-          transform={
-            "translate(" +
-            (this.props.width - marginLeft + 5) +
-            "," +
-            marginTop +
-            ")"
-          }
-          style={{
-            fill: "#000",
-            textAnchor: "start",
-            stroke: "none",
-            fontSize: "0.75em",
-          }}
-        >
-          {this.props.unit}
-        </text>
-        <g
-          className={"axis axis_y"}
-          transform={"translate(" + marginLeft + "," + marginTop + ")"}
-          ref={(node) => d3.select(node).call(d3.axisLeft(barYScale))}
-        ></g>
+        <g className={"axis"}>
+          <g
+            className={"axis_x"}
+            transform={"translate(" + marginLeft + "," + marginTop + ")"}
+            ref={(node) =>
+              d3
+                .select(node)
+                .call(
+                  d3.axisTop(barXScale).ticks(5).tickFormat(this.formatXaxis)
+                )
+                .selectAll("text")
+                .attr("transform", "rotate(-30)")
+            }
+          ></g>
+          <text
+            transform={
+              "translate(" +
+              (this.props.width - marginRight + 5) +
+              "," +
+              marginTop +
+              ")"
+            }
+            style={{
+              fill: "#000",
+              textAnchor: "start",
+              stroke: "none",
+              fontSize: "0.75em",
+            }}
+          >
+            {this.props.unit}
+          </text>
+          <g
+            className={"axis_y"}
+            transform={"translate(" + marginLeft + "," + marginTop + ")"}
+            ref={(node) => d3.select(node).call(d3.axisLeft(barYScale))}
+          ></g>
+        </g>
+
         <g
           ref={this.barchart}
           transform={"translate(" + marginLeft + "," + marginTop + ")"}

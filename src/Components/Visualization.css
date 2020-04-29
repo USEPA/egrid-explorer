@@ -16,3 +16,11 @@
   height: 600px;
   margin: 0 auto;
 }
+
+.fuel {
+  cursor:pointer;
+}
+
+.axis text {
+  font-weight: bold;
+}

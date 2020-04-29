@@ -266,7 +266,6 @@ class PlantLevelMapZoom extends Component {
       </p>
     );
 
-    console.log(this.state);
     return (
       <div>
         {title}
