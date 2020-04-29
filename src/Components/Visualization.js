@@ -248,6 +248,7 @@ class Visualization extends Component {
           json_data.features.push({
             type: "Feature",
             properties: d,
+            id: d.id,
             geometry: { type: "Point", coordinates: [+d.LON, +d.LAT] },
           });
         });
@@ -288,7 +289,7 @@ class Visualization extends Component {
       OFSL: "Other Fossil",
       OTHF: "Other Unknown",
     };
-    let fuel_color_lookup = {
+    const fuel_color_lookup = {
       COAL: "rgb(85, 85, 85)",
       OIL: "rgb(237, 28, 36)",
       GAS: "rgb(246, 139, 40)",
@@ -301,7 +302,7 @@ class Visualization extends Component {
       OFSL: "rgb(140, 86, 75)",
       OTHF: "rgb(255, 239, 213)",
     };
-    let fuel_icon_lookup = {
+    const fuel_icon_lookup = {
       COAL: coal,
       OIL: oil,
       GAS: gas,
@@ -313,6 +314,30 @@ class Visualization extends Component {
       GEOTHERMAL: "",
       OFSL: "",
       OTHF: papaya,
+    };
+    const wrap_long_labels = function(text, width){
+      text.each(function() {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            x = text.attr("x"),
+            y = text.attr("y"),
+            dy = parseFloat(text.attr("dy")),
+            tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+        while (word = words.pop()) {
+          line.push(word);
+          tspan.text(line.join(" "));
+          if (tspan.node().getComputedTextLength() > width) {
+            line.pop();
+            tspan.text(line.join(" "));
+            line = [word];
+            tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+          }
+        }
+      });
     };
 
     let vis;
@@ -342,6 +367,7 @@ class Visualization extends Component {
           fuel_label_lookup={fuel_label_lookup}
           fuel_color_lookup={fuel_color_lookup}
           fuel_icon_lookup={fuel_icon_lookup}
+          wrap_long_labels={wrap_long_labels}
         />
       );
     } else {
@@ -394,13 +420,14 @@ class Visualization extends Component {
               <PlantLevelMapZoom
                 title={this.state.name}
                 data={this.state.data}
-                jsondata={this.state.json_data}
+                json_data={this.state.json_data}
                 init_center={[-97.922211, 42.381266]}
                 init_zoom={3}
                 field={this.state.field}
                 fuel_label_lookup={fuel_label_lookup}
                 fuel_color_lookup={fuel_color_lookup}
                 fuel_icon_lookup={fuel_icon_lookup}
+                wrap_long_labels={wrap_long_labels}
               />
             </div>
           );

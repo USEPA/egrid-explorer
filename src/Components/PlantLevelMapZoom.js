@@ -10,8 +10,9 @@ mapboxgl.accessToken =
 class PlantLevelMapZoom extends Component {
   constructor(props) {
     super(props);
+    this.fuels = React.createRef();
     this.state = {
-      selected_fuel: "",
+      selected_fuel: null,
     };
 
     this.plant_outlier = {
@@ -58,10 +59,84 @@ class PlantLevelMapZoom extends Component {
     this.filter_reset_text = "Show All Fuels";
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.field !== prevProps.field) {
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      this.props.field !== prevProps.field ||
+      (this.state.selected_fuel !== prevState.selected_fuel &&
+        this.state.selected_fuel !== null)
+    ) {
       if (this.map.loaded()) {
-        this.setRadius();
+        const data = {
+          type: "FeatureCollection",
+          features: this.props.json_data.features
+            .filter((d) => d.properties.FUEL === this.state.selected_fuel)
+            .map((d) => {
+              if (
+                d.properties[this.props.field] >=
+                this.plant_outlier[this.props.field]
+              ) {
+                d.properties[this.props.field] = this.plant_outlier[
+                  this.props.field
+                ];
+              }
+              return d;
+            }),
+        };
+        this.map.getSource("plants").setData(data);
+        this.setRadius(data.features);
+        d3.selectAll(".selected").classed("selected", false);
+        d3.select(this.fuels.current)
+          .select(".reset")
+          .classed("reset_clickable", true)
+          .on("click", () => {
+            this.setState({ selected_fuel: null });
+          });
+        d3.select(this.fuels.current)
+          .select(".reset text")
+          .text(this.filter_reset_text)
+          .call(
+            this.props.wrap_long_labels,
+            d3.select(this.fuels.current).node().clientWidth /
+              (Object.keys(this.props.fuel_color_lookup).length + 1)
+          );
+        d3.select(this.fuels.current)
+          .selectAll(".fuel")
+          .filter((e) => e === this.state.selected_fuel)
+          .classed("selected", true);
+      }
+    } else if (
+      this.state.selected_fuel !== prevState.selected_fuel &&
+      this.state.selected_fuel === null
+    ) {
+      if (this.map.loaded()) {
+        const data = {
+          type: "FeatureCollection",
+          features: this.props.json_data.features.map((d) => {
+            if (
+              d.properties[this.props.field] >=
+              this.plant_outlier[this.props.field]
+            ) {
+              d.properties[this.props.field] = this.plant_outlier[
+                this.props.field
+              ];
+            }
+            return d;
+          }),
+        };
+        this.map.getSource("plants").setData(data);
+        this.setRadius(data.features);
+        d3.select(this.fuels.current)
+          .select(".reset")
+          .classed("reset_clickable", false);
+        d3.select(this.fuels.current)
+          .select(".reset text")
+          .text(this.filter_text)
+          .call(
+            this.props.wrap_long_labels,
+            d3.select(this.fuels.current).node().clientWidth /
+              (Object.keys(this.props.fuel_color_lookup).length + 1)
+          );
+        d3.selectAll(".selected").classed("selected", false);
       }
     }
   }
@@ -70,13 +145,12 @@ class PlantLevelMapZoom extends Component {
     let init_zoom = this.props.init_zoom,
       init_center = this.props.init_center;
     // filter
-    console.log(d3.select("#filter").node());
-    let w = d3.select("#filter").node().clientWidth,
-      h = d3.select("#filter").node().clientHeight;
+    let w = d3.select(this.fuels.current).node().clientWidth,
+      h = d3.select(this.fuels.current).node().clientHeight;
     let nbox = Object.keys(this.props.fuel_color_lookup).length + 1;
     let boxlen = w / nbox;
     let fuels = d3
-      .select("#filter")
+      .select(this.fuels.current)
       .append("div")
       .attr("class", "fuels")
       .selectAll("div")
@@ -88,15 +162,16 @@ class PlantLevelMapZoom extends Component {
 
     let fuels_svg = fuels.append("svg").attr("width", boxlen).attr("height", h);
 
-    fuels_svg.append("image")
-    .attr('xlink:href', d=>this.props.fuel_icon_lookup[d])
-    .attr("x", boxlen / 2 - Math.min(boxlen, h * 0.5)/2)
-    .attr("y", 0)
-    .attr("width",  Math.min(boxlen, h * 0.5))
-    .attr("height",  Math.min(boxlen, h * 0.5));
+    fuels_svg
+      .append("image")
+      .attr("xlink:href", (d) => this.props.fuel_icon_lookup[d])
+      .attr("x", boxlen / 2 - Math.min(boxlen, h * 0.5) / 2)
+      .attr("y", 0)
+      .attr("width", Math.min(boxlen, h * 0.5))
+      .attr("height", Math.min(boxlen, h * 0.5));
 
     fuels_svg
-      .filter(d=>this.props.fuel_icon_lookup[d] === "")
+      .filter((d) => this.props.fuel_icon_lookup[d] === "")
       .append("circle")
       .attr("r", Math.min(boxlen, h * 0.5) / 4)
       .attr("fill", (d) => this.props.fuel_color_lookup[d])
@@ -107,8 +182,11 @@ class PlantLevelMapZoom extends Component {
       .append("text")
       .attr("x", boxlen / 2)
       .attr("y", Math.min(boxlen, h * 0.5) * 1.5)
+      .attr("dx", 0)
+      .attr("dy", 0)
+      .text((d) => this.props.fuel_label_lookup[d])
       .style("text-anchor", "middle")
-      .text((d) => this.props.fuel_label_lookup[d]);
+      .call(this.props.wrap_long_labels, boxlen);
 
     d3.select(".fuels")
       .insert("div", ".fuel")
@@ -119,14 +197,27 @@ class PlantLevelMapZoom extends Component {
       .attr("height", h)
       .append("text")
       .attr("x", 0)
-      .attr("y", Math.min(boxlen, h * 0.5) * 0.75)
+      .attr("y", Math.min(boxlen, h * 0.5) / 2)
+      .attr("dx", 0)
+      .attr("dy", 0)
       .text(this.filter_text)
       .style("text-anchor", "start")
       .style("font-weight", "bold")
-      .style("font-size", "1.2em");
+      .style("font-size", "1.2em")
+      .call(this.props.wrap_long_labels, boxlen);
 
     d3.selectAll(".fuel").on("click", (d) => {
-      this.setState({ selected_fuel: d });
+      let n = d3
+        .select(this.fuels.current)
+        .selectAll(".fuel")
+        .filter((e) => e === d);
+      if (this.map.loaded()) {
+        if (n.classed("selected")) {
+          this.setState({ selected_fuel: null });
+        } else {
+          this.setState({ selected_fuel: d });
+        }
+      }
     });
 
     // set up map
@@ -192,17 +283,24 @@ class PlantLevelMapZoom extends Component {
     this.map.addControl(new LayerControl());
 
     this.map.on("load", () => {
-      let cutoff = this.plant_outlier[this.props.field];
-      this.props.jsondata.features = this.props.jsondata.features.map((d) => {
-        if (d.properties[this.props.field] >= cutoff) {
-          d.properties[this.props.field] = cutoff;
-        }
-        return d;
-      });
+      const data = {
+        type: "FeatureCollection",
+        features: this.props.json_data.features.map((d) => {
+          if (
+            d.properties[this.props.field] >=
+            this.plant_outlier[this.props.field]
+          ) {
+            d.properties[this.props.field] = this.plant_outlier[
+              this.props.field
+            ];
+          }
+          return d;
+        }),
+      };
 
       this.map.addSource("plants", {
         type: "geojson",
-        data: this.props.jsondata,
+        data: data,
       });
 
       this.map.addLayer({
@@ -210,6 +308,13 @@ class PlantLevelMapZoom extends Component {
         type: "circle",
         source: "plants",
         paint: {
+          "circle-stroke-width": 1,
+          "circle-stroke-color": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
+            "#000",
+            "#fff",
+          ],
           "circle-opacity": 0.8,
           "circle-color": [
             "match",
@@ -240,19 +345,42 @@ class PlantLevelMapZoom extends Component {
           ],
         },
       });
-      this.setRadius();
-    });
 
-    this.map.on("zoomend", () => {
-      this.setRadius();
+      this.setRadius(data.features);
+
+      let hoveredPlantId = null;
+
+      this.map.on("mousemove", "plants", (e) => {
+        if (e.features.length > 0) {
+          if (hoveredPlantId) {
+            this.map.setFeatureState(
+              { source: "plants", id: hoveredPlantId },
+              { hover: false }
+            );
+          }
+          hoveredPlantId = e.features[0].id;
+          this.map.setFeatureState(
+            { source: "plants", id: hoveredPlantId },
+            { hover: true }
+          );
+        }
+      });
+
+      this.map.on("mouseleave", "plants", () => {
+        if (hoveredPlantId) {
+          this.map.setFeatureState(
+            { source: "plants", id: hoveredPlantId },
+            { hover: false }
+          );
+        }
+        hoveredPlantId = null;
+      });
     });
   }
 
-  setRadius() {
+  setRadius(features) {
     let factor =
-      d3.max(
-        this.props.jsondata.features.map((d) => d.properties[this.props.field])
-      ) / 5;
+      d3.max(features.map((d) => d.properties[this.props.field])) / 5;
 
     this.map.setPaintProperty("plants", "circle-radius", [
       "interpolate",
@@ -283,7 +411,10 @@ class PlantLevelMapZoom extends Component {
     return (
       <div>
         {title}
-        <div style={{ width: "90%", height: 80, margin: "0 auto"}} id="filter"></div>
+        <div
+          style={{ width: "90%", height: 80, margin: "0 auto" }}
+          ref={this.fuels}
+        ></div>
         <div
           ref={(node) => (this.container = node)}
           className="mapbox-container"

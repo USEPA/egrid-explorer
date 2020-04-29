@@ -6,17 +6,18 @@ class ResourceMixChart extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+    this.fuels = React.createRef();
+    this.sort_text = "Click to rearrange";
   }
 
   componentDidMount() {
     let marginRight = 0,
       marginLeft = this.props.layer_type === "state" ? 130 : 60;
-    let w = d3.select("#filter").node().clientWidth - marginLeft - marginRight,
-      h = d3.select("#filter").node().clientHeight;
+    let w = d3.select(this.fuels.current).node().clientWidth - marginLeft - marginRight,
+      h = d3.select(this.fuels.current).node().clientHeight;
     let nbox = Object.keys(this.props.fuel_color_lookup).length + 1;
     let boxlen = w / nbox;
-    let fuels = d3
-      .select("#filter")
+    let fuels = d3.select(this.fuels.current)
       .append("div")
       .attr("class", "fuels")
       .selectAll("div")
@@ -48,8 +49,11 @@ class ResourceMixChart extends Component {
       .append("text")
       .attr("x", boxlen / 2)
       .attr("y", Math.min(boxlen, h * 0.5) * 1.5)
+      .attr("dx", 0)
+      .attr("dy", 0)
+      .text((d) => this.props.fuel_label_lookup[d])
       .style("text-anchor", "middle")
-      .text((d) => this.props.fuel_label_lookup[d]);
+      .call(this.props.wrap_long_labels, boxlen);
 
     d3.select(".fuels")
       .insert("div", ".fuel")
@@ -61,10 +65,22 @@ class ResourceMixChart extends Component {
       .append("text")
       .attr("x", 0)
       .attr("y", Math.min(boxlen, h * 0.5) * 0.75)
-      .text(this.filter_text)
+      .attr("dx", 0)
+      .attr("dy", 0)
+      .text(this.sort_text)
       .style("text-anchor", "start")
       .style("font-weight", "bold")
-      .style("font-size", "1.2em");
+      .style("font-size", "1.1em")
+      .call(this.props.wrap_long_labels, boxlen);
+
+    d3.selectAll(".fuel").on("click", (d) => {
+      d3.selectAll(".selected").classed("selected", false);
+      d3.select(this.fuels.current)
+        .selectAll(".fuel")
+        .filter((e) => e === d)
+        .classed("selected", true);
+      this.setState({ selected_fuel: d });
+    });
   }
 
   render() {
@@ -114,7 +130,10 @@ class ResourceMixChart extends Component {
     return (
       <div>
         {title}
-        <div style={{ width: "90%", height: 80, margin: "0 auto"}} id="filter"></div>
+        <div
+          style={{ width: "90%", height: 80, margin: "0 auto" }}
+          ref={this.fuels}
+        ></div>
         <svg width={this.props.width} height={this.props.height}>
           <g transform={"translate(" + marginLeft + ",0)"}>{bars}</g>
           <g
