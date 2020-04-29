@@ -18,6 +18,16 @@ import nerc_topo from "../assets/data/json/NERC.json";
 import ggl_topo from "../assets/data/json/GGL.json";
 import us_topo from "../assets/data/json/US.json";
 
+import coal from '../assets/img/coal.svg';
+import gas from '../assets/img/gas.svg';
+import hydro from '../assets/img/hydro.svg';
+import nuclear from '../assets/img/nuclear.svg';
+import oil from '../assets/img/oil.svg';
+import papaya from '../assets/img/papaya.svg';
+import solar from '../assets/img/solar.svg';
+import wind from '../assets/img/wind.svg';
+
+
 import OtherLevelMap from "./OtherLevelMap";
 import OtherLevelMapLegend from "./OtherLevelMapLegend";
 import OtherLevelBarchart from "./OtherLevelBarchart";
@@ -279,17 +289,30 @@ class Visualization extends Component {
       OTHF: "Other Unknown",
     };
     let fuel_color_lookup = {
-      COAL: "rgb(31, 119, 180)",
-      OIL: "rgb(255, 187, 120)",
-      GAS: "rgb(255, 127, 14)",
-      NUCLEAR: "rgb(148, 103, 189)",
-      HYDRO: "rgb(174, 199, 232)",
+      COAL: "rgb(85, 85, 85)",
+      OIL: "rgb(237, 28, 36)",
+      GAS: "rgb(246, 139, 40)",
+      NUCLEAR: "rgb(207, 74, 154)",
+      HYDRO: "rgb(0, 129, 197)",
       BIOMASS: "rgb(44, 160, 44)",
-      WIND: "rgb(158, 218, 229)",
-      SOLAR: "rgb(214, 39, 40)",
+      WIND: "rgb(13, 177, 75)",
+      SOLAR: "rgb(215, 201, 68)",
       GEOTHERMAL: "rgb(255, 152, 150)",
       OFSL: "rgb(140, 86, 75)",
-      OTHF: "rgb(127, 127, 127)",
+      OTHF: "rgb(255, 239, 213)",
+    };
+    let fuel_icon_lookup = {
+      COAL: coal,
+      OIL: oil,
+      GAS: gas,
+      NUCLEAR: nuclear,
+      HYDRO: hydro,
+      BIOMASS: "",
+      WIND: wind,
+      SOLAR: solar,
+      GEOTHERMAL: "",
+      OFSL: "",
+      OTHF: papaya,
     };
 
     let vis;
@@ -318,6 +341,7 @@ class Visualization extends Component {
           layer_type={region}
           fuel_label_lookup={fuel_label_lookup}
           fuel_color_lookup={fuel_color_lookup}
+          fuel_icon_lookup={fuel_icon_lookup}
         />
       );
     } else {
@@ -376,6 +400,7 @@ class Visualization extends Component {
                 field={this.state.field}
                 fuel_label_lookup={fuel_label_lookup}
                 fuel_color_lookup={fuel_color_lookup}
+                fuel_icon_lookup={fuel_icon_lookup}
               />
             </div>
           );

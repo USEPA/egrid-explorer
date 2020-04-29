@@ -70,39 +70,53 @@ class PlantLevelMapZoom extends Component {
     let init_zoom = this.props.init_zoom,
       init_center = this.props.init_center;
     // filter
+    console.log(d3.select("#filter").node());
     let w = d3.select("#filter").node().clientWidth,
       h = d3.select("#filter").node().clientHeight;
     let nbox = Object.keys(this.props.fuel_color_lookup).length + 1;
     let boxlen = w / nbox;
-
     let fuels = d3
       .select("#filter")
-      .append("g")
+      .append("div")
       .attr("class", "fuels")
-      .selectAll("g")
+      .selectAll("div")
       .data(Object.keys(this.props.fuel_color_lookup))
       .enter()
-      .append("g")
-      .attr("class", "fuel")
-      .attr("transform", (d, i) => "translate(" + (i + 1) * boxlen + ",0)");
+      .append("div")
+      .style("display", "inline-block")
+      .attr("class", "fuel");
 
-    fuels
+    let fuels_svg = fuels.append("svg").attr("width", boxlen).attr("height", h);
+
+    fuels_svg.append("image")
+    .attr('xlink:href', d=>this.props.fuel_icon_lookup[d])
+    .attr("x", boxlen / 2 - Math.min(boxlen, h * 0.5)/2)
+    .attr("y", 0)
+    .attr("width",  Math.min(boxlen, h * 0.5))
+    .attr("height",  Math.min(boxlen, h * 0.5));
+
+    fuels_svg
+      .filter(d=>this.props.fuel_icon_lookup[d] === "")
       .append("circle")
-      .attr("r", Math.min(boxlen, h * 0.5) / 2)
+      .attr("r", Math.min(boxlen, h * 0.5) / 4)
       .attr("fill", (d) => this.props.fuel_color_lookup[d])
       .attr("cx", boxlen / 2)
       .attr("cy", Math.min(boxlen, h * 0.5) / 2);
 
-    fuels
+    fuels_svg
       .append("text")
       .attr("x", boxlen / 2)
       .attr("y", Math.min(boxlen, h * 0.5) * 1.5)
       .style("text-anchor", "middle")
       .text((d) => this.props.fuel_label_lookup[d]);
 
-    d3.select("#filter")
-      .insert("g", ".fuels")
-      .append("g", "reset")
+    d3.select(".fuels")
+      .insert("div", ".fuel")
+      .style("display", "inline-block")
+      .attr("class", "reset")
+      .append("svg")
+      .attr("width", boxlen)
+      .attr("height", h)
       .append("text")
       .attr("x", 0)
       .attr("y", Math.min(boxlen, h * 0.5) * 0.75)
@@ -110,9 +124,9 @@ class PlantLevelMapZoom extends Component {
       .style("text-anchor", "start")
       .style("font-weight", "bold")
       .style("font-size", "1.2em");
-    
-    d3.selectAll(".fuel").on("click", d=>{
-      this.setState({selected_fuel: d});
+
+    d3.selectAll(".fuel").on("click", (d) => {
+      this.setState({ selected_fuel: d });
     });
 
     // set up map
@@ -269,7 +283,7 @@ class PlantLevelMapZoom extends Component {
     return (
       <div>
         {title}
-        <svg width={"90%"} height={50} id="filter"></svg>
+        <div style={{ width: "90%", height: 80, margin: "0 auto"}} id="filter"></div>
         <div
           ref={(node) => (this.container = node)}
           className="mapbox-container"
