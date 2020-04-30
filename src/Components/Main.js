@@ -67,11 +67,9 @@ class Main extends Component {
   constructor(props) {
     super(props);
     const init_options = this.props.options[0];
-    // const init_options = {tier1: "7", tier2: "34", tier4: "39", tier4: "40", tier5: "49"};
     this.state = {
       tier1: init_options.tier1,
       tier2: init_options.tier2,
-      tier3: init_options.tier3,
       tier4: init_options.tier4,
       tier5: init_options.tier5,
       field: init_options["Final field name in eGRID"],
@@ -87,21 +85,12 @@ class Main extends Component {
           .filter((d) => d.tier1 === init_options.tier1)
           .map((d) => d.tier2)
       ),
-      tier3_available_options: _.uniq(
-        this.props.options
-          .filter(
-            (d) =>
-              d.tier1 === init_options.tier1 && d.tier2 === init_options.tier2
-          )
-          .map((d) => d.tier3)
-      ),
       tier4_available_options: _.uniq(
         this.props.options
           .filter(
             (d) =>
               d.tier1 === init_options.tier1 &&
-              d.tier2 === init_options.tier2 &&
-              d.tier3 === init_options.tier3
+              d.tier2 === init_options.tier2
           )
           .map((d) => d.tier4)
       ),
@@ -111,7 +100,6 @@ class Main extends Component {
             (d) =>
               d.tier1 === init_options.tier1 &&
               d.tier2 === init_options.tier2 &&
-              d.tier3 === init_options.tier3 &&
               d.tier4 === init_options.tier4
           )
           .map((d) => d.tier5)
@@ -120,7 +108,6 @@ class Main extends Component {
 
     this.handleChange1 = this.handleChange1.bind(this);
     this.handleChange2 = this.handleChange2.bind(this);
-    this.handleChange3 = this.handleChange3.bind(this);
     this.handleChange4 = this.handleChange4.bind(this);
     this.handleChange5 = this.handleChange5.bind(this);
   }
@@ -140,82 +127,63 @@ class Main extends Component {
             ? _.uniq(t2_avail.map((d) => d.tier2))[0]
             : this.state.tier2;
         this.setState({ tier2: t2_val }, () => {
-          let t3_avail = this.props.options.filter(
-            (d) => d.tier1 === val && d.tier2 === this.state.tier2
+          let t4_avail = this.props.options.filter(
+            (d) =>
+              d.tier1 === val &&
+              d.tier2 === this.state.tier2
           );
-          let t3_val =
-            t3_avail.map((d) => d.tier3).indexOf(this.state.tier3) === -1
-              ? _.uniq(t3_avail.map((d) => d.tier3))[0]
-              : this.state.tier3;
-          this.setState({ tier3: t3_val }, () => {
-            let t4_avail = this.props.options.filter(
+          let t4_val =
+            t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
+              ? _.uniq(t4_avail.map((d) => d.tier4))[0]
+              : this.state.tier4;
+          this.setState({ tier4: t4_val }, () => {
+            let t5_avail = this.props.options.filter(
               (d) =>
                 d.tier1 === val &&
                 d.tier2 === this.state.tier2 &&
-                d.tier3 === this.state.tier3
+                d.tier4 === this.state.tier4
             );
-            let t4_val =
-              t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
-                ? _.uniq(t4_avail.map((d) => d.tier4))[0]
-                : this.state.tier4;
-            this.setState({ tier4: t4_val }, () => {
-              let t5_avail = this.props.options.filter(
+            let t5_val =
+              t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
+                ? _.uniq(t5_avail.map((d) => d.tier5))[0]
+                : this.state.tier5;
+            this.setState({ tier5: t5_val }, () => {
+              let opt = this.state.all_options.filter(
                 (d) =>
-                  d.tier1 === val &&
+                  d.tier1 === this.state.tier1 &&
                   d.tier2 === this.state.tier2 &&
-                  d.tier3 === this.state.tier3 &&
-                  d.tier4 === this.state.tier4
-              );
-              let t5_val =
-                t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
-                  ? _.uniq(t5_avail.map((d) => d.tier5))[0]
-                  : this.state.tier5;
-              this.setState({ tier5: t5_val }, () => {
-                let opt = this.state.all_options.filter(
-                  (d) =>
-                    d.tier1 === this.state.tier1 &&
-                    d.tier2 === this.state.tier2 &&
-                    d.tier3 === this.state.tier3 &&
-                    d.tier4 === this.state.tier4 &&
-                    d.tier5 === this.state.tier5
-                )[0];
-                this.setState({
-                  tier2_available_options: _.uniq(
-                    this.state.all_options.map((d) => d.tier2)
-                  ),
-                  tier3_available_options: _.uniq(
-                    this.state.all_options
-                      .filter((d) => d.tier2 === this.state.tier2)
-                      .map((d) => d.tier3)
-                  ),
-                  tier4_available_options: _.uniq(
-                    this.state.all_options
-                      .filter(
-                        (d) =>
-                          d.tier2 === this.state.tier2 &&
-                          d.tier3 === this.state.tier3
-                      )
-                      .map((d) => d.tier4)
-                  ),
-                  tier5_available_options: _.uniq(
-                    this.state.all_options
-                      .filter(
-                        (d) =>
-                          d.tier2 === this.state.tier2 &&
-                          d.tier3 === this.state.tier3 &&
-                          d.tier4 === this.state.tier4
-                      )
-                      .map((d) => d.tier5)
-                  ),
-                });
-                this.setState({
-                  field: opt["Final field name in eGRID"],
-                  unit: opt.Units,
-                  name: opt["Full Name"],
-                });
-                // this.updateData();
-                console.log(this.state);
+                  d.tier4 === this.state.tier4 &&
+                  d.tier5 === this.state.tier5
+              )[0];
+              this.setState({
+                tier2_available_options: _.uniq(
+                  this.state.all_options.map((d) => d.tier2)
+                ),
+                tier4_available_options: _.uniq(
+                  this.state.all_options
+                    .filter(
+                      (d) =>
+                        d.tier2 === this.state.tier2
+                    )
+                    .map((d) => d.tier4)
+                ),
+                tier5_available_options: _.uniq(
+                  this.state.all_options
+                    .filter(
+                      (d) =>
+                        d.tier2 === this.state.tier2 &&
+                        d.tier4 === this.state.tier4
+                    )
+                    .map((d) => d.tier5)
+                ),
               });
+              this.setState({
+                field: opt["Final field name in eGRID"],
+                unit: opt.Units,
+                name: opt["Full Name"],
+              });
+              // this.updateData();
+              console.log(this.state);
             });
           });
         });
@@ -226,162 +194,63 @@ class Main extends Component {
   handleChange2(event) {
     let val = event.target.value;
     this.setState({ tier2: val, updated_tier: "tier2" }, () => {
-      let t3_avail = this.props.options.filter(
-        (d) => d.tier1 === this.state.tier1 && d.tier2 === val
+
+      let t4_avail = this.props.options.filter(
+        (d) =>
+          d.tier1 === this.state.tier1 &&
+          d.tier2 === val
       );
-      let t3_val =
-        t3_avail.map((d) => d.tier3).indexOf(this.state.tier3) === -1
-          ? _.uniq(t3_avail.map((d) => d.tier3))[0]
-          : this.state.tier3;
-      this.setState({ tier3: t3_val }, () => {
-        let t4_avail = this.props.options.filter(
+      let t4_val =
+        t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
+          ? _.uniq(t4_avail.map((d) => d.tier4))[0]
+          : this.state.tier4;
+      this.setState({ tier4: t4_val }, () => {
+        let t5_avail = this.props.options.filter(
           (d) =>
             d.tier1 === this.state.tier1 &&
             d.tier2 === val &&
-            d.tier3 === this.state.tier3
+            d.tier4 === this.state.tier4
         );
-        let t4_val =
-          t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
-            ? _.uniq(t4_avail.map((d) => d.tier4))[0]
-            : this.state.tier4;
-        this.setState({ tier4: t4_val }, () => {
-          let t5_avail = this.props.options.filter(
-            (d) =>
-              d.tier1 === this.state.tier1 &&
-              d.tier2 === val &&
-              d.tier3 === this.state.tier3 &&
-              d.tier4 === this.state.tier4
-          );
-          let t5_val =
-            t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
-              ? _.uniq(t5_avail.map((d) => d.tier5))[0]
-              : this.state.tier5;
-          this.setState({ tier5: t5_val }, () => {
-            let opt = this.state.all_options.filter(
-              (d) =>
-                d.tier1 === this.state.tier1 &&
-                d.tier2 === this.state.tier2 &&
-                d.tier3 === this.state.tier3 &&
-                d.tier4 === this.state.tier4 &&
-                d.tier5 === this.state.tier5
-            )[0];
-            this.setState({
-              tier2_available_options: _.uniq(
-                this.state.all_options.map((d) => d.tier2)
-              ),
-              tier3_available_options: _.uniq(
-                this.state.all_options
-                  .filter((d) => d.tier2 === this.state.tier2)
-                  .map((d) => d.tier3)
-              ),
-              tier4_available_options: _.uniq(
-                this.state.all_options
-                  .filter(
-                    (d) =>
-                      d.tier2 === this.state.tier2 &&
-                      d.tier3 === this.state.tier3
-                  )
-                  .map((d) => d.tier4)
-              ),
-              tier5_available_options: _.uniq(
-                this.state.all_options
-                  .filter(
-                    (d) =>
-                      d.tier2 === this.state.tier2 &&
-                      d.tier3 === this.state.tier3 &&
-                      d.tier4 === this.state.tier4
-                  )
-                  .map((d) => d.tier5)
-              ),
-            });
-            this.setState({
-              field: opt["Final field name in eGRID"],
-              unit: opt.Units,
-              name: opt["Full Name"],
-            });
-            console.log(this.state);
-          });
-        });
-      });
-    });
-  }
-
-  handleChange3(event) {
-    let val = event.target.value;
-    this.setState({ tier3: val, updated_tier: "tier3" }, () => {
-      let t2_avail = this.props.options.filter(
-        (d) => d.tier1 === this.state.tier1 && d.tier3 === val
-      );
-      let t2_val =
-        t2_avail.map((d) => d.tier2).indexOf(this.state.tier2) === -1
-          ? _.uniq(t2_avail.map((d) => d.tier2))[0]
-          : this.state.tier2;
-      this.setState({ tier2: t2_val }, () => {
-        let t4_avail = this.props.options.filter(
-          (d) =>
-            d.tier1 === this.state.tier1 &&
-            d.tier2 === this.state.tier2 &&
-            d.tier3 === val
-        );
-        let t4_val =
-          t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
-            ? _.uniq(t4_avail.map((d) => d.tier4))[0]
-            : this.state.tier4;
-        this.setState({ tier4: t4_val }, () => {
-          let t5_avail = this.props.options.filter(
+        let t5_val =
+          t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
+            ? _.uniq(t5_avail.map((d) => d.tier5))[0]
+            : this.state.tier5;
+        this.setState({ tier5: t5_val }, () => {
+          let opt = this.state.all_options.filter(
             (d) =>
               d.tier1 === this.state.tier1 &&
               d.tier2 === this.state.tier2 &&
-              d.tier3 === val &&
-              d.tier4 === this.state.tier4
-          );
-          let t5_val =
-            t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
-              ? _.uniq(t5_avail.map((d) => d.tier5))[0]
-              : this.state.tier5;
-          this.setState({ tier5: t5_val }, () => {
-            let opt = this.state.all_options.filter(
-              (d) =>
-                d.tier1 === this.state.tier1 &&
-                d.tier2 === this.state.tier2 &&
-                d.tier3 === this.state.tier3 &&
-                d.tier4 === this.state.tier4 &&
-                d.tier5 === this.state.tier5
-            )[0];
-            this.setState({
-              tier2_available_options: _.uniq(
-                this.state.all_options.map((d) => d.tier2)
-              ),
-              tier3_available_options: _.uniq(
-                this.state.all_options.map((d) => d.tier3)
-              ),
-              tier4_available_options: _.uniq(
-                this.state.all_options
-                  .filter(
-                    (d) =>
-                      d.tier2 === this.state.tier2 &&
-                      d.tier3 === this.state.tier3
-                  )
-                  .map((d) => d.tier4)
-              ),
-              tier5_available_options: _.uniq(
-                this.state.all_options
-                  .filter(
-                    (d) =>
-                      d.tier2 === this.state.tier2 &&
-                      d.tier3 === this.state.tier3 &&
-                      d.tier4 === this.state.tier4
-                  )
-                  .map((d) => d.tier5)
-              ),
-            });
-            this.setState({
-              field: opt["Final field name in eGRID"],
-              unit: opt.Units,
-              name: opt["Full Name"],
-            });
-            console.log(this.state);
+              d.tier4 === this.state.tier4 &&
+              d.tier5 === this.state.tier5
+          )[0];
+          this.setState({
+            tier2_available_options: _.uniq(
+              this.state.all_options.map((d) => d.tier2)
+            ),
+            tier4_available_options: _.uniq(
+              this.state.all_options
+                .filter(
+                  (d) =>
+                    d.tier2 === this.state.tier2
+                )
+                .map((d) => d.tier4)
+            ),
+            tier5_available_options: _.uniq(
+              this.state.all_options
+                .filter(
+                  (d) =>
+                    d.tier2 === this.state.tier2 &&
+                    d.tier4 === this.state.tier4
+                )
+                .map((d) => d.tier5)
+            ),
           });
+          this.setState({
+            field: opt["Final field name in eGRID"],
+            unit: opt.Units,
+            name: opt["Full Name"],
+          });
+          console.log(this.state);
         });
       });
     });
@@ -398,65 +267,47 @@ class Main extends Component {
           ? _.uniq(t2_avail.map((d) => d.tier2))[0]
           : this.state.tier2;
       this.setState({ tier2: t2_val }, () => {
-        let t3_avail = this.props.options.filter(
+        let t5_avail = this.props.options.filter(
           (d) =>
             d.tier1 === this.state.tier1 &&
             d.tier2 === this.state.tier2 &&
             d.tier4 === val
         );
-        let t3_val =
-          t3_avail.map((d) => d.tier3).indexOf(this.state.tier3) === -1
-            ? _.uniq(t3_avail.map((d) => d.tier3))[0]
-            : this.state.tier3;
-        this.setState({ tier3: t3_val }, () => {
-          let t5_avail = this.props.options.filter(
+        let t5_val =
+          t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
+            ? _.uniq(t5_avail.map((d) => d.tier5))[0]
+            : this.state.tier5;
+        this.setState({ tier5: t5_val }, () => {
+          let opt = this.state.all_options.filter(
             (d) =>
               d.tier1 === this.state.tier1 &&
               d.tier2 === this.state.tier2 &&
-              d.tier3 === this.state.tier3 &&
-              d.tier4 === val
-          );
-          let t5_val =
-            t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
-              ? _.uniq(t5_avail.map((d) => d.tier5))[0]
-              : this.state.tier5;
-          this.setState({ tier5: t5_val }, () => {
-            let opt = this.state.all_options.filter(
-              (d) =>
-                d.tier1 === this.state.tier1 &&
-                d.tier2 === this.state.tier2 &&
-                d.tier3 === this.state.tier3 &&
-                d.tier4 === this.state.tier4 &&
-                d.tier5 === this.state.tier5
-            )[0];
-            this.setState({
-              tier2_available_options: _.uniq(
-                this.state.all_options.map((d) => d.tier2)
-              ),
-              tier3_available_options: _.uniq(
-                this.state.all_options.map((d) => d.tier3)
-              ),
-              tier4_available_options: _.uniq(
-                this.state.all_options.map((d) => d.tier4)
-              ),
-              tier5_available_options: _.uniq(
-                this.state.all_options
-                  .filter(
-                    (d) =>
-                      d.tier2 === this.state.tier2 &&
-                      d.tier3 === this.state.tier3 &&
-                      d.tier4 === this.state.tier4
-                  )
-                  .map((d) => d.tier5)
-              ),
-            });
-            this.setState({
-              field: opt["Final field name in eGRID"],
-              unit: opt.Units,
-              name: opt["Full Name"],
-            });
-            console.log(this.state);
+              d.tier4 === this.state.tier4 &&
+              d.tier5 === this.state.tier5
+          )[0];
+          this.setState({
+            tier2_available_options: _.uniq(
+              this.state.all_options.map((d) => d.tier2)
+            ),
+            tier4_available_options: _.uniq(
+              this.state.all_options.map((d) => d.tier4)
+            ),
+            tier5_available_options: _.uniq(
+              this.state.all_options
+                .filter(
+                  (d) =>
+                    d.tier2 === this.state.tier2 &&
+                    d.tier4 === this.state.tier4
+                )
+                .map((d) => d.tier5)
+            ),
           });
+          this.setState({
+            field: opt["Final field name in eGRID"],
+            unit: opt.Units,
+            name: opt["Full Name"],
+          });
+          console.log(this.state);
         });
       });
     });
@@ -473,58 +324,41 @@ class Main extends Component {
           ? _.uniq(t2_avail.map((d) => d.tier2))[0]
           : this.state.tier2;
       this.setState({ tier2: t2_val }, () => {
-        let t3_avail = this.props.options.filter(
+        let t4_avail = this.props.options.filter(
           (d) =>
             d.tier1 === this.state.tier1 &&
             d.tier2 === this.state.tier2 &&
             d.tier5 === val
         );
-        let t3_val =
-          t3_avail.map((d) => d.tier3).indexOf(this.state.tier3) === -1
-            ? _.uniq(t3_avail.map((d) => d.tier3))[0]
-            : this.state.tier3;
-        this.setState({ tier3: t3_val }, () => {
-          let t4_avail = this.props.options.filter(
+        let t4_val =
+          t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
+            ? _.uniq(t4_avail.map((d) => d.tier4))[0]
+            : this.state.tier4;
+        this.setState({ tier4: t4_val }, () => {
+          let opt = this.state.all_options.filter(
             (d) =>
               d.tier1 === this.state.tier1 &&
               d.tier2 === this.state.tier2 &&
-              d.tier3 === this.state.tier3 &&
-              d.tier5 === val
-          );
-          let t4_val =
-            t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
-              ? _.uniq(t4_avail.map((d) => d.tier4))[0]
-              : this.state.tier4;
-          this.setState({ tier4: t4_val }, () => {
-            let opt = this.state.all_options.filter(
-              (d) =>
-                d.tier1 === this.state.tier1 &&
-                d.tier2 === this.state.tier2 &&
-                d.tier3 === this.state.tier3 &&
-                d.tier4 === this.state.tier4 &&
-                d.tier5 === this.state.tier5
-            )[0];
-            this.setState({
-              tier2_available_options: _.uniq(
-                this.state.all_options.map((d) => d.tier2)
-              ),
-              tier3_available_options: _.uniq(
-                this.state.all_options.map((d) => d.tier3)
-              ),
-              tier4_available_options: _.uniq(
-                this.state.all_options.map((d) => d.tier4)
-              ),
-              tier5_available_options: _.uniq(
-                this.state.all_options.map((d) => d.tier5)
-              ),
-            });
-            this.setState({
-              field: opt["Final field name in eGRID"],
-              unit: opt.Units,
-              name: opt["Full Name"],
-            });
-            console.log(this.state);
+              d.tier4 === this.state.tier4 &&
+              d.tier5 === this.state.tier5
+          )[0];
+          this.setState({
+            tier2_available_options: _.uniq(
+              this.state.all_options.map((d) => d.tier2)
+            ),
+            tier4_available_options: _.uniq(
+              this.state.all_options.map((d) => d.tier4)
+            ),
+            tier5_available_options: _.uniq(
+              this.state.all_options.map((d) => d.tier5)
+            ),
           });
+          this.setState({
+            field: opt["Final field name in eGRID"],
+            unit: opt.Units,
+            name: opt["Full Name"],
+          });
+          console.log(this.state);
         });
       });
     });
@@ -533,7 +367,6 @@ class Main extends Component {
   render() {
     let all_options = this.state.all_options;
     let tier2_options = _.uniq(all_options.map((op) => lookup[op.tier2])),
-      tier3_options = _.uniq(all_options.map((op) => lookup[op.tier3])),
       tier4_options = _.uniq(all_options.map((op) => lookup[op.tier4])),
       tier5_options = _.uniq(all_options.map((op) => lookup[op.tier5]));
     return (
@@ -573,27 +406,6 @@ class Main extends Component {
             />
           ) : tier2_options.length === 1 && tier2_options[0] !== "" ? (
             <SentenceMiscellaneous value={lookup[this.state.tier2]} />
-          ) : (
-            <span></span>
-          )}
-          <span> </span>
-          {tier3_options.length > 1 ? (
-            <SentenceDropdown
-              id="tier3"
-              change={this.handleChange3}
-              updated_tier={this.state.updated_tier}
-              selected_option={this.state.tier3}
-              available_options={this.state.tier3_available_options}
-              options={_.uniq(
-                this.state.all_options.map((op) => [
-                  op.tier3,
-                  lookup[op.tier3],
-                ]),
-                (d) => d[0]
-              )}
-            />
-          ) : tier3_options.length === 1 && tier3_options[0] !== "" ? (
-            <SentenceMiscellaneous value={lookup[this.state.tier3]} />
           ) : (
             <span></span>
           )}
@@ -661,7 +473,6 @@ class Main extends Component {
           unit={this.state.unit}
           tier1={this.state.tier1}
           tier2={this.state.tier2}
-          tier3={this.state.tier3}
           tier4={this.state.tier4}
           tier5={this.state.tier5}
         ></UpdatedVisualization>

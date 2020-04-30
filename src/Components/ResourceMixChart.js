@@ -5,50 +5,143 @@ import * as _ from "underscore";
 class ResourceMixChart extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
     this.fuels = React.createRef();
+    this.barchart = React.createRef();
+    this.barchart_wrapper = React.createRef();
+    this.axis_y = React.createRef();
+    this.state = {
+      selected_fuel: null,
+    };
     this.sort_text = "Click to rearrange";
   }
 
-  componentDidMount() {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.field !== prevProps.field) {
+      this.initView();
+    } else {
+      if (
+        this.state.selected_fuel !== prevState.selected_fuel &&
+        this.state.selected_fuel !== null
+      ) {
+        d3.selectAll(".selected").classed("selected", false);
+        d3.select(this.fuels.current)
+          .selectAll(".fuel")
+          .filter((e) => e === this.state.selected_fuel)
+          .classed("selected", true);
+        this.updateView(this.state.selected_fuel);
+      } else if (
+        this.state.selected_fuel !== prevState.selected_fuel &&
+        this.state.selected_fuel === null
+      ) {
+        d3.selectAll(".selected").classed("selected", false);
+        this.updateView(this.state.selected_fuel);
+      }
+    }
+  }
+
+  initView() {
     let marginRight = 0,
       marginLeft = this.props.layer_type === "state" ? 130 : 60;
-    let w = d3.select(this.fuels.current).node().clientWidth - marginLeft - marginRight,
-      h = d3.select(this.fuels.current).node().clientHeight;
-    let nbox = Object.keys(this.props.fuel_color_lookup).length + 1;
-    let boxlen = w / nbox;
-    let fuels = d3.select(this.fuels.current)
+    let w = d3.select(this.barchart_wrapper.current).node().clientWidth,
+      h = d3.select(this.barchart_wrapper.current).node().clientHeight;
+
+    let w_legend = d3.select(this.fuels.current).node().clientWidth,
+      h_legend = d3.select(this.fuels.current).node().clientHeight;
+    let nbox = Object.keys(this.props.fuel_name_lookup).length + 1;
+    let boxlen = w_legend / nbox;
+
+    let fuel_names = this.props.fuels,
+      fuel_colors = Object.values(this.props.fuel_name_lookup).map(d=>this.props.fuel_color_lookup[d]);
+    let barFillScale = d3.scaleOrdinal().domain(fuel_names).range(fuel_colors);
+
+    let data = [];
+    this.props.data.forEach((d) => {
+      let cumsum = 0;
+      fuel_names.forEach((f) => {
+        data.push({
+          name: d.name,
+          id: d.id,
+          unit: this.props.unit,
+          type: this.props.fuel_name_lookup[f],
+          value: d[f],
+          cumsum: cumsum,
+        });
+        cumsum = cumsum + d[f];
+      });
+    });
+    let name = _.uniq(data.map((d) => d.name));
+
+    let barXScale = d3
+      .scaleLinear()
+      .domain([0, 100])
+      .range([0, w - marginLeft - marginRight]);
+    let barYScale = d3
+      .scaleBand()
+      .domain(name)
+      .range([0, h])
+      .paddingInner(0.1)
+      .paddingOuter(0.2);
+
+    // barchart
+    d3.select(this.barchart.current).selectAll("g").remove();
+    d3.select(this.barchart.current)
+      .attr("transform", "translate(" + marginLeft + ",0)")
+      .append('g')
+      .selectAll("rect")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("x", (d) => barXScale(d.cumsum))
+      .attr("y", (d) => barYScale(d.name))
+      .attr("width", (d) => barXScale(d.value))
+      .attr("height", barYScale.bandwidth())
+      .style("fill", (d) => barFillScale(d.type));
+
+    // axis
+    d3.select(this.axis_y.current).selectAll("g").remove();
+    d3.select(this.axis_y.current)
+      .attr("transform", "translate(" + marginLeft + ",0)")
+      .call(d3.axisLeft(barYScale));
+      
+      
+    // filter
+    d3.select(this.fuels.current).selectAll('div').remove();
+    let fuels = d3
+      .select(this.fuels.current)
       .append("div")
       .attr("class", "fuels")
       .selectAll("div")
-      .data(Object.keys(this.props.fuel_color_lookup))
+      .data(Object.values(this.props.fuel_name_lookup))
       .enter()
       .append("div")
       .style("display", "inline-block")
       .attr("class", "fuel");
 
-    let fuels_svg = fuels.append("svg").attr("width", boxlen).attr("height", h);
+    let fuels_svg = fuels
+      .append("svg")
+      .attr("width", boxlen)
+      .attr("height", h_legend);
 
     fuels_svg
       .append("image")
       .attr("xlink:href", (d) => this.props.fuel_icon_lookup[d])
-      .attr("x", boxlen / 2 - Math.min(boxlen, h * 0.5) / 2)
+      .attr("x", boxlen / 2 - Math.min(boxlen, h_legend * 0.5) / 2)
       .attr("y", 0)
-      .attr("width", Math.min(boxlen, h * 0.5))
-      .attr("height", Math.min(boxlen, h * 0.5));
+      .attr("width", Math.min(boxlen, h_legend * 0.5))
+      .attr("height", Math.min(boxlen, h_legend * 0.5));
 
     fuels_svg
       .filter((d) => this.props.fuel_icon_lookup[d] === "")
       .append("circle")
-      .attr("r", Math.min(boxlen, h * 0.5) / 4)
+      .attr("r", Math.min(boxlen, h_legend * 0.5) / 4)
       .attr("fill", (d) => this.props.fuel_color_lookup[d])
       .attr("cx", boxlen / 2)
-      .attr("cy", Math.min(boxlen, h * 0.5) / 2);
+      .attr("cy", Math.min(boxlen, h_legend * 0.5) / 2);
 
     fuels_svg
       .append("text")
       .attr("x", boxlen / 2)
-      .attr("y", Math.min(boxlen, h * 0.5) * 1.5)
+      .attr("y", Math.min(boxlen, h_legend * 0.5) * 1.5)
       .attr("dx", 0)
       .attr("dy", 0)
       .text((d) => this.props.fuel_label_lookup[d])
@@ -61,10 +154,10 @@ class ResourceMixChart extends Component {
       .attr("class", "reset")
       .append("svg")
       .attr("width", boxlen)
-      .attr("height", h)
+      .attr("height", h_legend)
       .append("text")
       .attr("x", 0)
-      .attr("y", Math.min(boxlen, h * 0.5) * 0.75)
+      .attr("y", Math.min(boxlen, h_legend * 0.5) * 0.75)
       .attr("dx", 0)
       .attr("dy", 0)
       .text(this.sort_text)
@@ -74,46 +167,119 @@ class ResourceMixChart extends Component {
       .call(this.props.wrap_long_labels, boxlen);
 
     d3.selectAll(".fuel").on("click", (d) => {
-      d3.selectAll(".selected").classed("selected", false);
-      d3.select(this.fuels.current)
+      let n = d3
+        .select(this.fuels.current)
         .selectAll(".fuel")
-        .filter((e) => e === d)
-        .classed("selected", true);
-      this.setState({ selected_fuel: d });
+        .filter((e) => e === d);
+      if (n.classed("selected")) {
+        this.setState({ selected_fuel: null });
+      } else {
+        this.setState({ selected_fuel: d });
+      }
     });
   }
 
-  render() {
+  updateView(fuel) {
     let marginRight = 0,
       marginLeft = this.props.layer_type === "state" ? 130 : 60;
+    let w = d3.select(this.barchart_wrapper.current).node().clientWidth,
+      h = d3.select(this.barchart_wrapper.current).node().clientHeight;
 
-    let data = _.flatten(this.props.data),
-      fuel = this.props.fuels,
-      fuel_colors = Object.values(this.props.fuel_color_lookup),
-      name = _.uniq(data.map((d) => d.name));
+    if (fuel === null) {
+      const fuel_names = this.props.fuels;
 
-    let barFillScale = d3.scaleOrdinal().domain(fuel).range(fuel_colors);
-    let barXScale = d3
-      .scaleLinear()
-      .domain([0, 100])
-      .range([0, this.props.width - marginLeft - marginRight]);
-    let barYScale = d3
-      .scaleBand()
-      .domain(name)
-      .range([0, this.props.height])
-      .paddingInner(0.1)
-      .paddingOuter(0.2);
-    let bars = data.map((d, i) => (
-      <rect
-        key={"bar" + i}
-        x={barXScale(d.cumsum)}
-        y={barYScale(d.name)}
-        width={barXScale(d.value)}
-        height={barYScale.bandwidth()}
-        style={{ fill: barFillScale(d.type) }}
-      ></rect>
-    ));
+      let data = [];
+      this.props.data.forEach((d) => {
+        let cumsum = 0;
+        fuel_names.forEach((f) => {
+          data.push({
+            name: d.name,
+            id: d.id,
+            unit: this.props.unit,
+            type: this.props.fuel_name_lookup[f],
+            value: d[f],
+            cumsum: cumsum,
+          });
+          cumsum = cumsum + d[f];
+        });
+      });
+      let name = _.uniq(data.map((d) => d.name));
 
+      let barXScale = d3
+        .scaleLinear()
+        .domain([0, 100])
+        .range([0, w - marginLeft - marginRight]);
+      let barYScale = d3
+        .scaleBand()
+        .domain(name)
+        .range([0, h])
+        .paddingInner(0.1)
+        .paddingOuter(0.2);
+
+      // barchart
+      d3.select(this.barchart.current)
+        .selectAll("rect")
+        .attr("x", (d) => barXScale(d.cumsum))
+        .attr("y", (d) => barYScale(d.name));
+
+      // axis
+      d3.select(this.axis_y.current).call(d3.axisLeft(barYScale));
+    } else {
+      const fuel_names = _.flatten([
+        [_.invert(this.props.fuel_name_lookup)[fuel]],
+        this.props.fuels.filter(
+          (d) => d !== _.invert(this.props.fuel_name_lookup)[fuel]
+        ),
+      ]);
+
+      let data = [];
+      this.props.data.forEach((d) => {
+        let cumsum = 0;
+        fuel_names.forEach((f) => {
+          data.push({
+            name: d.name,
+            id: d.id,
+            unit: this.props.unit,
+            type: this.props.fuel_name_lookup[f],
+            value: d[f],
+            cumsum: cumsum,
+          });
+          cumsum = cumsum + d[f];
+        });
+      });
+
+      let name = data
+        .filter((d) => d.type === fuel)
+        .sort((a, b) => b.value - a.value)
+        .map((d) => d.name);
+
+      let barXScale = d3
+        .scaleLinear()
+        .domain([0, 100])
+        .range([0, w - marginLeft - marginRight]);
+
+      let barYScale = d3
+        .scaleBand()
+        .domain(name)
+        .range([0, h])
+        .paddingInner(0.1)
+        .paddingOuter(0.2);
+
+      d3.select(this.barchart.current)
+        .selectAll("rect")
+        .each((d) => {
+          d.cumsum = data
+            .filter((e) => e.name === d.name && e.type === d.type)
+            .map((e) => e.cumsum)[0];
+        })
+        .attr("x", (d) => barXScale(d.cumsum))
+        .attr("y", (d) => barYScale(d.name));
+
+      d3.select(this.axis_y.current).call(d3.axisLeft(barYScale));
+    }
+  }
+
+  render() {
     let title = (
       <p
         style={{
@@ -127,6 +293,7 @@ class ResourceMixChart extends Component {
         {this.props.title}
       </p>
     );
+
     return (
       <div>
         {title}
@@ -134,13 +301,12 @@ class ResourceMixChart extends Component {
           style={{ width: "90%", height: 80, margin: "0 auto" }}
           ref={this.fuels}
         ></div>
-        <svg width={this.props.width} height={this.props.height}>
-          <g transform={"translate(" + marginLeft + ",0)"}>{bars}</g>
-          <g
-            className={"axis axis_y"}
-            transform={"translate(" + marginLeft + ",0)"}
-            ref={(node) => d3.select(node).call(d3.axisLeft(barYScale))}
-          ></g>
+        <svg
+          style={{ width: "90%", height: 600, margin: "0 auto" }}
+          ref={this.barchart_wrapper}
+        >
+          <g ref={this.barchart}></g>
+          <g ref={this.axis_y} className={"axis axis_y"}></g>
         </svg>
       </div>
     );

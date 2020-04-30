@@ -45,10 +45,10 @@ class Visualization extends Component {
       unit: this.props.unit,
       tier1: this.props.tier1,
       tier2: this.props.tier2,
-      tier3: this.props.tier3,
       tier4: this.props.tier4,
       tier5: this.props.tier5,
       data: [],
+      resource_mix_data: [],
       json_data: [],
       fuels: [],
       mapfill: [],
@@ -179,6 +179,7 @@ class Visualization extends Component {
       region = lookup[this.props.tier5];
     let data_formatted = [],
       json_data = { type: "FeatureCollection", features: [] },
+      resource_mix_data = [],
       fuels = [],
       mapfill = [],
       background_layer = { type: "FeatureCollection", features: [] },
@@ -205,20 +206,7 @@ class Visualization extends Component {
       background_layer = this.state_layer;
     } else if (category === "resource mix (%)") {
       fuels = this.props.field.replace(/\[|\]|\s/g, "").split(",");
-      data.map((d) => {
-        let cumsum = 0;
-        fuels.map((f) => {
-          data_formatted.push({
-            name: d.name,
-            id: d.id,
-            unit: this.props.unit,
-            type: f,
-            value: +d[f],
-            cumsum: cumsum,
-          });
-          cumsum = cumsum + d[f];
-        });
-      });
+      resource_mix_data = data;
     } else {
       if (category.split("emission").length > 1) {
         mapfill = ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"];
@@ -244,6 +232,7 @@ class Visualization extends Component {
       });
 
       if (region === "Plant") {
+        fuels = ["COAL", "OIL", "GAS", "NUCLEAR", "HYDRO", "BIOMASS", "WIND", "SOLAR", "GEOTHERMAL", "OFSL", "OTHF"];
         data.map((d) => {
           json_data.features.push({
             type: "Feature",
@@ -261,10 +250,10 @@ class Visualization extends Component {
       unit: this.props.unit,
       tier1: this.props.tier1,
       tier2: this.props.tier2,
-      tier3: this.props.tier3,
       tier4: this.props.tier4,
       tier5: this.props.tier5,
       data: data_formatted,
+      resource_mix_data: resource_mix_data,
       json_data: json_data,
       fuels: fuels,
       mapfill: mapfill,
@@ -288,6 +277,11 @@ class Visualization extends Component {
       GEOTHERMAL: "Geothermal",
       OFSL: "Other Fossil",
       OTHF: "Other Unknown",
+      HYPR: "Hydro",
+      THPR: "All Non-Hydro Renewables",
+      TNPR: "All Non-Renewables",
+      CYPR: "All Combustion",
+      CNPR: "All Non-Combustion"
     };
     const fuel_color_lookup = {
       COAL: "rgb(85, 85, 85)",
@@ -301,6 +295,11 @@ class Visualization extends Component {
       GEOTHERMAL: "rgb(255, 152, 150)",
       OFSL: "rgb(140, 86, 75)",
       OTHF: "rgb(255, 239, 213)",
+      HYPR: "rgb(0, 129, 197)",
+      THPR: "rgb(13, 177, 75)",
+      TNPR: "rgb(255, 187, 120)",
+      CYPR: "rgb(237, 28, 36)",
+      CNPR: "rgb(255, 187, 120)"
     };
     const fuel_icon_lookup = {
       COAL: coal,
@@ -314,7 +313,49 @@ class Visualization extends Component {
       GEOTHERMAL: "",
       OFSL: "",
       OTHF: papaya,
+      HYPR: "",
+      THPR: "",
+      TNPR: "",
+      CYPR: "",
+      CNPR: ""
     };
+    let fuel_name_lookup = {};
+    this.state.fuels.forEach(d=>{
+      if (d.endsWith("CLPR")) {
+        fuel_name_lookup[d] = "COAL";
+      } else if (d.endsWith("OLPR")) {
+        fuel_name_lookup[d] = "OIL";
+      } else if (d.endsWith("GSPR")) {
+        fuel_name_lookup[d] = "GAS";
+      } else if (d.endsWith("NCPR")) {
+        fuel_name_lookup[d] = "NUCLEAR";
+      } else if (d.endsWith("HYPR")) {
+        fuel_name_lookup[d] = "HYDRO";
+      } else if (d.endsWith("BMPR")) {
+        fuel_name_lookup[d] = "BIOMASS";
+      } else if (d.endsWith("WIPR")){
+        fuel_name_lookup[d] = "WIND";
+      } else if (d.endsWith("SOPR")){
+        fuel_name_lookup[d] = "SOLAR";
+      } else if (d.endsWith("GTPR")){
+        fuel_name_lookup[d] = "GEOTHERMAL";
+      } else if (d.endsWith("OFPR")){
+        fuel_name_lookup[d] = "OFSL";
+      } else if (d.endsWith("OPPR")) {
+        fuel_name_lookup[d] = "OTHF";
+      } else if (d.endsWith("HYPR")) {
+        fuel_name_lookup[d] = "HYPR";
+      } else if (d.endsWith("THPR")) {
+        fuel_name_lookup[d] = "THPR";
+      } else if (d.endsWith("TNPR")) {
+        fuel_name_lookup[d] = "TNPR";
+      } else if (d.endsWith("CYPR")) {
+        fuel_name_lookup[d] = "CYPR";
+      } else if (d.endsWith("CNPR")) {
+        fuel_name_lookup[d] = "CNPR";
+      }
+    });
+
     const wrap_long_labels = function(text, width){
       text.each(function() {
         var text = d3.select(this),
@@ -361,12 +402,16 @@ class Visualization extends Component {
           title={this.state.name}
           width={800}
           height={600}
-          data={this.state.data}
+          data={this.state.resource_mix_data}
+          unit={this.props.unit}
           fuels={this.state.fuels}
+          category={category}
+          field={this.state.field}
           layer_type={region}
           fuel_label_lookup={fuel_label_lookup}
           fuel_color_lookup={fuel_color_lookup}
           fuel_icon_lookup={fuel_icon_lookup}
+          fuel_name_lookup={fuel_name_lookup}
           wrap_long_labels={wrap_long_labels}
         />
       );
@@ -410,6 +455,7 @@ class Visualization extends Component {
             </div>
           );
       } else if (region === "Plant") {
+        console.log(this.state.fuels);
         vis =
           this.state.data.length === 0 ? (
             <div className="loading">
@@ -420,6 +466,7 @@ class Visualization extends Component {
               <PlantLevelMapZoom
                 title={this.state.name}
                 data={this.state.data}
+                fuels={this.state.fuels}
                 json_data={this.state.json_data}
                 init_center={[-97.922211, 42.381266]}
                 init_zoom={3}
@@ -447,7 +494,6 @@ class UpdatedVisualization extends Component {
           unit={this.props.unit}
           tier1={this.props.tier1}
           tier2={this.props.tier2}
-          tier3={this.props.tier3}
           tier4={this.props.tier4}
           tier5={this.props.tier5}
         />

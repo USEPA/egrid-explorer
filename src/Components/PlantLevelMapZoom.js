@@ -60,54 +60,88 @@ class PlantLevelMapZoom extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (
-      this.props.field !== prevProps.field ||
-      (this.state.selected_fuel !== prevState.selected_fuel &&
-        this.state.selected_fuel !== null)
-    ) {
-      if (this.map.loaded()) {
-        const data = {
-          type: "FeatureCollection",
-          features: this.props.json_data.features
-            .filter((d) => d.properties.FUEL === this.state.selected_fuel)
-            .map((d) => {
-              if (
-                d.properties[this.props.field] >=
-                this.plant_outlier[this.props.field]
-              ) {
-                d.properties[this.props.field] = this.plant_outlier[
-                  this.props.field
-                ];
-              }
-              return d;
-            }),
-        };
-        this.map.getSource("plants").setData(data);
-        this.setRadius(data.features);
-        d3.selectAll(".selected").classed("selected", false);
-        d3.select(this.fuels.current)
-          .select(".reset")
-          .classed("reset_clickable", true)
-          .on("click", () => {
-            this.setState({ selected_fuel: null });
-          });
-        d3.select(this.fuels.current)
-          .select(".reset text")
-          .text(this.filter_reset_text)
-          .call(
-            this.props.wrap_long_labels,
-            d3.select(this.fuels.current).node().clientWidth /
-              (Object.keys(this.props.fuel_color_lookup).length + 1)
-          );
-        d3.select(this.fuels.current)
+    if (this.props.field !== prevProps.field) {
+      // filter
+      let w = d3.select(this.fuels.current).node().clientWidth,
+        h = d3.select(this.fuels.current).node().clientHeight;
+      let nbox = this.props.fuels.length + 1;
+      let boxlen = w / nbox;
+
+      d3.select(this.fuels.current).selectAll('div').remove();
+      let fuels = d3
+        .select(this.fuels.current)
+        .append("div")
+        .attr("class", "fuels")
+        .selectAll("div")
+        .data(this.props.fuels)
+        .enter()
+        .append("div")
+        .style("display", "inline-block")
+        .attr("class", "fuel");
+
+      let fuels_svg = fuels
+        .append("svg")
+        .attr("width", boxlen)
+        .attr("height", h);
+
+      fuels_svg
+        .append("image")
+        .attr("xlink:href", (d) => this.props.fuel_icon_lookup[d])
+        .attr("x", boxlen / 2 - Math.min(boxlen, h * 0.5) / 2)
+        .attr("y", 0)
+        .attr("width", Math.min(boxlen, h * 0.5))
+        .attr("height", Math.min(boxlen, h * 0.5));
+
+      fuels_svg
+        .filter((d) => this.props.fuel_icon_lookup[d] === "")
+        .append("circle")
+        .attr("r", Math.min(boxlen, h * 0.5) / 4)
+        .attr("fill", (d) => this.props.fuel_color_lookup[d])
+        .attr("cx", boxlen / 2)
+        .attr("cy", Math.min(boxlen, h * 0.5) / 2);
+
+      fuels_svg
+        .append("text")
+        .attr("x", boxlen / 2)
+        .attr("y", Math.min(boxlen, h * 0.5) * 1.5)
+        .attr("dx", 0)
+        .attr("dy", 0)
+        .text((d) => this.props.fuel_label_lookup[d])
+        .style("text-anchor", "middle")
+        .call(this.props.wrap_long_labels, boxlen);
+
+      d3.select(".fuels")
+        .insert("div", ".fuel")
+        .style("display", "inline-block")
+        .attr("class", "reset")
+        .append("svg")
+        .attr("width", boxlen)
+        .attr("height", h)
+        .append("text")
+        .attr("x", 0)
+        .attr("y", Math.min(boxlen, h * 0.5) / 2)
+        .attr("dx", 0)
+        .attr("dy", 0)
+        .text(this.filter_text)
+        .style("text-anchor", "start")
+        .style("font-weight", "bold")
+        .style("font-size", "1.2em")
+        .call(this.props.wrap_long_labels, boxlen);
+
+      d3.selectAll(".fuel").on("click", (d) => {
+        let n = d3
+          .select(this.fuels.current)
           .selectAll(".fuel")
-          .filter((e) => e === this.state.selected_fuel)
-          .classed("selected", true);
-      }
-    } else if (
-      this.state.selected_fuel !== prevState.selected_fuel &&
-      this.state.selected_fuel === null
-    ) {
+          .filter((e) => e === d);
+        if (this.map.loaded()) {
+          if (n.classed("selected")) {
+            this.setState({ selected_fuel: null });
+          } else {
+            this.setState({ selected_fuel: d });
+          }
+        }
+      });
+
       if (this.map.loaded()) {
         const data = {
           type: "FeatureCollection",
@@ -125,6 +159,7 @@ class PlantLevelMapZoom extends Component {
         };
         this.map.getSource("plants").setData(data);
         this.setRadius(data.features);
+
         d3.select(this.fuels.current)
           .select(".reset")
           .classed("reset_clickable", false);
@@ -134,9 +169,90 @@ class PlantLevelMapZoom extends Component {
           .call(
             this.props.wrap_long_labels,
             d3.select(this.fuels.current).node().clientWidth /
-              (Object.keys(this.props.fuel_color_lookup).length + 1)
+              (this.props.fuels.length + 1)
           );
         d3.selectAll(".selected").classed("selected", false);
+      }
+
+    } else {
+      if (
+        this.state.selected_fuel !== prevState.selected_fuel &&
+        this.state.selected_fuel !== null
+      ) {
+        if (this.map.loaded()) {
+          const data = {
+            type: "FeatureCollection",
+            features: this.props.json_data.features
+              .filter((d) => d.properties.FUEL === this.state.selected_fuel)
+              .map((d) => {
+                if (
+                  d.properties[this.props.field] >=
+                  this.plant_outlier[this.props.field]
+                ) {
+                  d.properties[this.props.field] = this.plant_outlier[
+                    this.props.field
+                  ];
+                }
+                return d;
+              }),
+          };
+          this.map.getSource("plants").setData(data);
+          this.setRadius(data.features);
+          d3.selectAll(".selected").classed("selected", false);
+          d3.select(this.fuels.current)
+            .select(".reset")
+            .classed("reset_clickable", true)
+            .on("click", () => {
+              this.setState({ selected_fuel: null });
+            });
+          d3.select(this.fuels.current)
+            .select(".reset text")
+            .text(this.filter_reset_text)
+            .call(
+              this.props.wrap_long_labels,
+              d3.select(this.fuels.current).node().clientWidth /
+                (this.props.fuels.length + 1)
+            );
+          d3.select(this.fuels.current)
+            .selectAll(".fuel")
+            .filter((e) => e === this.state.selected_fuel)
+            .classed("selected", true);
+        }
+      } else if (
+        this.state.selected_fuel !== prevState.selected_fuel &&
+        this.state.selected_fuel === null
+      ) {
+        if (this.map.loaded()) {
+          const data = {
+            type: "FeatureCollection",
+            features: this.props.json_data.features.map((d) => {
+              if (
+                d.properties[this.props.field] >=
+                this.plant_outlier[this.props.field]
+              ) {
+                d.properties[this.props.field] = this.plant_outlier[
+                  this.props.field
+                ];
+              }
+              return d;
+            }),
+          };
+          this.map.getSource("plants").setData(data);
+          this.setRadius(data.features);
+
+          d3.select(this.fuels.current)
+            .select(".reset")
+            .classed("reset_clickable", false);
+          d3.select(this.fuels.current)
+            .select(".reset text")
+            .text(this.filter_text)
+            .call(
+              this.props.wrap_long_labels,
+              d3.select(this.fuels.current).node().clientWidth /
+                (this.props.fuels.length + 1)
+            );
+          d3.selectAll(".selected").classed("selected", false);
+        }
       }
     }
   }
@@ -144,81 +260,6 @@ class PlantLevelMapZoom extends Component {
   componentDidMount() {
     let init_zoom = this.props.init_zoom,
       init_center = this.props.init_center;
-    // filter
-    let w = d3.select(this.fuels.current).node().clientWidth,
-      h = d3.select(this.fuels.current).node().clientHeight;
-    let nbox = Object.keys(this.props.fuel_color_lookup).length + 1;
-    let boxlen = w / nbox;
-    let fuels = d3
-      .select(this.fuels.current)
-      .append("div")
-      .attr("class", "fuels")
-      .selectAll("div")
-      .data(Object.keys(this.props.fuel_color_lookup))
-      .enter()
-      .append("div")
-      .style("display", "inline-block")
-      .attr("class", "fuel");
-
-    let fuels_svg = fuels.append("svg").attr("width", boxlen).attr("height", h);
-
-    fuels_svg
-      .append("image")
-      .attr("xlink:href", (d) => this.props.fuel_icon_lookup[d])
-      .attr("x", boxlen / 2 - Math.min(boxlen, h * 0.5) / 2)
-      .attr("y", 0)
-      .attr("width", Math.min(boxlen, h * 0.5))
-      .attr("height", Math.min(boxlen, h * 0.5));
-
-    fuels_svg
-      .filter((d) => this.props.fuel_icon_lookup[d] === "")
-      .append("circle")
-      .attr("r", Math.min(boxlen, h * 0.5) / 4)
-      .attr("fill", (d) => this.props.fuel_color_lookup[d])
-      .attr("cx", boxlen / 2)
-      .attr("cy", Math.min(boxlen, h * 0.5) / 2);
-
-    fuels_svg
-      .append("text")
-      .attr("x", boxlen / 2)
-      .attr("y", Math.min(boxlen, h * 0.5) * 1.5)
-      .attr("dx", 0)
-      .attr("dy", 0)
-      .text((d) => this.props.fuel_label_lookup[d])
-      .style("text-anchor", "middle")
-      .call(this.props.wrap_long_labels, boxlen);
-
-    d3.select(".fuels")
-      .insert("div", ".fuel")
-      .style("display", "inline-block")
-      .attr("class", "reset")
-      .append("svg")
-      .attr("width", boxlen)
-      .attr("height", h)
-      .append("text")
-      .attr("x", 0)
-      .attr("y", Math.min(boxlen, h * 0.5) / 2)
-      .attr("dx", 0)
-      .attr("dy", 0)
-      .text(this.filter_text)
-      .style("text-anchor", "start")
-      .style("font-weight", "bold")
-      .style("font-size", "1.2em")
-      .call(this.props.wrap_long_labels, boxlen);
-
-    d3.selectAll(".fuel").on("click", (d) => {
-      let n = d3
-        .select(this.fuels.current)
-        .selectAll(".fuel")
-        .filter((e) => e === d);
-      if (this.map.loaded()) {
-        if (n.classed("selected")) {
-          this.setState({ selected_fuel: null });
-        } else {
-          this.setState({ selected_fuel: d });
-        }
-      }
-    });
 
     // set up map
     this.map = new mapboxgl.Map({
