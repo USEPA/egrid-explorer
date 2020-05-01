@@ -161,6 +161,8 @@ class Visualization extends Component {
             d[e] = +d[e].replace(/,/g, "");
           }
         });
+        d.name = "US";
+        d.id = -1;
       });
 
       this.state_data = state;
@@ -186,6 +188,14 @@ class Visualization extends Component {
       layer = { type: "FeatureCollection", features: [] };
 
     // set state depending on region and category
+    this.us_data.map((d) => {
+      Object.keys(d).forEach((e) => {
+        if (e.split("US").length > 1) {
+          d[this.props.field.replace(/\[|\]|\s/g, "").split(",")[0].substring(0,2) + e.substring(2)] = d[e];
+        }
+      });
+    });
+
     let data = [];
     if (region === "eGRID subregion") {
       data = this.subrgn_data;
@@ -403,10 +413,12 @@ class Visualization extends Component {
           width={800}
           height={600}
           data={this.state.resource_mix_data}
+          us_data={this.us_data}
           unit={this.props.unit}
           fuels={this.state.fuels}
           category={category}
           field={this.state.field}
+          layer={this.state.layer}
           layer_type={region}
           fuel_label_lookup={fuel_label_lookup}
           fuel_color_lookup={fuel_color_lookup}
@@ -427,16 +439,16 @@ class Visualization extends Component {
               <div className="visualization-parts">
                 <OtherLevelMap
                   title={this.state.name}
-                  width={600}
-                  height={500}
-                  scale={650}
+                  width={800}
+                  height={600}
+                  scale={800}
                   layer={this.state.layer}
                   data={this.state.data}
                   layer_type={region}
                   mapfill={this.state.mapfill}
                 />
                 <OtherLevelMapLegend
-                  width={450}
+                  width={500}
                   height={50}
                   data={this.state.data}
                   mapfill={this.state.mapfill}
@@ -444,9 +456,11 @@ class Visualization extends Component {
               </div>
               <div className="visualization-parts">
                 <OtherLevelBarchart
-                  width={300}
+                  width={400}
                   height={600}
                   data={this.state.data}
+                  field={this.state.field}
+                  us_data={this.us_data}
                   layer_type={region}
                   unit={this.state.unit}
                   mapfill={this.state.mapfill}
@@ -455,7 +469,6 @@ class Visualization extends Component {
             </div>
           );
       } else if (region === "Plant") {
-        console.log(this.state.fuels);
         vis =
           this.state.data.length === 0 ? (
             <div className="loading">

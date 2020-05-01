@@ -4,6 +4,7 @@
 
 .visualization-parts {
     display: inline-block;
+    vertical-align: top;
 }
 
 .visualization-parts svg {
@@ -35,3 +36,24 @@
 .axis text {
   font-weight: bold;
 }
+
+.labels {
+  font-size:0.8em;
+}
+
+.btn{
+  font-size: 0.8em !important;
+  font-weight: bold !important;
+  padding: 5px !important;
+}
+.btn-primary {
+  color: #fff !important;
+  background-color: #ddd !important;
+  border-color: #000 !important;
+}
+
+.btn-primary.active {
+  color: #000 !important;
+  background-color: #fff !important;
+}
+

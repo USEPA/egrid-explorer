@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import * as d3 from "d3";
 import * as _ from "underscore";
+import * as d3_composite from 'd3-composite-projections';
 
 class ResourceMixChart extends Component {
   constructor(props) {
@@ -9,6 +10,7 @@ class ResourceMixChart extends Component {
     this.barchart = React.createRef();
     this.barchart_wrapper = React.createRef();
     this.axis_y = React.createRef();
+    this.micromap = React.createRef();
     this.state = {
       selected_fuel: null,
     };
@@ -23,18 +25,31 @@ class ResourceMixChart extends Component {
         this.state.selected_fuel !== prevState.selected_fuel &&
         this.state.selected_fuel !== null
       ) {
+
         d3.selectAll(".selected").classed("selected", false);
+        d3.select(this.fuels.current)
+        .select(".reset")
+        .classed("reset_clickable", true)
+        .on("click", () => {
+          this.initView();
+        });
         d3.select(this.fuels.current)
           .selectAll(".fuel")
           .filter((e) => e === this.state.selected_fuel)
           .classed("selected", true);
+
         this.updateView(this.state.selected_fuel);
       } else if (
         this.state.selected_fuel !== prevState.selected_fuel &&
         this.state.selected_fuel === null
       ) {
+
         d3.selectAll(".selected").classed("selected", false);
-        this.updateView(this.state.selected_fuel);
+        d3.select(this.fuels.current)
+        .select(".reset")
+        .classed("reset_clickable", false);
+        
+        this.initView();
       }
     }
   }
@@ -55,7 +70,7 @@ class ResourceMixChart extends Component {
     let barFillScale = d3.scaleOrdinal().domain(fuel_names).range(fuel_colors);
 
     let data = [];
-    this.props.data.forEach((d) => {
+    _.flatten([this.props.us_data, this.props.data]).forEach((d) => {
       let cumsum = 0;
       fuel_names.forEach((f) => {
         data.push({
@@ -82,6 +97,24 @@ class ResourceMixChart extends Component {
       .paddingInner(0.1)
       .paddingOuter(0.2);
 
+    // micromap
+    d3.select(this.micromap.current).selectAll('path').remove();
+    let w_micro = d3.select(this.micromap.current).node().clientWidth,
+    h_micro = d3.select(this.micromap.current).node().clientHeight;
+    const projection = d3_composite.geoAlbersUsaTerritories().scale(h_micro*2).translate([w_micro/2, h_micro/2]);
+    const path = d3.geoPath().projection(projection);
+    d3.select(this.micromap.current)
+    .selectAll('path')
+    .data(this.props.layer.features)
+    .enter()
+    .append('path')
+    .attr('d', path)
+    .attr('class', 'paths')
+    .style('fill', 'transparent')
+    .style('stroke', '#000')
+    .style('stroke-width', 0.5);
+
+
     // barchart
     d3.select(this.barchart.current).selectAll("g").remove();
     d3.select(this.barchart.current)
@@ -101,7 +134,10 @@ class ResourceMixChart extends Component {
     d3.select(this.axis_y.current).selectAll("g").remove();
     d3.select(this.axis_y.current)
       .attr("transform", "translate(" + marginLeft + ",0)")
-      .call(d3.axisLeft(barYScale));
+      .call(d3.axisLeft(barYScale))
+      .selectAll("text")
+      .filter((d)=>d==="US")
+      .style("font-size", "1.5em");
       
       
     // filter
@@ -189,7 +225,7 @@ class ResourceMixChart extends Component {
       const fuel_names = this.props.fuels;
 
       let data = [];
-      this.props.data.forEach((d) => {
+      _.flatten([this.props.us_data, this.props.data]).forEach((d) => {
         let cumsum = 0;
         fuel_names.forEach((f) => {
           data.push({
@@ -204,6 +240,7 @@ class ResourceMixChart extends Component {
         });
       });
       let name = _.uniq(data.map((d) => d.name));
+      name = _.flatten([['US'], name.filter(d=>d!=='US')]);
 
       let barXScale = d3
         .scaleLinear()
@@ -220,6 +257,7 @@ class ResourceMixChart extends Component {
       d3.select(this.barchart.current)
         .selectAll("rect")
         .attr("x", (d) => barXScale(d.cumsum))
+        .transition()
         .attr("y", (d) => barYScale(d.name));
 
       // axis
@@ -233,7 +271,7 @@ class ResourceMixChart extends Component {
       ]);
 
       let data = [];
-      this.props.data.forEach((d) => {
+      _.flatten([this.props.us_data, this.props.data]).forEach((d) => {
         let cumsum = 0;
         fuel_names.forEach((f) => {
           data.push({
@@ -252,6 +290,7 @@ class ResourceMixChart extends Component {
         .filter((d) => d.type === fuel)
         .sort((a, b) => b.value - a.value)
         .map((d) => d.name);
+      name = _.flatten([['US'], name.filter(d=>d!=='US')]);
 
       let barXScale = d3
         .scaleLinear()
@@ -273,6 +312,7 @@ class ResourceMixChart extends Component {
             .map((e) => e.cumsum)[0];
         })
         .attr("x", (d) => barXScale(d.cumsum))
+        .transition()
         .attr("y", (d) => barYScale(d.name));
 
       d3.select(this.axis_y.current).call(d3.axisLeft(barYScale));
@@ -290,13 +330,15 @@ class ResourceMixChart extends Component {
           textAnchor: "middle",
         }}
       >
-        {this.props.title}
+        {this.props.title + ', by ' + this.props.layer_type}
       </p>
     );
 
     return (
       <div>
         {title}
+        <svg
+          style={{ width: "90%", height: 150, margin: "0 auto" }} ref={this.micromap}></svg>
         <div
           style={{ width: "90%", height: 80, margin: "0 auto" }}
           ref={this.fuels}

@@ -145,7 +145,9 @@ class PlantLevelMapZoom extends Component {
       if (this.map.loaded()) {
         const data = {
           type: "FeatureCollection",
-          features: this.props.json_data.features.map((d) => {
+          features: this.props.json_data.features
+          .filter(d=>d.properties[this.props.field]>=0)
+          .map((d) => {
             if (
               d.properties[this.props.field] >=
               this.plant_outlier[this.props.field]
@@ -183,6 +185,7 @@ class PlantLevelMapZoom extends Component {
           const data = {
             type: "FeatureCollection",
             features: this.props.json_data.features
+              .filter(d=>d.properties[this.props.field]>=0)
               .filter((d) => d.properties.FUEL === this.state.selected_fuel)
               .map((d) => {
                 if (
@@ -225,7 +228,9 @@ class PlantLevelMapZoom extends Component {
         if (this.map.loaded()) {
           const data = {
             type: "FeatureCollection",
-            features: this.props.json_data.features.map((d) => {
+            features: this.props.json_data.features
+            .filter(d=>d.properties[this.props.field]>=0)
+            .map((d) => {
               if (
                 d.properties[this.props.field] >=
                 this.plant_outlier[this.props.field]
@@ -326,7 +331,9 @@ class PlantLevelMapZoom extends Component {
     this.map.on("load", () => {
       const data = {
         type: "FeatureCollection",
-        features: this.props.json_data.features.map((d) => {
+        features: this.props.json_data.features
+        .filter(d=>d.properties[this.props.field]>=0)
+        .map((d) => {
           if (
             d.properties[this.props.field] >=
             this.plant_outlier[this.props.field]
