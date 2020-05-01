@@ -1,11 +1,16 @@
 import React, { Component } from "react";
+import { renderToString } from 'react-dom/server'
 import * as d3 from "d3";
 import * as _ from "underscore";
 import * as d3_composite from 'd3-composite-projections';
+import Table from "react-bootstrap/Table";
+
+import UpdatedTable from "./Table";
 
 class ResourceMixChart extends Component {
   constructor(props) {
     super(props);
+    this.wrapper=React.createRef();
     this.fuels = React.createRef();
     this.barchart = React.createRef();
     this.barchart_wrapper = React.createRef();
@@ -124,11 +129,26 @@ class ResourceMixChart extends Component {
       .data(data)
       .enter()
       .append("rect")
+      .attr('class', d=>d.id>=0?'bars_'+d.id:'')
       .attr("x", (d) => barXScale(d.cumsum))
       .attr("y", (d) => barYScale(d.name))
       .attr("width", (d) => barXScale(d.value))
       .attr("height", barYScale.bandwidth())
-      .style("fill", (d) => barFillScale(d.type));
+      .style("fill", (d) => barFillScale(d.type))
+      .on("mouseover", d=>{
+        let html = renderToString(<UpdatedTable/>);
+        d3.select(this.wrapper.current)
+        .append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0)
+        .html(html)
+        .style('position', 'absolute')
+        .style('top', d3.event.pageY - 400 + 'px')
+        .style('left', d3.event.pageX + 30 + 'px')
+        .style('opacity', 1);
+      }).on("mouseout", d=>{
+        d3.selectAll('.tooltip').transition().duration(1).remove();
+      });
 
     // axis
     d3.select(this.axis_y.current).selectAll("g").remove();
@@ -335,7 +355,7 @@ class ResourceMixChart extends Component {
     );
 
     return (
-      <div>
+      <div ref={this.wrapper}>
         {title}
         <svg
           style={{ width: "90%", height: 150, margin: "0 auto" }} ref={this.micromap}></svg>

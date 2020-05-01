@@ -374,19 +374,6 @@ text.US {
 }
 
 /* tooltip */
-.tooltip {
-  background-color: #fff;
-  border: 2px solid #898d8d;
-  padding: 5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-}
-
-.tooltip_text p {
-  font-size: 0.9em;
-  font-weight: normal;
-}
-
 .var {
   font-weight: bold;
 }
