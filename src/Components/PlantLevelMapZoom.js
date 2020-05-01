@@ -1,7 +1,9 @@
 import React, { Component } from "react";
+import { renderToString } from "react-dom/server";
 import mapboxgl from "mapbox-gl";
 import * as d3 from "d3";
 
+import UpdatedTable from "./Table";
 import "./Visualization.css";
 
 mapboxgl.accessToken =
@@ -67,7 +69,7 @@ class PlantLevelMapZoom extends Component {
       let nbox = this.props.fuels.length + 1;
       let boxlen = w / nbox;
 
-      d3.select(this.fuels.current).selectAll('div').remove();
+      d3.select(this.fuels.current).selectAll("div").remove();
       let fuels = d3
         .select(this.fuels.current)
         .append("div")
@@ -146,18 +148,18 @@ class PlantLevelMapZoom extends Component {
         const data = {
           type: "FeatureCollection",
           features: this.props.json_data.features
-          .filter(d=>d.properties[this.props.field]>=0)
-          .map((d) => {
-            if (
-              d.properties[this.props.field] >=
-              this.plant_outlier[this.props.field]
-            ) {
-              d.properties[this.props.field] = this.plant_outlier[
-                this.props.field
-              ];
-            }
-            return d;
-          }),
+            .filter((d) => d.properties[this.props.field] >= 0)
+            .map((d) => {
+              if (
+                d.properties[this.props.field] >=
+                this.plant_outlier[this.props.field]
+              ) {
+                d.properties[this.props.field] = this.plant_outlier[
+                  this.props.field
+                ];
+              }
+              return d;
+            }),
         };
         this.map.getSource("plants").setData(data);
         this.setRadius(data.features);
@@ -175,7 +177,6 @@ class PlantLevelMapZoom extends Component {
           );
         d3.selectAll(".selected").classed("selected", false);
       }
-
     } else {
       if (
         this.state.selected_fuel !== prevState.selected_fuel &&
@@ -185,7 +186,7 @@ class PlantLevelMapZoom extends Component {
           const data = {
             type: "FeatureCollection",
             features: this.props.json_data.features
-              .filter(d=>d.properties[this.props.field]>=0)
+              .filter((d) => d.properties[this.props.field] >= 0)
               .filter((d) => d.properties.FUEL === this.state.selected_fuel)
               .map((d) => {
                 if (
@@ -229,18 +230,18 @@ class PlantLevelMapZoom extends Component {
           const data = {
             type: "FeatureCollection",
             features: this.props.json_data.features
-            .filter(d=>d.properties[this.props.field]>=0)
-            .map((d) => {
-              if (
-                d.properties[this.props.field] >=
-                this.plant_outlier[this.props.field]
-              ) {
-                d.properties[this.props.field] = this.plant_outlier[
-                  this.props.field
-                ];
-              }
-              return d;
-            }),
+              .filter((d) => d.properties[this.props.field] >= 0)
+              .map((d) => {
+                if (
+                  d.properties[this.props.field] >=
+                  this.plant_outlier[this.props.field]
+                ) {
+                  d.properties[this.props.field] = this.plant_outlier[
+                    this.props.field
+                  ];
+                }
+                return d;
+              }),
           };
           this.map.getSource("plants").setData(data);
           this.setRadius(data.features);
@@ -332,18 +333,18 @@ class PlantLevelMapZoom extends Component {
       const data = {
         type: "FeatureCollection",
         features: this.props.json_data.features
-        .filter(d=>d.properties[this.props.field]>=0)
-        .map((d) => {
-          if (
-            d.properties[this.props.field] >=
-            this.plant_outlier[this.props.field]
-          ) {
-            d.properties[this.props.field] = this.plant_outlier[
-              this.props.field
-            ];
-          }
-          return d;
-        }),
+          .filter((d) => d.properties[this.props.field] >= 0)
+          .map((d) => {
+            if (
+              d.properties[this.props.field] >=
+              this.plant_outlier[this.props.field]
+            ) {
+              d.properties[this.props.field] = this.plant_outlier[
+                this.props.field
+              ];
+            }
+            return d;
+          }),
       };
 
       this.map.addSource("plants", {
@@ -396,32 +397,91 @@ class PlantLevelMapZoom extends Component {
 
       this.setRadius(data.features);
 
-      let hoveredPlantId = null;
+      // interaction: mousemove, mouseleave, click
+      let show_tooltip = false,
+        hoveredPlantId = null,
+        tooltip = new mapboxgl.Popup({
+          closeButton: false,
+          closeOnClick: false,
+          maxWidth: d3.select(this.fuels.current).node().clientWidth * 0.7,
+        }).on("close", () => {
+          tooltip.options.closeButton = false;
+          tooltip.options.anchor = "bottom";
+          show_tooltip = false;
+        });
 
-      this.map.on("mousemove", "plants", (e) => {
-        if (e.features.length > 0) {
+      this.map.on("mousemove", "plants", (d) => {
+        if (!show_tooltip) {
+          if (d.features.length > 0) {
+            if (hoveredPlantId) {
+              this.map.setFeatureState(
+                { source: "plants", id: hoveredPlantId },
+                { hover: false }
+              );
+            }
+            hoveredPlantId = d.features[0].id;
+            this.map.setFeatureState(
+              { source: "plants", id: hoveredPlantId },
+              { hover: true }
+            );
+          }
+
+          this.map.getCanvas().style.cursor = "pointer";
+          tooltip
+            .setLngLat(d.features[0].geometry.coordinates.slice())
+            .setText(d.features[0].properties.name)
+            .addTo(this.map);
+        }
+      });
+
+      this.map.on("mouseleave", "plants", () => {
+        if (!show_tooltip) {
+          this.map.getCanvas().style.cursor = "";
+          tooltip.remove();
           if (hoveredPlantId) {
             this.map.setFeatureState(
               { source: "plants", id: hoveredPlantId },
               { hover: false }
             );
           }
-          hoveredPlantId = e.features[0].id;
-          this.map.setFeatureState(
-            { source: "plants", id: hoveredPlantId },
-            { hover: true }
-          );
+          hoveredPlantId = null;
         }
       });
 
-      this.map.on("mouseleave", "plants", () => {
-        if (hoveredPlantId) {
-          this.map.setFeatureState(
-            { source: "plants", id: hoveredPlantId },
-            { hover: false }
-          );
+      this.map.on("click", "plants", (d) => {
+        if (
+          show_tooltip &&
+          d.features[0].geometry.coordinates.slice()[0] ===
+            tooltip.getLngLat().lng &&
+          d.features[0].geometry.coordinates.slice()[1] ===
+            tooltip.getLngLat().lat
+        ) {
+          tooltip.options.closeButton = false;
+          tooltip.options.anchor = "bottom";
+          show_tooltip = false;
+        } else {
+          if (d.features.length > 0) {
+            if (hoveredPlantId) {
+              this.map.setFeatureState(
+                { source: "plants", id: hoveredPlantId },
+                { hover: false }
+              );
+            }
+            hoveredPlantId = d.features[0].id;
+            this.map.setFeatureState(
+              { source: "plants", id: hoveredPlantId },
+              { hover: true }
+            );
+          }
+          let description = renderToString(<UpdatedTable />);
+          tooltip.options.closeButton = true;
+          tooltip.options.anchor = "left";
+          tooltip
+            .setLngLat(d.features[0].geometry.coordinates.slice())
+            .setHTML(description)
+            .addTo(this.map);
+          show_tooltip = true;
         }
-        hoveredPlantId = null;
       });
     });
   }

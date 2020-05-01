@@ -248,6 +248,7 @@ class Visualization extends Component {
             type: "Feature",
             properties: d,
             id: d.id,
+            title: d.name,
             geometry: { type: "Point", coordinates: [+d.LON, +d.LAT] },
           });
         });

@@ -1,23 +1,24 @@
 import React, { Component } from "react";
-import { renderToString } from 'react-dom/server'
+import { renderToString } from "react-dom/server";
 import * as d3 from "d3";
 import * as _ from "underscore";
-import * as d3_composite from 'd3-composite-projections';
-import Table from "react-bootstrap/Table";
+import * as d3_composite from "d3-composite-projections";
 
 import UpdatedTable from "./Table";
 
 class ResourceMixChart extends Component {
   constructor(props) {
     super(props);
-    this.wrapper=React.createRef();
+    this.wrapper = React.createRef();
     this.fuels = React.createRef();
     this.barchart = React.createRef();
     this.barchart_wrapper = React.createRef();
     this.axis_y = React.createRef();
     this.micromap = React.createRef();
+    this.tooltip = React.createRef();
     this.state = {
       selected_fuel: null,
+      show_tooltip: false
     };
     this.sort_text = "Click to rearrange";
   }
@@ -30,14 +31,13 @@ class ResourceMixChart extends Component {
         this.state.selected_fuel !== prevState.selected_fuel &&
         this.state.selected_fuel !== null
       ) {
-
         d3.selectAll(".selected").classed("selected", false);
         d3.select(this.fuels.current)
-        .select(".reset")
-        .classed("reset_clickable", true)
-        .on("click", () => {
-          this.initView();
-        });
+          .select(".reset")
+          .classed("reset_clickable", true)
+          .on("click", () => {
+            this.initView();
+          });
         d3.select(this.fuels.current)
           .selectAll(".fuel")
           .filter((e) => e === this.state.selected_fuel)
@@ -48,18 +48,18 @@ class ResourceMixChart extends Component {
         this.state.selected_fuel !== prevState.selected_fuel &&
         this.state.selected_fuel === null
       ) {
-
         d3.selectAll(".selected").classed("selected", false);
         d3.select(this.fuels.current)
-        .select(".reset")
-        .classed("reset_clickable", false);
-        
+          .select(".reset")
+          .classed("reset_clickable", false);
+
         this.initView();
       }
     }
   }
 
   initView() {
+    this.setState({ selected_fuel: null });
     let marginRight = 0,
       marginLeft = this.props.layer_type === "state" ? 130 : 60;
     let w = d3.select(this.barchart_wrapper.current).node().clientWidth,
@@ -71,7 +71,9 @@ class ResourceMixChart extends Component {
     let boxlen = w_legend / nbox;
 
     let fuel_names = this.props.fuels,
-      fuel_colors = Object.values(this.props.fuel_name_lookup).map(d=>this.props.fuel_color_lookup[d]);
+      fuel_colors = Object.values(this.props.fuel_name_lookup).map(
+        (d) => this.props.fuel_color_lookup[d]
+      );
     let barFillScale = d3.scaleOrdinal().domain(fuel_names).range(fuel_colors);
 
     let data = [];
@@ -103,51 +105,93 @@ class ResourceMixChart extends Component {
       .paddingOuter(0.2);
 
     // micromap
-    d3.select(this.micromap.current).selectAll('path').remove();
+    d3.select(this.micromap.current).selectAll("path").remove();
     let w_micro = d3.select(this.micromap.current).node().clientWidth,
-    h_micro = d3.select(this.micromap.current).node().clientHeight;
-    const projection = d3_composite.geoAlbersUsaTerritories().scale(h_micro*2).translate([w_micro/2, h_micro/2]);
+      h_micro = d3.select(this.micromap.current).node().clientHeight;
+    const projection = d3_composite
+      .geoAlbersUsaTerritories()
+      .scale(h_micro * 2)
+      .translate([w_micro / 2, h_micro / 2]);
     const path = d3.geoPath().projection(projection);
     d3.select(this.micromap.current)
-    .selectAll('path')
-    .data(this.props.layer.features)
-    .enter()
-    .append('path')
-    .attr('d', path)
-    .attr('class', 'paths')
-    .style('fill', 'transparent')
-    .style('stroke', '#000')
-    .style('stroke-width', 0.5);
-
+      .selectAll("path")
+      .data(this.props.layer.features)
+      .enter()
+      .append("path")
+      .attr("d", path)
+      .attr("class", "paths")
+      .style("fill", "transparent")
+      .style("stroke", "#000")
+      .style("stroke-width", 0.5);
 
     // barchart
     d3.select(this.barchart.current).selectAll("g").remove();
     d3.select(this.barchart.current)
       .attr("transform", "translate(" + marginLeft + ",0)")
-      .append('g')
+      .append("g")
       .selectAll("rect")
       .data(data)
       .enter()
       .append("rect")
-      .attr('class', d=>d.id>=0?'bars_'+d.id:'')
+      .attr("class", (d) => "resource_mix_bars bars_" + d.id + "_" + d.type)
       .attr("x", (d) => barXScale(d.cumsum))
       .attr("y", (d) => barYScale(d.name))
+      .attr("rx", 4)
+      .attr("ry", 4)
       .attr("width", (d) => barXScale(d.value))
       .attr("height", barYScale.bandwidth())
       .style("fill", (d) => barFillScale(d.type))
-      .on("mouseover", d=>{
-        let html = renderToString(<UpdatedTable/>);
-        d3.select(this.wrapper.current)
-        .append('div')
-        .attr('class', 'tooltip')
-        .style('opacity', 0)
-        .html(html)
-        .style('position', 'absolute')
-        .style('top', d3.event.pageY - 400 + 'px')
-        .style('left', d3.event.pageX + 30 + 'px')
-        .style('opacity', 1);
-      }).on("mouseout", d=>{
-        d3.selectAll('.tooltip').transition().duration(1).remove();
+      .on("mouseover", (d) => {
+        if (!this.state.show_tooltip) {
+          d3.select(this.tooltip.current)
+          .transition()
+          .duration(100)
+          .style("opacity", 1);
+        }
+      })
+      .on("mousemove", (d) => {
+        if (!this.state.show_tooltip) {
+          let html = renderToString(<UpdatedTable />);
+          d3.select(this.tooltip.current)
+            .html(html)
+            .style("position", "absolute")
+            .style("top", d3.event.pageY - 400 + "px")
+            .style("left", d3.event.pageX + 50 + "px")
+            .style("opacity", 1);
+          d3.select(this.wrapper.current)
+            .select("rect.bars_" + d.id + "_" + d.type)
+            .classed("selected", true);
+        }
+      })
+      .on("mouseout", (d) => {
+        if (!this.state.show_tooltip) {
+          d3.select(this.tooltip.current)
+          .transition()
+          .duration(500)
+          .style("opacity", 0);
+        d3.selectAll("rect.selected").classed("selected", false);
+        }
+      })
+      .on("click", d => {
+        if (d3.select(this.wrapper.current).select("rect.bars_" + d.id + "_" + d.type).classed('highlighted')) {
+          d3.selectAll('rect.highlighted').classed('highlighted', false);
+          this.setState({'show_tooltip': false});
+        } else {
+          d3.selectAll('rect.highlighted').classed('highlighted', false);
+          d3.selectAll('rect.selected').classed('selected', false);
+          d3.select(this.wrapper.current).select("rect.bars_" + d.id + "_" + d.type).classed('highlighted', true);
+          this.setState({'show_tooltip': true});
+
+          d3.select(this.tooltip.current).style("opacity", 0);
+          let html = renderToString(<UpdatedTable />);
+          d3.select(this.tooltip.current)
+            .html(html)
+            .style("position", "absolute")
+            .style("top", d3.event.pageY - 400 + "px")
+            .style("left", d3.event.pageX + 50 + "px")
+            .style("opacity", 1);
+        }
+
       });
 
     // axis
@@ -156,12 +200,11 @@ class ResourceMixChart extends Component {
       .attr("transform", "translate(" + marginLeft + ",0)")
       .call(d3.axisLeft(barYScale))
       .selectAll("text")
-      .filter((d)=>d==="US")
+      .filter((d) => d === "US")
       .style("font-size", "1.5em");
-      
-      
+
     // filter
-    d3.select(this.fuels.current).selectAll('div').remove();
+    d3.select(this.fuels.current).selectAll("div").remove();
     let fuels = d3
       .select(this.fuels.current)
       .append("div")
@@ -260,7 +303,7 @@ class ResourceMixChart extends Component {
         });
       });
       let name = _.uniq(data.map((d) => d.name));
-      name = _.flatten([['US'], name.filter(d=>d!=='US')]);
+      name = _.flatten([["US"], name.filter((d) => d !== "US")]);
 
       let barXScale = d3
         .scaleLinear()
@@ -310,7 +353,7 @@ class ResourceMixChart extends Component {
         .filter((d) => d.type === fuel)
         .sort((a, b) => b.value - a.value)
         .map((d) => d.name);
-      name = _.flatten([['US'], name.filter(d=>d!=='US')]);
+      name = _.flatten([["US"], name.filter((d) => d !== "US")]);
 
       let barXScale = d3
         .scaleLinear()
@@ -350,7 +393,7 @@ class ResourceMixChart extends Component {
           textAnchor: "middle",
         }}
       >
-        {this.props.title + ', by ' + this.props.layer_type}
+        {this.props.title + ", by " + this.props.layer_type}
       </p>
     );
 
@@ -358,7 +401,9 @@ class ResourceMixChart extends Component {
       <div ref={this.wrapper}>
         {title}
         <svg
-          style={{ width: "90%", height: 150, margin: "0 auto" }} ref={this.micromap}></svg>
+          style={{ width: "90%", height: 150, margin: "0 auto" }}
+          ref={this.micromap}
+        ></svg>
         <div
           style={{ width: "90%", height: 80, margin: "0 auto" }}
           ref={this.fuels}
@@ -370,6 +415,18 @@ class ResourceMixChart extends Component {
           <g ref={this.barchart}></g>
           <g ref={this.axis_y} className={"axis axis_y"}></g>
         </svg>
+        <div
+          ref={this.tooltip}
+          style={{
+            opacity: 0,
+            maxWidth: 400,
+            maxHeight: 520,
+            overflow: "auto",
+            backgroundColor: "rgba(255,255,255,0.95)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
+            borderRadius: "4px",
+          }}
+        ></div>
       </div>
     );
   }
