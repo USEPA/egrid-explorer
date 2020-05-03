@@ -473,7 +473,11 @@ class PlantLevelMapZoom extends Component {
               { hover: true }
             );
           }
-          let description = renderToString(<UpdatedTable />);
+          let table_info = {};
+          Object.keys(d.features[0].properties).forEach(e=>{
+            table_info[e] = d.features[0].properties[e];
+          });
+          let description = renderToString(<UpdatedTable title={this.props.title} table_info={table_info}/>);
           tooltip.options.closeButton = true;
           tooltip.options.anchor = "left";
           tooltip

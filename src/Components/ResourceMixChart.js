@@ -151,11 +151,20 @@ class ResourceMixChart extends Component {
       })
       .on("mousemove", (d) => {
         if (!this.state.show_tooltip) {
-          let html = renderToString(<UpdatedTable />);
+          let table_info = {};
+          data.filter(e=>e.name===d.name || e.name==="US").forEach(e=>{
+            if (e.name === "US") {
+              table_info[e.name+"_"+e.type]=d3.format(".2f")(e.value);
+            } else {
+              table_info[e.type]=d3.format(".2f")(e.value);
+            }
+          });
+          
+          let html = renderToString(<UpdatedTable region={d.name} title={this.props.title} type={d.type} table_info={table_info}/>);
           d3.select(this.tooltip.current)
             .html(html)
             .style("position", "absolute")
-            .style("top", d3.event.pageY - 400 + "px")
+            .style("top", d3.event.pageY - 50 + "px")
             .style("left", d3.event.pageX + 50 + "px")
             .style("opacity", 1);
           d3.select(this.wrapper.current)
@@ -183,11 +192,20 @@ class ResourceMixChart extends Component {
           this.setState({'show_tooltip': true});
 
           d3.select(this.tooltip.current).style("opacity", 0);
-          let html = renderToString(<UpdatedTable />);
+          let table_info = {};
+          data.filter(e=>e.name===d.name || e.name==="US").forEach(e=>{
+            if (e.name === "US") {
+              table_info[e.name+"_"+e.type]=e.value;
+            } else {
+              table_info[e.type]=e.value;
+            }
+          });
+          
+          let html = renderToString(<UpdatedTable region={d.name} title={this.props.title} type={d.type} table_info={table_info}/>);
           d3.select(this.tooltip.current)
             .html(html)
             .style("position", "absolute")
-            .style("top", d3.event.pageY - 400 + "px")
+            .style("top", d3.event.pageY - 50 + "px")
             .style("left", d3.event.pageX + 50 + "px")
             .style("opacity", 1);
         }

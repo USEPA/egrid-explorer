@@ -38,6 +38,10 @@ rect.selected, rect.highlighted{
   stroke-width: 2px;
 }
 
+.selected td {
+  font-weight: bold;
+}
+
 .axis text {
   font-weight: bold;
 }
