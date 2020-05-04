@@ -21,7 +21,7 @@ class OtherLevelMap extends Component {
     let layer = this.props.layer,
       label_width =
         this.props.layer_type === "grid gross loss rates"
-          ? 65
+          ? 120
           : this.props.layer_type === "state"
           ? 20
           : 40,
@@ -110,7 +110,7 @@ class OtherLevelMap extends Component {
             fontWeight: "bold",
           }}
         >
-          {d.properties.label}
+          {d.properties.label}{this.props.layer_type !== "grid gross loss rates" ? "": ": " + d.properties.value + "%"}
         </text>
       </g>
     ));

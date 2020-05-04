@@ -14,7 +14,7 @@ class PlantLevelMapZoom extends Component {
     super(props);
     this.fuels = React.createRef();
     this.state = {
-      selected_fuel: null,
+      selected_fuel: [],
     };
 
     this.plant_outlier = {
@@ -137,9 +137,9 @@ class PlantLevelMapZoom extends Component {
           .filter((e) => e === d);
         if (this.map.loaded()) {
           if (n.classed("selected")) {
-            this.setState({ selected_fuel: null });
+            this.setState({ selected_fuel: this.state.selected_fuel.filter(e=>e!==d)});
           } else {
-            this.setState({ selected_fuel: d });
+            this.setState({ selected_fuel: this.state.selected_fuel.concat(d) });
           }
         }
       });
@@ -179,15 +179,15 @@ class PlantLevelMapZoom extends Component {
       }
     } else {
       if (
-        this.state.selected_fuel !== prevState.selected_fuel &&
-        this.state.selected_fuel !== null
+        JSON.stringify(this.state.selected_fuel) !== JSON.stringify(prevState.selected_fuel) &&
+        this.state.selected_fuel.length !== 0
       ) {
         if (this.map.loaded()) {
           const data = {
             type: "FeatureCollection",
             features: this.props.json_data.features
               .filter((d) => d.properties[this.props.field] >= 0)
-              .filter((d) => d.properties.FUEL === this.state.selected_fuel)
+              .filter((d) => this.state.selected_fuel.indexOf(d.properties.FUEL)!==-1)
               .map((d) => {
                 if (
                   d.properties[this.props.field] >=
@@ -206,9 +206,10 @@ class PlantLevelMapZoom extends Component {
           d3.select(this.fuels.current)
             .select(".reset")
             .classed("reset_clickable", true)
-            .on("click", () => {
-              this.setState({ selected_fuel: null });
+            .on("click", (d) => {
+              this.setState({ selected_fuel: [] });
             });
+
           d3.select(this.fuels.current)
             .select(".reset text")
             .text(this.filter_reset_text)
@@ -217,14 +218,15 @@ class PlantLevelMapZoom extends Component {
               d3.select(this.fuels.current).node().clientWidth /
                 (this.props.fuels.length + 1)
             );
+
           d3.select(this.fuels.current)
             .selectAll(".fuel")
-            .filter((e) => e === this.state.selected_fuel)
+            .filter((d) => this.state.selected_fuel.indexOf(d)!==-1)
             .classed("selected", true);
         }
       } else if (
-        this.state.selected_fuel !== prevState.selected_fuel &&
-        this.state.selected_fuel === null
+        JSON.stringify(this.state.selected_fuel) !== JSON.stringify(prevState.selected_fuel) &&
+        this.state.selected_fuel.length === 0
       ) {
         if (this.map.loaded()) {
           const data = {
