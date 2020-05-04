@@ -403,6 +403,8 @@ class Visualization extends Component {
           layer={this.state.layer}
           background_layer={this.state.background_layer}
           data={this.state.data}
+          us_data={this.us_data}
+          field={this.state.field}
           layer_type={category}
           mapfill={this.state.mapfill}
         />
@@ -441,10 +443,13 @@ class Visualization extends Component {
                 <OtherLevelMap
                   title={this.state.name}
                   width={800}
-                  height={600}
+                  height={500}
+                  data={this.state.data}
+                  us_data={this.us_data}
+                  unit={this.state.unit}
+                  field={this.state.field}
                   scale={800}
                   layer={this.state.layer}
-                  data={this.state.data}
                   layer_type={region}
                   mapfill={this.state.mapfill}
                 />
@@ -457,6 +462,7 @@ class Visualization extends Component {
               </div>
               <div className="visualization-parts">
                 <OtherLevelBarchart
+                  title={this.state.name}
                   width={400}
                   height={600}
                   data={this.state.data}

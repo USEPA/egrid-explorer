@@ -10,6 +10,7 @@ class OtherLevelBarchart extends Component {
     this.axis_x = React.createRef();
     this.axis_y = React.createRef();
     this.axis_x_title = React.createRef();
+    this.tooltip = React.createRef();
     this.state = {
       sort_by: "alphabet",
     };
@@ -107,7 +108,7 @@ class OtherLevelBarchart extends Component {
       .data(this.props.data)
       .enter()
       .append("g")
-      .attr("class", "bars")
+      .attr("class", d=>"bars mouseover_target barchart_mouseover_target" + " region_" + d.id)
       .attr("transform", (d) => "translate(0," + barYScale(d.name) + ")");
 
     bars
@@ -157,8 +158,51 @@ class OtherLevelBarchart extends Component {
     d3.select(this.axis_y.current)
       .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
       .attr("class", "axis_y")
-      .call(d3.axisLeft(barYScale));
+      .call(d3.axisLeft(barYScale))
+      .selectAll('.tick')
+      .attr('class', d=>'tick mouseover_target barchart_mouseover_target region_'+ this.props.data.filter(e=>e.name===d).map(e=>e.id)[0]);
     
+    d3.selectAll('.barchart_mouseover_target')
+    .on('mouseover', d=>{
+      d3.select(this.tooltip.current)
+      .transition()
+      .duration(100)
+      .style("opacity", 1);
+    })
+    .on('mousemove', d=>{
+      let html, id;
+      if (typeof(d)==="object") {
+        id = d.id;
+        html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.name + "</b><br>is <b>" + d.value + " " + d.unit + "</b>.</span>";
+      } else if (typeof(d)==="string") {
+        id = this.props.data.filter(e=>e.name===d).map(e=>e.id)[0];
+        html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d + "</b><br>is <b>" + this.props.data.filter(e=>e.name===d).map(e=>e.value)[0] + " " + this.props.data.filter(e=>e.name===d).map(e=>e.unit)[0] + "</b>.</span>";
+      }
+      
+      d3.select(this.tooltip.current)
+      .html(html)
+      .style("position", "absolute")
+      .style("top", d3.event.pageY - 30 + "px")
+      .style("left", d3.event.pageX + 30 + "px")
+      .style("opacity", 1);
+
+      d3.selectAll('.region_'+id+' rect').classed('selected', true);
+      d3.selectAll('.region_'+id+' text').classed('selected', true);
+      d3.selectAll('path.region_'+id).classed('selected', true);
+        d3.selectAll('.mouseover_target rect').classed('deemphasized', true);
+        d3.selectAll('.mouseover_target text').classed('deemphasized', true);
+        d3.selectAll('path.mouseover_target').classed('deemphasized', true);
+    })
+    .on('mouseout', d=>{
+      d3.select(this.tooltip.current)
+      .transition()
+      .duration(500)
+      .style("opacity", 0);
+
+      d3.selectAll('.deemphasized').classed('deemphasized', false);
+      d3.selectAll('.selected').classed('selected', false);
+    });
+
     this.updateView(by);
   }
 
@@ -203,28 +247,8 @@ class OtherLevelBarchart extends Component {
   }
 
   render() {
-    // title
-    let title = (
-      <p
-        style={{
-          fontSize: "1.2em",
-          fontWeight: "bold",
-          fill: "#000",
-          className: "title",
-          textAnchor: "middle",
-        }}
-      >
-        {"US: " +
-          this.formatNumber(this.props.us_data[0][this.props.field]) +
-          "(" +
-          this.props.unit +
-          ")"}
-      </p>
-    );
-
     return (
       <div>
-        {title}
         <ToggleButtonGroup
           type="radio"
           name="options"
@@ -243,6 +267,19 @@ class OtherLevelBarchart extends Component {
 
           <g ref={this.barchart}></g>
         </svg>
+        <div
+          ref={this.tooltip}
+          style={{
+            opacity: 0,
+            maxWidth: 400,
+            maxHeight: 520,
+            padding: 5,
+            overflow: "auto",
+            backgroundColor: "rgba(255,255,255,0.95)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
+            borderRadius: "4px",
+          }}
+        ></div>
       </div>
     );
   }
