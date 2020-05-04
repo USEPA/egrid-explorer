@@ -16,7 +16,7 @@
 /* selection, highlight, deemphasis */
 rect.selected, rect.highlighted{
   stroke: #000;
-  stroke-width: 2px;
+  stroke-width: 1px;
 }
 
 text.selected {
@@ -24,7 +24,7 @@ text.selected {
 }
 
 path.selected {
-  stroke-width: 2px !important;
+  stroke-width: 1px !important;
 }
 
 rect.deemphasized, text.deemphasized, path.deemphasized{

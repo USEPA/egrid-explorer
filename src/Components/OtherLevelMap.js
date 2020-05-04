@@ -92,8 +92,8 @@ class OtherLevelMap extends Component {
         d3.select(this.tooltip.current)
         .html(html)
         .style("position", "absolute")
-        .style("top", d3.event.pageY - 30 + "px")
-        .style("left", d3.event.pageX + 30 + "px")
+        .style("top", d3.event.pageY + 30 + "px")
+        .style("left", d3.event.pageX - 150 + "px")
         .style("opacity", 1);
 
         d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true);
@@ -147,7 +147,37 @@ class OtherLevelMap extends Component {
         this.props.layer_type !== "grid gross loss rates"
           ? d.properties.label
           : d.properties.label + ": " + d.properties.value + "%"
-      );
+      ).on('mouseover', d=>{
+        d3.select(this.tooltip.current)
+        .transition()
+        .duration(100)
+        .style("opacity", 1);
+      })
+      .on('mousemove', d=>{
+        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + d.properties.value + " " + d.properties.unit + "</b>.</span>";
+        d3.select(this.tooltip.current)
+        .html(html)
+        .style("position", "absolute")
+        .style("top", d3.event.pageY + 30 + "px")
+        .style("left", d3.event.pageX - 150 + "px")
+        .style("opacity", 1);
+
+        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true);
+        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true);
+        d3.selectAll('path.region_'+d.properties.id).classed('selected', true);
+        d3.selectAll('.mouseover_target rect').classed('deemphasized', true);
+        d3.selectAll('.mouseover_target text').classed('deemphasized', true);
+        d3.selectAll('path.mouseover_target').classed('deemphasized', true);
+      })
+      .on('mouseout', d=>{
+        d3.select(this.tooltip.current)
+        .transition()
+        .duration(500)
+        .style("opacity", 0);
+
+        d3.selectAll('.deemphasized').classed('deemphasized', false);
+        d3.selectAll('.selected').classed('selected', false);
+      });
 
     // add background (grid gross loss rates)
     if (this.props.layer_type === "grid gross loss rates") {
