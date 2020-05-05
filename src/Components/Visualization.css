@@ -58,6 +58,11 @@ rect.selected, text.selected, path.selected{
   cursor:pointer;
 }
 
+#legend {
+  width: 300px;
+  height: 80px;
+}
+
 /* fuel filter: resource mix and plant-level map */
 .fuel {
   cursor:pointer;

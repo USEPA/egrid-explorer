@@ -407,4 +407,4 @@ tier1,tier2,tier4,tier5,Final field name in eGRID,Units,Full Name
 8,36,48,51,NAMEPCAP,MW,Nameplate capacity (MW)
 8,36,48,52,NAMEPCAP,MW,Nameplate capacity (MW)
 8,36,48,99,NAMEPCAP,MW,Nameplate capacity (MW)
-9,36,48,53,,%,Grid Gross Loss Rates
+9,36,48,53,,%,Grid gross loss rates
