@@ -1,37 +1,25 @@
 import React, { Component } from "react";
 import Spinner from "react-bootstrap/Spinner";
+import Button from "react-bootstrap/Button";
 
 import * as d3 from "d3";
-import * as topojson from "topojson-client";
-
-import subrgn from "../assets/data/csv/subregion.csv";
-import nerc from "../assets/data/csv/NERC.csv";
-import state from "../assets/data/csv/state.csv";
-import statefullname from "../assets/data/csv/eGRID state fullname.csv";
-import plant from "../assets/data/csv/plant.csv";
-import ggl from "../assets/data/csv/GGL.csv";
-import us from "../assets/data/csv/US.csv";
 
 import lookup from "../assets/data/json/eGRID lookup.json";
-import subrgn_topo from "../assets/data/json/SUBRGN.json";
-import nerc_topo from "../assets/data/json/NERC.json";
-import ggl_topo from "../assets/data/json/GGL.json";
-import us_topo from "../assets/data/json/US.json";
 
-import coal from '../assets/img/coal.svg';
-import gas from '../assets/img/gas.svg';
-import hydro from '../assets/img/hydro.svg';
-import nuclear from '../assets/img/nuclear.svg';
-import oil from '../assets/img/oil.svg';
-import papaya from '../assets/img/papaya.svg';
-import solar from '../assets/img/solar.svg';
-import wind from '../assets/img/wind.svg';
-
+import coal from "../assets/img/coal.svg";
+import gas from "../assets/img/gas.svg";
+import hydro from "../assets/img/hydro.svg";
+import nuclear from "../assets/img/nuclear.svg";
+import oil from "../assets/img/oil.svg";
+import papaya from "../assets/img/papaya.svg";
+import solar from "../assets/img/solar.svg";
+import wind from "../assets/img/wind.svg";
 
 import OtherLevelMap from "./OtherLevelMap";
 import OtherLevelMapLegend from "./OtherLevelMapLegend";
 import OtherLevelBarchart from "./OtherLevelBarchart";
 import PlantLevelMapZoom from "./PlantLevelMapZoom";
+import PlantLevelMapStatic from "./PlantLevelMapStatic";
 import ResourceMixChart from "./ResourceMixChart";
 
 import "./Visualization.css";
@@ -39,6 +27,8 @@ import "./Visualization.css";
 class Visualization extends Component {
   constructor(props) {
     super(props);
+    console.log(props);
+
     this.state = {
       field: this.props.field,
       name: this.props.name,
@@ -48,31 +38,18 @@ class Visualization extends Component {
       tier4: this.props.tier4,
       tier5: this.props.tier5,
       data: [],
+      us_data: [],
       resource_mix_data: [],
-      json_data: [],
+      plant_data: [],
       fuels: [],
-      mapfill: [],
+      map_fill: [],
       background_layer: {},
-      layer: {}
+      layer: {},
     };
-
-    this.ggl_layer = topojson.feature(ggl_topo, "GGL");
-    this.subrgn_layer = topojson.feature(subrgn_topo, "subregion");
-    this.nerc_layer = topojson.feature(nerc_topo, "NERC");
-    this.state_layer = topojson.feature(us_topo, "states");
-
-    this.ggl_layer.features.map((d) => (d.name = d.properties.GGL));
-    this.nerc_layer.features = this.nerc_layer.features
-      .filter((d) => d.properties.NERC !== "-")
-      .map((d) => {
-        d.name = d.properties.NERC;
-        return d;
-      });
-    this.subrgn_layer.features.map((d) => (d.name = d.properties.Subregions));
   }
 
   componentDidMount() {
-    this.initState();
+    this.updateState();
   }
 
   componentDidUpdate(prevProps) {
@@ -81,156 +58,67 @@ class Visualization extends Component {
     }
   }
 
-  initState() {
-    Promise.all([
-      d3.csv(subrgn),
-      d3.csv(state),
-      d3.csv(statefullname),
-      d3.csv(nerc),
-      d3.csv(plant),
-      d3.csv(ggl),
-      d3.csv(us),
-    ]).then(([subrgn, state, state_fullname, nerc, plant, ggl, us]) => {
-      // process data
-      state.map((d) => {
-        d.label = d.PSTATABB;
-        d.ABBR = d.PSTATABB;
-        d.PSTATABB = state_fullname
-          .filter((e) => e.STATE === d.PSTATABB)
-          .map((e) => e.STATEFULL)[0]; //add state full names to state layer
-        d.name = d.PSTATABB;
-
-        Object.keys(d).forEach((e) => {
-          if (!isNaN(+d[e].replace(/,/g, ""))) {
-            d[e] = +d[e].replace(/,/g, "");
-          }
-        });
-        d.id = d.FIPSST;
-      });
-      this.state_layer.features.map((d) =>
-        state.filter((e) => e.FIPSST === d.id).length === 1
-          ? (d.name = state.filter((e) => e.FIPSST === d.id)[0].name)
-          : ""
-      );
-
-      plant.map((d, i) => {
-        d.label = d.PNAME;
-        d.name = d.PNAME;
-        Object.keys(d).forEach((e) => {
-          if (!isNaN(+d[e].replace(/,/g, ""))) {
-            d[e] = +d[e].replace(/,/g, "");
-          }
-        });
-        d.id = i;
-      });
-
-      subrgn.map((d, i) => {
-        d.label = d.SUBRGN;
-        d.name = d.SUBRGN;
-        Object.keys(d).forEach((e) => {
-          if (!isNaN(+d[e].replace(/,/g, ""))) {
-            d[e] = +d[e].replace(/,/g, "");
-          }
-        });
-        d.id = i;
-      });
-
-      nerc = nerc.filter((d) => d.NERC !== "NA");
-      nerc.map((d, i) => {
-        d.label = d.NERC;
-        d.name = d.NERC;
-        Object.keys(d).forEach(function (e) {
-          if (!isNaN(+d[e].replace(/,/g, ""))) {
-            d[e] = +d[e].replace(/,/g, "");
-          }
-        });
-        d.id = i;
-      });
-
-      ggl.map((d, i) => {
-        d.label = d.GGL;
-        d.name = d.GGL;
-        d.id = i;
-        d.unit = "%";
-        d.value = +d.percentage;
-      });
-
-      us.map((d) => {
-        Object.keys(d).forEach((e) => {
-          if (!isNaN(+d[e].replace(/,/g, ""))) {
-            d[e] = +d[e].replace(/,/g, "");
-          }
-        });
-        d.name = "US";
-        d.id = -1;
-      });
-
-      this.state_data = state;
-      this.plant_data = plant;
-      this.subrgn_data = subrgn;
-      this.nerc_data = nerc;
-      this.ggl_data = ggl;
-      this.us_data = us;
-
-      this.updateState();
-    });
-  }
-
   updateState() {
     let category = lookup[this.props.tier1],
       region = lookup[this.props.tier5];
-    let data_formatted = [],
-      json_data = { type: "FeatureCollection", features: [] },
+    let choropleth_data = [],
+      plant_data = { type: "FeatureCollection", features: [] },
       resource_mix_data = [],
       fuels = [],
-      mapfill = [],
+      map_fill = [],
       background_layer = { type: "FeatureCollection", features: [] },
       layer = { type: "FeatureCollection", features: [] };
 
     // set state depending on region and category
-    this.us_data.map((d) => {
+    const us_data = this.props.us_data.map((d) => {
       Object.keys(d).forEach((e) => {
         if (e.split("US").length > 1) {
-          d[this.props.field.replace(/\[|\]|\s/g, "").split(",")[0].substring(0,2) + e.substring(2)] = d[e];
+          d[
+            this.props.field
+              .replace(/\[|\]|\s/g, "")
+              .split(",")[0]
+              .substring(0, 2) + e.substring(2)
+          ] = d[e];
         }
       });
+      return d;
     });
 
     let data = [];
     if (region === "eGRID subregion") {
-      data = this.subrgn_data;
-      layer = this.subrgn_layer;
+      data = this.props.subrgn_data;
+      layer = this.props.subrgn_layer;
     } else if (region === "NERC region") {
-      data = this.nerc_data;
-      layer = this.nerc_layer;
+      data = this.props.nerc_data;
+      layer = this.props.nerc_layer;
     } else if (region === "state") {
-      data = this.state_data;
-      layer = this.state_layer;
+      data = this.props.state_data;
+      layer = this.props.state_layer;
     } else if (region === "Plant") {
-      data = this.plant_data;
+      data = this.props.plant_data;
     }
 
     if (category === "grid gross loss rates") {
-      data_formatted = this.ggl_data;
-      layer = this.ggl_layer;
-      background_layer = this.state_layer;
+      choropleth_data = this.props.ggl_data;
+      layer = this.props.ggl_layer;
+      background_layer = this.props.state_layer;
     } else if (category === "resource mix (%)") {
       fuels = this.props.field.replace(/\[|\]|\s/g, "").split(",");
       resource_mix_data = data;
     } else {
       if (category.split("emission").length > 1) {
-        mapfill = ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"];
+        map_fill = ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"];
       } else if (category.split("generation").length > 1) {
-        mapfill = ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"];
+        map_fill = ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"];
       } else if (
         category.split("non-baseload").length > 1 ||
         category.split("heat input").length > 1 ||
         category.split("nameplate").length > 1
       ) {
-        mapfill = ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"];
+        map_fill = ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"];
       }
 
-      data_formatted = data.map((d) => {
+      choropleth_data = data.map((d) => {
         return {
           name: d.name,
           id: d.id,
@@ -242,9 +130,21 @@ class Visualization extends Component {
       });
 
       if (region === "Plant") {
-        fuels = ["COAL", "OIL", "GAS", "NUCLEAR", "HYDRO", "BIOMASS", "WIND", "SOLAR", "GEOTHERMAL", "OFSL", "OTHF"];
+        fuels = [
+          "COAL",
+          "OIL",
+          "GAS",
+          "NUCLEAR",
+          "HYDRO",
+          "BIOMASS",
+          "WIND",
+          "SOLAR",
+          "GEOTHERMAL",
+          "OFSL",
+          "OTHF",
+        ];
         data.map((d) => {
-          json_data.features.push({
+          plant_data.features.push({
             type: "Feature",
             properties: d,
             id: d.id,
@@ -263,19 +163,60 @@ class Visualization extends Component {
       tier2: this.props.tier2,
       tier4: this.props.tier4,
       tier5: this.props.tier5,
-      data: data_formatted,
+      data: choropleth_data,
+      us_data: us_data,
       resource_mix_data: resource_mix_data,
-      json_data: json_data,
+      plant_data: plant_data,
       fuels: fuels,
-      mapfill: mapfill,
+      map_fill: map_fill,
       layer: layer,
-      background_layer: background_layer
+      background_layer: background_layer,
     });
   }
 
   render() {
     let category = lookup[this.props.tier1],
       region = lookup[this.props.tier5];
+    const plant_outlier = {
+      PLNOXRTA: 2000,
+      PLNOXRTO: 1000,
+      PLSO2RTA: 800,
+      PLCO2RTA: 10000,
+      PLCH4RTA: 20,
+      PLN2ORTA: 3,
+      PLC2ERTA: 10000,
+      PLNOXRA: 7,
+      PLNOXRO: 7,
+      PLSO2RA: 6,
+      PLCO2RA: 300,
+      PLNGENAN: 20000000,
+      PLNGENOZ: 10000000,
+      PLGENACL: undefined,
+      PLGENAOL: undefined,
+      PLGENAGS: 13000000,
+      PLGENANC: 27000000,
+      PLGENAHY: 16000000,
+      PLGENABM: undefined,
+      PLGENAWI: 2000000,
+      PLGENASO: 1000000,
+      PLGENAGT: 1000000,
+      PLGENAOF: 1000000,
+      PLGENAOP: undefined,
+      PLGENATN: 20000000,
+      PLGENATR: 20000000,
+      PLGENATH: 2000000,
+      PLGENACY: 20000000,
+      PLGENACN: 20000000,
+      PLHTIAN: 165000000,
+      PLHTIOZ: 75000000,
+      PLNOXAN: undefined,
+      PLNOXOZ: undefined,
+      PLSO2AN: 30000,
+      PLCO2AN: 17000000,
+      PLCH4AN: undefined,
+      PLN2OAN: undefined,
+      PLCO2EQA: 17000000,
+    };
     const fuel_label_lookup = {
       COAL: "Coal",
       OIL: "Oil",
@@ -292,7 +233,7 @@ class Visualization extends Component {
       THPR: "All Non-Hydro Renewables",
       TNPR: "All Non-Renewables",
       CYPR: "All Combustion",
-      CNPR: "All Non-Combustion"
+      CNPR: "All Non-Combustion",
     };
     const fuel_color_lookup = {
       COAL: "rgb(85, 85, 85)",
@@ -310,7 +251,7 @@ class Visualization extends Component {
       THPR: "rgb(13, 177, 75)",
       TNPR: "rgb(255, 187, 120)",
       CYPR: "rgb(237, 28, 36)",
-      CNPR: "rgb(255, 187, 120)"
+      CNPR: "rgb(255, 187, 120)",
     };
     const fuel_icon_lookup = {
       COAL: coal,
@@ -328,10 +269,10 @@ class Visualization extends Component {
       THPR: "",
       TNPR: "",
       CYPR: "",
-      CNPR: ""
+      CNPR: "",
     };
     let fuel_name_lookup = {};
-    this.state.fuels.forEach(d=>{
+    this.state.fuels.forEach((d) => {
       if (d.endsWith("CLPR")) {
         fuel_name_lookup[d] = "COAL";
       } else if (d.endsWith("OLPR")) {
@@ -344,13 +285,13 @@ class Visualization extends Component {
         fuel_name_lookup[d] = "HYDRO";
       } else if (d.endsWith("BMPR")) {
         fuel_name_lookup[d] = "BIOMASS";
-      } else if (d.endsWith("WIPR")){
+      } else if (d.endsWith("WIPR")) {
         fuel_name_lookup[d] = "WIND";
-      } else if (d.endsWith("SOPR")){
+      } else if (d.endsWith("SOPR")) {
         fuel_name_lookup[d] = "SOLAR";
-      } else if (d.endsWith("GTPR")){
+      } else if (d.endsWith("GTPR")) {
         fuel_name_lookup[d] = "GEOTHERMAL";
-      } else if (d.endsWith("OFPR")){
+      } else if (d.endsWith("OFPR")) {
         fuel_name_lookup[d] = "OFSL";
       } else if (d.endsWith("OPPR")) {
         fuel_name_lookup[d] = "OTHF";
@@ -367,26 +308,36 @@ class Visualization extends Component {
       }
     });
 
-    const wrap_long_labels = function(text, width){
-      text.each(function() {
+    const wrap_long_labels = function (text, width) {
+      text.each(function () {
         var text = d3.select(this),
-            words = text.text().split(/\s+/).reverse(),
-            word,
-            line = [],
-            lineNumber = 0,
-            lineHeight = 1.1, // ems
-            x = text.attr("x"),
-            y = text.attr("y"),
-            dy = parseFloat(text.attr("dy")),
-            tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
-        while (word = words.pop()) {
+          words = text.text().split(/\s+/).reverse(),
+          word,
+          line = [],
+          lineNumber = 0,
+          lineHeight = 1.1, // ems
+          x = text.attr("x"),
+          y = text.attr("y"),
+          dy = parseFloat(text.attr("dy")),
+          tspan = text
+            .text(null)
+            .append("tspan")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("dy", dy + "em");
+        while ((word = words.pop())) {
           line.push(word);
           tspan.text(line.join(" "));
           if (tspan.node().getComputedTextLength() > width) {
             line.pop();
             tspan.text(line.join(" "));
             line = [word];
-            tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+            tspan = text
+              .append("tspan")
+              .attr("x", x)
+              .attr("y", y)
+              .attr("dy", ++lineNumber * lineHeight + dy + "em")
+              .text(word);
           }
         }
       });
@@ -400,13 +351,13 @@ class Visualization extends Component {
           width={800}
           height={600}
           scale={800}
-          layer={this.state.layer}
-          background_layer={this.state.background_layer}
-          data={this.state.data}
-          us_data={this.us_data}
+          data={this.props.ggl_data}
+          layer={this.props.ggl_layer}
+          us_data={this.state.us_data}
+          background_layer={this.props.state_layer}
           field={this.state.field}
           layer_type={category}
-          mapfill={this.state.mapfill}
+          map_fill={this.state.map_fill}
         />
       );
     } else if (category === "resource mix (%)") {
@@ -416,12 +367,12 @@ class Visualization extends Component {
           width={800}
           height={600}
           data={this.state.resource_mix_data}
-          us_data={this.us_data}
+          layer={this.state.layer}
+          us_data={this.state.us_data}
           unit={this.props.unit}
           fuels={this.state.fuels}
           category={category}
           field={this.state.field}
-          layer={this.state.layer}
           layer_type={region}
           fuel_label_lookup={fuel_label_lookup}
           fuel_color_lookup={fuel_color_lookup}
@@ -445,19 +396,19 @@ class Visualization extends Component {
                   width={800}
                   height={500}
                   data={this.state.data}
-                  us_data={this.us_data}
+                  layer={this.state.layer}
+                  us_data={this.state.us_data}
                   unit={this.state.unit}
                   field={this.state.field}
                   scale={800}
-                  layer={this.state.layer}
                   layer_type={region}
-                  mapfill={this.state.mapfill}
+                  map_fill={this.state.map_fill}
                 />
                 <OtherLevelMapLegend
                   width={500}
                   height={50}
                   data={this.state.data}
-                  mapfill={this.state.mapfill}
+                  map_fill={this.state.map_fill}
                 />
               </div>
               <div className="visualization-parts">
@@ -470,7 +421,7 @@ class Visualization extends Component {
                   us_data={this.us_data}
                   layer_type={region}
                   unit={this.state.unit}
-                  mapfill={this.state.mapfill}
+                  map_fill={this.state.map_fill}
                 />
               </div>
             </div>
@@ -485,16 +436,26 @@ class Visualization extends Component {
             <div className="visualization">
               <PlantLevelMapZoom
                 title={this.state.name}
+                static_map_scale={900}
                 data={this.state.data}
                 fuels={this.state.fuels}
-                json_data={this.state.json_data}
+                plant_data={this.state.plant_data}
                 init_center={[-97.922211, 42.381266]}
                 init_zoom={3}
+                min_zoom={1}
+                max_zoom={20}
+                circle_opacity={0.8}
                 field={this.state.field}
+                plant_outlier={plant_outlier}
                 fuel_label_lookup={fuel_label_lookup}
                 fuel_color_lookup={fuel_color_lookup}
                 fuel_icon_lookup={fuel_icon_lookup}
                 wrap_long_labels={wrap_long_labels}
+              />
+              <PlantLevelMapStatic
+                title={this.state.name}
+                scale={900}
+                background_layer={this.props.state_layer}
               />
             </div>
           );
@@ -505,9 +466,50 @@ class Visualization extends Component {
 }
 
 class UpdatedVisualization extends Component {
+  constructor(props) {
+    super(props);
+    this.exportStaticMap = this.exportStaticMap.bind(this);
+    this.exportVis = this.exportVis.bind(this);
+  }
+
+  exportStaticMap() {
+    let zoomable_status = d3.select("#map_zoomable").style("display");
+    let static_status = d3.select("#map_static").style("display");
+    d3.select("#map_zoomable").style("display", "none");
+    d3.select("#map_static").style("display", null);
+    window.print();
+    d3.select("#map_zoomable").style("display", zoomable_status);
+    d3.select("#map_static").style("display", static_status);
+  }
+
+  exportVis() {
+    window.print();
+  }
+
   render() {
     return (
       <div>
+        <div className="export-div">
+          <Button variant="secondary" size="sm">
+            Export Table
+          </Button>{" "}
+          {lookup[this.props.tier5] !== "Plant" && (
+            <Button variant="secondary" size="sm" onClick={this.exportVis}>
+              Export Visualization
+            </Button>
+          )}
+          {lookup[this.props.tier5] === "Plant" && (
+            <Button variant="secondary" size="sm" onClick={this.exportVis}>
+              Export Zoomable Map
+            </Button>
+          )}
+          {lookup[this.props.tier5] === "Plant" && " "}
+          {lookup[this.props.tier5] === "Plant" && (
+            <Button variant="secondary" size="sm" onClick={this.exportStaticMap}>
+              Export Static Map
+            </Button>
+          )}
+        </div>
         <Visualization
           field={this.props.field}
           name={this.props.name}
@@ -516,6 +518,16 @@ class UpdatedVisualization extends Component {
           tier2={this.props.tier2}
           tier4={this.props.tier4}
           tier5={this.props.tier5}
+          plant_data={this.props.plant_data}
+          state_data={this.props.state_data}
+          subrgn_data={this.props.subrgn_data}
+          nerc_data={this.props.nerc_data}
+          ggl_data={this.props.ggl_data}
+          us_data={this.props.us_data}
+          state_layer={this.props.state_layer}
+          subrgn_layer={this.props.subrgn_layer}
+          nerc_layer={this.props.nerc_layer}
+          ggl_layer={this.props.ggl_layer}
         />
       </div>
     );

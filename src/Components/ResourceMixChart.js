@@ -195,9 +195,9 @@ class ResourceMixChart extends Component {
           let table_info = {};
           data.filter(e=>e.name===d.name || e.name==="US").forEach(e=>{
             if (e.name === "US") {
-              table_info[e.name+"_"+e.type]=e.value;
+              table_info[e.name+"_"+e.type]=d3.format(".2f")(e.value);
             } else {
-              table_info[e.type]=e.value;
+              table_info[e.type]=d3.format(".2f")(e.value);
             }
           });
           
@@ -228,7 +228,7 @@ class ResourceMixChart extends Component {
       .append("div")
       .attr("class", "fuels")
       .selectAll("div")
-      .data(Object.values(this.props.fuel_name_lookup))
+      .data(_.uniq(data.filter(d=>d.value>0).map(d=>d.type)))
       .enter()
       .append("div")
       .style("display", "inline-block")

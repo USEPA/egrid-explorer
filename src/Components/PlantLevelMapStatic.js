@@ -1,56 +1,80 @@
 import React, { Component } from "react";
-import "../App.css";
 import * as d3 from "d3";
 import * as d3_composite from "d3-composite-projections";
-import * as topojson from "topojson-client";
 
-import us from "../assets/data/json/US.json";
+import "./Visualization.css";
 
 class PlantLevelMapStatic extends Component {
-  render() {
-    // const layer = topojson.feature(us, "states");
-    // const projection = d3_composite
-    //   .geoAlbersUsaTerritories()
-    //   .scale(this.props.scale)
-    //   .translate([this.props.width / 2, this.props.height / 2]);
-    // const pathGenerator = d3.geoPath().projection(projection);
+  constructor(props) {
+    super(props);
+    this.background = React.createRef();
+    this.container = React.createRef();
+  }
 
-    // let plantSizeScale = d3
-    //     .scaleLinear()
-    //     .domain(d3.extent(this.props.data, (d) => d.value))
-    //     .range([3, 10]),
-    //   plantFillScale = d3
-    //     .scaleOrdinal()
-    //     .domain(Object.keys(this.props.fuel_label_lookup))
-    //     .range(this.props.fuel_colors);
-    // let map = layer.features.map((d, i) => (
-    //   <path
-    //     key={"path" + i + "_boundary"}
-    //     d={pathGenerator(d)}
-    //     className="paths"
-    //   />
-    // ));
-    // let title = (
-    //   <text
-    //     transform={"translate(" + this.props.width / 2 + "," + 80 + ")"}
-    //     style={{
-    //       fontSize: "1.2em",
-    //       fontWeight: "bold",
-    //       fill: "#000",
-    //       className: "title",
-    //       textAnchor: "middle",
-    //     }}
-    //   >
-    //     {this.props.title}
-    //   </text>
-    // );
+  initStaticMap() {
+    let w = d3.select(this.container.current).node().clientWidth,
+    h = d3.select(this.container.current).node().clientHeight;
+    
+    let projection = d3_composite
+    .geoAlbersUsaTerritories()
+    .scale(this.props.scale)
+    .translate([w/ 2, h / 2.5]);
+    let path = d3.geoPath().projection(projection);
+
+    let svg = d3.select(this.container.current)
+    .append('svg')
+    .attr('width', w)
+    .attr('height', h);
+
+    // placeholder for map content
+    svg.append('g').attr('class', 'static_map');
+    
+    // add background
+    let background = svg.append('g');
+    background.selectAll("path").remove();
+    background
+      .selectAll("path")
+      .data(this.props.background_layer.features)
+      .enter()
+      .append("path")
+      .attr("d", path)
+      .attr("class", "paths")
+      .style("fill", "transparent")
+      .style("stroke", "rgb(221, 221, 221)");
+
+    d3.select("#map_static").style("display", "none");
+  }
+
+  componentDidMount() {
+    this.initStaticMap();
+  }
+
+  render() {
+    let title = (
+      <div>
+        <p
+          style={{
+            fontSize: "1.2em",
+            fontWeight: "bold",
+            fill: "#000",
+            className: "title",
+            textAnchor: "middle",
+          }}
+        >
+          {this.props.title}
+        </p>
+      </div>
+    );
 
     return (
-      <svg width={this.props.width} height={this.props.height}>
-        {/* {title}
-        {map}
-        {plants} */}
-      </svg>
+      <div id="map_static">
+        {title}
+        <div
+          className="fuels_selection"
+        ></div>
+        <div className="map_container" ref={this.container} >
+        </div>
+      </div>
     );
   }
 }

@@ -38,7 +38,7 @@ class OtherLevelMap extends Component {
       .scale(this.props.scale)
       .translate([this.props.width / 2, this.props.height / 2.5]);
     const path = d3.geoPath().projection(projection);
-    const mapfill = this.props.mapfill;
+    const map_fill = this.props.map_fill;
 
     // add centroid to layer
     layer.features = layer.features
@@ -48,21 +48,20 @@ class OtherLevelMap extends Component {
           prop.centroid = path.centroid(d);
           d.properties = prop;
         } else {
-          d.properties = null;
+          d.properties = {id: null, name: null, label: null, value: null, centroid:[null, null]};
         }
         return d;
-      })
-      .filter((d) => d.properties !== null);
+      });
 
     // add fill scale
-    let fill_scale = d3.scaleThreshold().range(mapfill);
+    let fill_scale = d3.scaleThreshold().range(map_fill);
     let domainArr = layer.features
       .map((e) => e.properties.value)
       .sort((a, b) => a - b);
     fill_scale.domain(
       d3
-        .range(mapfill.length - 1)
-        .map((d) => d3.quantile(domainArr, (d + 1) / mapfill.length))
+        .range(map_fill.length - 1)
+        .map((d) => d3.quantile(domainArr, (d + 1) / map_fill.length))
     );
 
     // add layers

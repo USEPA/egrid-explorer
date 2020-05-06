@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { renderToString } from "react-dom/server";
 import mapboxgl from "mapbox-gl";
 import * as d3 from "d3";
+import * as d3_composite from "d3-composite-projections";
 
 import UpdatedTable from "./Table";
 import "./Visualization.css";
@@ -18,9 +19,6 @@ class PlantLevelMapZoom extends Component {
       selected_fuel: [],
     };
 
-    this.min_zoom_out = 1;
-    this.max_zoom_in = 20;
-
     this.field_factor_divided_by = 8;
     this.max_radius = 72;
     this.max_radius_before_remove = 24;
@@ -28,46 +26,6 @@ class PlantLevelMapZoom extends Component {
     this.legend_len = 6;
     this.legend_percentile = [0.1, 0.5, 0.8, 0.95, 0.98, 1];
 
-    this.plant_outlier = {
-      PLNOXRTA: 2000,
-      PLNOXRTO: 1000,
-      PLSO2RTA: 800,
-      PLCO2RTA: 10000,
-      PLCH4RTA: 20,
-      PLN2ORTA: 3,
-      PLC2ERTA: 10000,
-      PLNOXRA: 7,
-      PLNOXRO: 7,
-      PLSO2RA: 6,
-      PLCO2RA: 300,
-      PLNGENAN: 20000000,
-      PLNGENOZ: 10000000,
-      PLGENACL: undefined,
-      PLGENAOL: undefined,
-      PLGENAGS: 13000000,
-      PLGENANC: 27000000,
-      PLGENAHY: 16000000,
-      PLGENABM: undefined,
-      PLGENAWI: 2000000,
-      PLGENASO: 1000000,
-      PLGENAGT: 1000000,
-      PLGENAOF: 1000000,
-      PLGENAOP: undefined,
-      PLGENATN: 20000000,
-      PLGENATR: 20000000,
-      PLGENATH: 2000000,
-      PLGENACY: 20000000,
-      PLGENACN: 20000000,
-      PLHTIAN: 165000000,
-      PLHTIOZ: 75000000,
-      PLNOXAN: undefined,
-      PLNOXOZ: undefined,
-      PLSO2AN: 30000,
-      PLCO2AN: 17000000,
-      PLCH4AN: undefined,
-      PLN2OAN: undefined,
-      PLCO2EQA: 17000000,
-    };
     this.filter_text = "Filter by Primary Fuel";
     this.filter_reset_text = "Show All Fuels";
   }
@@ -103,9 +61,9 @@ class PlantLevelMapZoom extends Component {
       let nbox = this.props.fuels.length + 1;
       let boxlen = w / nbox;
 
-      d3.select(this.fuels.current).selectAll("div").remove();
+      d3.selectAll(".fuels_selection").selectAll("div").remove();
       let fuels = d3
-        .select(this.fuels.current)
+        .selectAll(".fuels_selection")
         .append("div")
         .attr("class", "fuels")
         .selectAll("div")
@@ -185,14 +143,14 @@ class PlantLevelMapZoom extends Component {
       if (this.map.loaded()) {
         const data = {
           type: "FeatureCollection",
-          features: this.props.json_data.features
+          features: this.props.plant_data.features
             .filter((d) => d.properties[this.props.field] > 0)
             .map((d) => {
               if (
                 d.properties[this.props.field] >=
-                this.plant_outlier[this.props.field]
+                this.props.plant_outlier[this.props.field]
               ) {
-                d.properties[this.props.field] = this.plant_outlier[
+                d.properties[this.props.field] = this.props.plant_outlier[
                   this.props.field
                 ];
               }
@@ -202,15 +160,15 @@ class PlantLevelMapZoom extends Component {
         this.map.getSource("plants").setData(data);
         this.setRadius(data.features);
 
-        d3.select(this.fuels.current)
+        d3.selectAll(".fuels_selection")
           .select(".reset")
           .classed("reset_clickable", false);
-        d3.select(this.fuels.current)
+        d3.selectAll(".fuels_selection")
           .select(".reset text")
           .text(this.filter_text)
           .call(
             this.props.wrap_long_labels,
-            d3.select(this.fuels.current).node().clientWidth /
+            d3.select(".fuels_selection").node().clientWidth /
               (this.props.fuels.length + 1)
           );
         d3.selectAll(".selected").classed("selected", false);
@@ -232,7 +190,7 @@ class PlantLevelMapZoom extends Component {
         if (this.map.loaded()) {
           const data = {
             type: "FeatureCollection",
-            features: this.props.json_data.features
+            features: this.props.plant_data.features
               .filter((d) => d.properties[this.props.field] > 0)
               .filter(
                 (d) =>
@@ -241,9 +199,9 @@ class PlantLevelMapZoom extends Component {
               .map((d) => {
                 if (
                   d.properties[this.props.field] >=
-                  this.plant_outlier[this.props.field]
+                  this.props.plant_outlier[this.props.field]
                 ) {
-                  d.properties[this.props.field] = this.plant_outlier[
+                  d.properties[this.props.field] = this.props.plant_outlier[
                     this.props.field
                   ];
                 }
@@ -253,14 +211,14 @@ class PlantLevelMapZoom extends Component {
           this.map.getSource("plants").setData(data);
           this.setRadius(data.features);
           d3.selectAll(".selected").classed("selected", false);
-          d3.select(this.fuels.current)
+          d3.selectAll(".fuels_selection")
             .select(".reset")
             .classed("reset_clickable", true)
             .on("click", (d) => {
               this.setState({ selected_fuel: [] });
             });
 
-          d3.select(this.fuels.current)
+          d3.selectAll(".fuels_selection")
             .select(".reset text")
             .text(this.filter_reset_text)
             .call(
@@ -269,7 +227,7 @@ class PlantLevelMapZoom extends Component {
                 (this.props.fuels.length + 1)
             );
 
-          d3.select(this.fuels.current)
+          d3.selectAll(".fuels_selection")
             .selectAll(".fuel")
             .filter((d) => this.state.selected_fuel.indexOf(d) !== -1)
             .classed("selected", true);
@@ -290,14 +248,14 @@ class PlantLevelMapZoom extends Component {
         if (this.map.loaded()) {
           const data = {
             type: "FeatureCollection",
-            features: this.props.json_data.features
+            features: this.props.plant_data.features
               .filter((d) => d.properties[this.props.field] > 0)
               .map((d) => {
                 if (
                   d.properties[this.props.field] >=
-                  this.plant_outlier[this.props.field]
+                  this.props.plant_outlier[this.props.field]
                 ) {
-                  d.properties[this.props.field] = this.plant_outlier[
+                  d.properties[this.props.field] = this.props.plant_outlier[
                     this.props.field
                   ];
                 }
@@ -307,15 +265,15 @@ class PlantLevelMapZoom extends Component {
           this.map.getSource("plants").setData(data);
           this.setRadius(data.features);
 
-          d3.select(this.fuels.current)
+          d3.selectAll(".fuels_selection")
             .select(".reset")
             .classed("reset_clickable", false);
-          d3.select(this.fuels.current)
+          d3.selectAll(".fuels_selection")
             .select(".reset text")
             .text(this.filter_text)
             .call(
               this.props.wrap_long_labels,
-              d3.select(this.fuels.current).node().clientWidth /
+              d3.select(".fuels_selection").node().clientWidth /
                 (this.props.fuels.length + 1)
             );
           d3.selectAll(".selected").classed("selected", false);
@@ -343,8 +301,8 @@ class PlantLevelMapZoom extends Component {
       center: init_center,
       zoom: init_zoom,
     });
-    this.map.setMaxZoom(this.max_zoom_in);
-    this.map.setMinZoom(this.min_zoom_out);
+    this.map.setMaxZoom(this.props.max_zoom);
+    this.map.setMinZoom(this.props.min_zoom);
     this.map.addControl(new mapboxgl.NavigationControl());
     this.map.addControl(new mapboxgl.FullscreenControl());
 
@@ -404,7 +362,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl";
         this._container.innerHTML =
-          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span id='legend_title'></span></div><div id='legend'></div></div>";
+          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span id='legend_title'></span></div><div><svg id='legend'></svg></div></div>";
 
         return this._container;
       }
@@ -420,14 +378,14 @@ class PlantLevelMapZoom extends Component {
     this.map.on("load", () => {
       const data = {
         type: "FeatureCollection",
-        features: this.props.json_data.features
+        features: this.props.plant_data.features
           .filter((d) => d.properties[this.props.field] > 0)
           .map((d) => {
             if (
               d.properties[this.props.field] >=
-              this.plant_outlier[this.props.field]
+              this.props.plant_outlier[this.props.field]
             ) {
-              d.properties[this.props.field] = this.plant_outlier[
+              d.properties[this.props.field] = this.props.plant_outlier[
                 this.props.field
               ];
             }
@@ -478,7 +436,7 @@ class PlantLevelMapZoom extends Component {
               "#000",
             ],
           ],
-          "circle-opacity": 0.8,
+          "circle-opacity": this.props.circle_opacity,
           "circle-color": [
             "match",
             ["get", "FUEL"],
@@ -625,7 +583,7 @@ class PlantLevelMapZoom extends Component {
       .map((d) =>
         d3
           .scaleLinear()
-          .domain([this.min_zoom_out, this.max_zoom_in])
+          .domain([this.props.min_zoom, this.props.max_zoom])
           .range([d / factor, (d / factor) * this.zoom_factor])(
           this.map.getZoom()
         )
@@ -642,18 +600,20 @@ class PlantLevelMapZoom extends Component {
     let nbox = this.legend_len;
     let boxlen = w / nbox;
 
-    d3.select("#legend").selectAll("svg").remove();
+    d3.select("#legend").selectAll("g").remove();
     d3.select("#legend_title").html(this.props.title);
 
     let legend_values =
       field_values.length > 1
         ? this.legend_percentile.map((d) => d3.quantile(field_values, d))
         : field_values;
-        
-    legend_values = legend_values.filter(d=>scale(d)<=this.max_radius_before_remove);
+
+    legend_values = legend_values.filter(
+      (d) => scale(d) <= this.max_radius_before_remove
+    );
     let legend_cells = d3
       .select("#legend")
-      .append("svg")
+      .append("g")
       .attr("width", w)
       .attr("height", h)
       .selectAll("g")
@@ -681,8 +641,48 @@ class PlantLevelMapZoom extends Component {
       .attr("dy", 0)
       .text((d) => this.formatLegend(d))
       .style("text-anchor", "middle");
+  }
 
-    
+  updateStaticMap(features, factor) {
+    // add plants
+    let field_values, radius_values, scale;
+
+    // set up scale
+    field_values = features
+      .map((d) => d.properties[this.props.field])
+      .sort((a, b) => a - b);
+    radius_values = field_values
+      .map((d) =>
+        d3
+          .scaleLinear()
+          .domain([this.props.min_zoom, this.props.max_zoom])
+          .range([d / factor, (d / factor) * this.zoom_factor])(
+          this.map.getZoom()
+        )
+      )
+      .sort((a, b) => a - b);
+    scale = d3.scaleOrdinal().domain(field_values).range(radius_values);
+
+    // draw plants on static map
+    let w = d3.select('.map_container').node().clientWidth,
+    h = d3.select('.map_container').node().clientHeight;
+    let projection = d3_composite
+      .geoAlbersUsaTerritories()
+      .scale(this.props.static_map_scale)
+      .translate([w / 2, h / 2.5]);
+
+    d3.select(".static_map").selectAll("circle").remove();
+    d3.select(".static_map")
+      .selectAll("circle")
+      .data(features)
+      .enter()
+      .append("circle")
+      .attr("cx", (d) => projection(d.geometry.coordinates)[0])
+      .attr("cy", (d) => projection(d.geometry.coordinates)[1])
+      .attr("r", (d) => scale(d.properties[this.props.field]))
+      .style("opacity", this.props.circle_opacity)
+      .style("fill", (d) => this.props.fuel_color_lookup[d.properties.FUEL])
+      .style("stroke", (d) => this.props.fuel_color_lookup[d.properties.FUEL]);
   }
 
   setRadius(features) {
@@ -694,13 +694,14 @@ class PlantLevelMapZoom extends Component {
       "interpolate",
       ["linear"],
       ["zoom"],
-      this.min_zoom_out,
+      this.props.min_zoom,
       ["/", ["get", this.props.field], factor],
-      this.max_zoom_in,
+      this.props.max_zoom,
       ["/", ["get", this.props.field], factor / this.zoom_factor],
     ]);
 
     this.updateLegend(features, factor);
+    this.updateStaticMap(features, factor);
   }
 
   render() {
@@ -719,17 +720,16 @@ class PlantLevelMapZoom extends Component {
     );
 
     return (
-      <div>
+      <div id="map_zoomable" >
         {title}
         <div
-          style={{ width: "90%", height: 80, margin: "0 auto" }}
+          className="fuels_selection"
           ref={this.fuels}
         ></div>
         <div
+          className="map_container"
           ref={(node) => (this.container = node)}
-          className="mapbox-container"
         />
-        {/* <div ref={this.legend}></div> */}
       </div>
     );
   }

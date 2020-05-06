@@ -181,9 +181,10 @@ class Main extends Component {
                 field: opt["Final field name in eGRID"],
                 unit: opt.Units,
                 name: opt["Full Name"],
+              }, ()=>{
+                console.log(this.state);
               });
-              // this.updateData();
-              console.log(this.state);
+              
             });
           });
         });
@@ -249,8 +250,9 @@ class Main extends Component {
             field: opt["Final field name in eGRID"],
             unit: opt.Units,
             name: opt["Full Name"],
+          }, ()=>{
+            console.log(this.state);
           });
-          console.log(this.state);
         });
       });
     });
@@ -306,8 +308,9 @@ class Main extends Component {
             field: opt["Final field name in eGRID"],
             unit: opt.Units,
             name: opt["Full Name"],
+          }, ()=>{
+            console.log(this.state);
           });
-          console.log(this.state);
         });
       });
     });
@@ -357,8 +360,9 @@ class Main extends Component {
             field: opt["Final field name in eGRID"],
             unit: opt.Units,
             name: opt["Full Name"],
+          }, ()=>{
+            console.log(this.state);
           });
-          console.log(this.state);
         });
       });
     });
@@ -475,6 +479,16 @@ class Main extends Component {
           tier2={this.state.tier2}
           tier4={this.state.tier4}
           tier5={this.state.tier5}
+          plant_data={this.props.plant_data}
+          state_data={this.props.state_data}
+          subrgn_data={this.props.subrgn_data}
+          nerc_data={this.props.nerc_data}
+          ggl_data={this.props.ggl_data}
+          us_data={this.props.us_data}
+          state_layer={this.props.state_layer}
+          subrgn_layer={this.props.subrgn_layer}
+          nerc_layer={this.props.nerc_layer}
+          ggl_layer={this.props.ggl_layer}
         ></UpdatedVisualization>
       </div>
     );

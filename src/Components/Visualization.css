@@ -1,4 +1,4 @@
-/* visualization */
+/* Visualization */
 .visualization {
     text-align:center;
 }
@@ -8,12 +8,20 @@
     vertical-align: top;
 }
 
-.visualization-parts svg {
+.visualization-parts svg{
     display: block;
     margin: 0 auto;
 }
 
-/* selection, highlight, deemphasis */
+/* General: axis, labels, selection, highlight, deemphasis */
+.axis_x>.tick>text {
+  text-anchor: start;
+}
+
+.labels {
+  font-size:0.8em;
+}
+
 rect.selected, rect.highlighted{
   stroke: #000;
   stroke-width: 1px;
@@ -37,11 +45,17 @@ rect.selected, text.selected, path.selected{
   transition: opacity 0.5s;
 }
 
-/* mapbox gl */
-.mapbox-container {
+/* Zoomable Map (Mapbox GL) */
+#map_static, #map_zoomable {
   width: 90%;
-  height: 600px;
   margin: 0 auto;
+}
+.map_container {
+  height: 600px;
+}
+
+.fuels_selection {
+  height: 80px;
 }
 
 .mapboxgl-popup-content {
@@ -63,7 +77,7 @@ rect.selected, text.selected, path.selected{
   height: 80px;
 }
 
-/* fuel filter: resource mix and plant-level map */
+/* Fuel Filter (resource mix and plant-level map) */
 .fuel {
   cursor:pointer;
   margin:0;
@@ -79,12 +93,28 @@ rect.selected, text.selected, path.selected{
   background: #ddd;
 }
 
-/* resource mix */
+.reset {
+  opacity: 0.5 !important;
+}
+
+.reset:hover {
+  cursor: not-allowed;
+}
+
+.reset_clickable {
+  opacity: 1 !important;
+}
+
+.reset_clickable:hover {
+  cursor: pointer !important;
+}
+
+/* Resource Mix Specific */
 .resource_mix_bars{
   cursor:pointer;
 }
 
-/* table */
+/* Table */
 .selected td {
   font-weight: bold;
 }
@@ -93,28 +123,6 @@ tbody tr {
   line-height: 1;
 }
 
-/* barchart sort */
-.btn{
-  font-size: 0.8em !important;
-  font-weight: bold !important;
-  padding: 5px !important;
+@media print {
+
 }
-.btn-primary {
-  color: #fff !important;
-  background-color: #ddd !important;
-  border-color: #000 !important;
-}
-
-.btn-primary.active {
-  color: #000 !important;
-  background-color: #fff !important;
-}
-
-/* barchart labels */
-.labels {
-  font-size:0.8em;
-}
-
-
-
-
