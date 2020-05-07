@@ -3,7 +3,6 @@ import Table from "react-bootstrap/Table";
 
 class UpdatedTable extends Component {
   render() {
-    console.log(this.props);
     return (
       <div>
         {this.props.title.startsWith("Resource Mix") ? (

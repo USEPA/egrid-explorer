@@ -1,19 +1,9 @@
 import React, { Component } from "react";
 import Spinner from "react-bootstrap/Spinner";
 import Button from "react-bootstrap/Button";
-
 import * as d3 from "d3";
 
-import lookup from "../assets/data/json/eGRID lookup.json";
-
-import coal from "../assets/img/coal.svg";
-import gas from "../assets/img/gas.svg";
-import hydro from "../assets/img/hydro.svg";
-import nuclear from "../assets/img/nuclear.svg";
-import oil from "../assets/img/oil.svg";
-import papaya from "../assets/img/papaya.svg";
-import solar from "../assets/img/solar.svg";
-import wind from "../assets/img/wind.svg";
+import lookup from "./assets/data/json/eGRID lookup.json";
 
 import OtherLevelMap from "./OtherLevelMap";
 import OtherLevelMapLegend from "./OtherLevelMapLegend";
@@ -21,6 +11,15 @@ import OtherLevelBarchart from "./OtherLevelBarchart";
 import PlantLevelMapZoom from "./PlantLevelMapZoom";
 import PlantLevelMapStatic from "./PlantLevelMapStatic";
 import ResourceMixChart from "./ResourceMixChart";
+
+import coal from "./assets/img/coal.svg";
+import gas from "./assets/img/gas.svg";
+import hydro from "./assets/img/hydro.svg";
+import nuclear from "./assets/img/nuclear.svg";
+import oil from "./assets/img/oil.svg";
+import papaya from "./assets/img/papaya.svg";
+import solar from "./assets/img/solar.svg";
+import wind from "./assets/img/wind.svg";
 
 import "./Visualization.css";
 
@@ -107,15 +106,15 @@ class Visualization extends Component {
       resource_mix_data = data;
     } else {
       if (category.split("emission").length > 1) {
-        map_fill = ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"];
+        map_fill = this.props.choropleth_map_fill.emission;
       } else if (category.split("generation").length > 1) {
-        map_fill = ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"];
+        map_fill = this.props.choropleth_map_fill.generation;
       } else if (
         category.split("non-baseload").length > 1 ||
         category.split("heat input").length > 1 ||
         category.split("nameplate").length > 1
       ) {
-        map_fill = ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"];
+        map_fill = this.props.choropleth_map_fill.other;
       }
 
       choropleth_data = data.map((d) => {
@@ -130,19 +129,7 @@ class Visualization extends Component {
       });
 
       if (region === "Plant") {
-        fuels = [
-          "COAL",
-          "OIL",
-          "GAS",
-          "NUCLEAR",
-          "HYDRO",
-          "BIOMASS",
-          "WIND",
-          "SOLAR",
-          "GEOTHERMAL",
-          "OFSL",
-          "OTHF",
-        ];
+        fuels = this.props.plant_fuels;
         data.map((d) => {
           plant_data.features.push({
             type: "Feature",
@@ -177,82 +164,9 @@ class Visualization extends Component {
   render() {
     let category = lookup[this.props.tier1],
       region = lookup[this.props.tier5];
-    const plant_outlier = {
-      PLNOXRTA: 2000,
-      PLNOXRTO: 1000,
-      PLSO2RTA: 800,
-      PLCO2RTA: 10000,
-      PLCH4RTA: 20,
-      PLN2ORTA: 3,
-      PLC2ERTA: 10000,
-      PLNOXRA: 7,
-      PLNOXRO: 7,
-      PLSO2RA: 6,
-      PLCO2RA: 300,
-      PLNGENAN: 20000000,
-      PLNGENOZ: 10000000,
-      PLGENACL: undefined,
-      PLGENAOL: undefined,
-      PLGENAGS: 13000000,
-      PLGENANC: 27000000,
-      PLGENAHY: 16000000,
-      PLGENABM: undefined,
-      PLGENAWI: 2000000,
-      PLGENASO: 1000000,
-      PLGENAGT: 1000000,
-      PLGENAOF: 1000000,
-      PLGENAOP: undefined,
-      PLGENATN: 20000000,
-      PLGENATR: 20000000,
-      PLGENATH: 2000000,
-      PLGENACY: 20000000,
-      PLGENACN: 20000000,
-      PLHTIAN: 165000000,
-      PLHTIOZ: 75000000,
-      PLNOXAN: undefined,
-      PLNOXOZ: undefined,
-      PLSO2AN: 30000,
-      PLCO2AN: 17000000,
-      PLCH4AN: undefined,
-      PLN2OAN: undefined,
-      PLCO2EQA: 17000000,
-    };
-    const fuel_label_lookup = {
-      COAL: "Coal",
-      OIL: "Oil",
-      GAS: "Gas",
-      NUCLEAR: "Nuclear",
-      HYDRO: "Hydro",
-      BIOMASS: "Biomass",
-      WIND: "Wind",
-      SOLAR: "Solar",
-      GEOTHERMAL: "Geothermal",
-      OFSL: "Other Fossil",
-      OTHF: "Other Unknown",
-      HYPR: "Hydro",
-      THPR: "All Non-Hydro Renewables",
-      TNPR: "All Non-Renewables",
-      CYPR: "All Combustion",
-      CNPR: "All Non-Combustion",
-    };
-    const fuel_color_lookup = {
-      COAL: "rgb(85, 85, 85)",
-      OIL: "rgb(237, 28, 36)",
-      GAS: "rgb(246, 139, 40)",
-      NUCLEAR: "rgb(207, 74, 154)",
-      HYDRO: "rgb(0, 129, 197)",
-      BIOMASS: "rgb(44, 160, 44)",
-      WIND: "rgb(13, 177, 75)",
-      SOLAR: "rgb(215, 201, 68)",
-      GEOTHERMAL: "rgb(255, 152, 150)",
-      OFSL: "rgb(140, 86, 75)",
-      OTHF: "rgb(255, 239, 213)",
-      HYPR: "rgb(0, 129, 197)",
-      THPR: "rgb(13, 177, 75)",
-      TNPR: "rgb(255, 187, 120)",
-      CYPR: "rgb(237, 28, 36)",
-      CNPR: "rgb(255, 187, 120)",
-    };
+    const plant_outlier = this.props.plant_outlier;
+    const fuel_label_lookup = this.props.fuel_label_lookup;
+    const fuel_color_lookup = this.props.fuel_color_lookup;
     const fuel_icon_lookup = {
       COAL: coal,
       OIL: oil,
@@ -271,6 +185,8 @@ class Visualization extends Component {
       CYPR: "",
       CNPR: "",
     };
+    const wrap_long_labels = this.props.wrap_long_labels;
+
     let fuel_name_lookup = {};
     this.state.fuels.forEach((d) => {
       if (d.endsWith("CLPR")) {
@@ -307,41 +223,6 @@ class Visualization extends Component {
         fuel_name_lookup[d] = "CNPR";
       }
     });
-
-    const wrap_long_labels = function (text, width) {
-      text.each(function () {
-        var text = d3.select(this),
-          words = text.text().split(/\s+/).reverse(),
-          word,
-          line = [],
-          lineNumber = 0,
-          lineHeight = 1.1, // ems
-          x = text.attr("x"),
-          y = text.attr("y"),
-          dy = parseFloat(text.attr("dy")),
-          tspan = text
-            .text(null)
-            .append("tspan")
-            .attr("x", x)
-            .attr("y", y)
-            .attr("dy", dy + "em");
-        while ((word = words.pop())) {
-          line.push(word);
-          tspan.text(line.join(" "));
-          if (tspan.node().getComputedTextLength() > width) {
-            line.pop();
-            tspan.text(line.join(" "));
-            line = [word];
-            tspan = text
-              .append("tspan")
-              .attr("x", x)
-              .attr("y", y)
-              .attr("dy", ++lineNumber * lineHeight + dy + "em")
-              .text(word);
-          }
-        }
-      });
-    };
 
     let vis;
     if (category === "grid gross loss rates") {
@@ -511,6 +392,12 @@ class UpdatedVisualization extends Component {
           )}
         </div>
         <Visualization
+          choropleth_map_fill={this.props.choropleth_map_fill}
+          plant_fuels={this.props.plant_fuels}
+          plant_outlier={this.props.plant_outlier}
+          fuel_label_lookup={this.props.fuel_label_lookup}
+          fuel_color_lookup={this.props.fuel_color_lookup}
+          wrap_long_labels={this.props.wrap_long_labels}
           field={this.props.field}
           name={this.props.name}
           unit={this.props.unit}

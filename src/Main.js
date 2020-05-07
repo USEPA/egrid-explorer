@@ -1,67 +1,10 @@
 import React, { Component } from "react";
 import * as _ from "underscore";
+
+import lookup from "./assets/data/json/eGRID lookup.json";
+
 import { SentenceDropdown, SentenceMiscellaneous } from "./Sentence";
 import UpdatedVisualization from "./Visualization";
-import lookup from "../assets/data/json/eGRID lookup.json";
-
-const year = 2018;
-const conjunction = {
-  tier1_0: {
-    conjunct1: "for",
-    conjunct2: "for",
-    conjunct3: "at the",
-    conjunct4: "level",
-  },
-  tier1_1: {
-    conjunct1: "for",
-    conjunct2: "for",
-    conjunct3: "at the",
-    conjunct4: "level",
-  },
-  tier1_2: {
-    conjunct1: "for",
-    conjunct2: "for",
-    conjunct3: "at the",
-    conjunct4: "level",
-  },
-  tier1_3: {
-    conjunct1: "of",
-    conjunct2: "",
-    conjunct3: "at the",
-    conjunct4: "level",
-  },
-  tier1_4: {
-    conjunct1: "from",
-    conjunct2: "",
-    conjunct3: "at the",
-    conjunct4: "level",
-  },
-  tier1_5: {
-    conjunct1: "from",
-    conjunct2: "",
-    conjunct3: "at the",
-    conjunct4: "level",
-  },
-  tier1_6: {
-    conjunct1: "for",
-    conjunct2: "",
-    conjunct3: "at the",
-    conjunct4: "level",
-  },
-  tier1_7: {
-    conjunct1: "for",
-    conjunct2: "for",
-    conjunct3: "at the",
-    conjunct4: "level",
-  },
-  tier1_8: {
-    conjunct1: "",
-    conjunct2: "",
-    conjunct3: "at the",
-    conjunct4: "level",
-  },
-  tier1_9: { conjunct1: "", conjunct2: "", conjunct3: "", conjunct4: "" },
-};
 
 class Main extends Component {
   constructor(props) {
@@ -390,7 +333,7 @@ class Main extends Component {
           />
           <span> </span>
           <SentenceMiscellaneous
-            value={conjunction["tier1_" + this.state.tier1].conjunct1}
+            value={this.props.conjunction["tier1_" + this.state.tier1].conjunct1}
           />
           <span> </span>
           {tier2_options.length > 1 ? (
@@ -415,7 +358,7 @@ class Main extends Component {
           )}
           <span> </span>
           <SentenceMiscellaneous
-            value={conjunction["tier1_" + this.state.tier1].conjunct2}
+            value={this.props.conjunction["tier1_" + this.state.tier1].conjunct2}
           />
           <span> </span>
           {tier4_options.length > 1 ? (
@@ -440,7 +383,7 @@ class Main extends Component {
           )}
           <span> </span>
           <SentenceMiscellaneous
-            value={conjunction["tier1_" + this.state.tier1].conjunct3}
+            value={this.props.conjunction["tier1_" + this.state.tier1].conjunct3}
           />
           <span> </span>
           {tier5_options.length > 1 ? (
@@ -465,13 +408,19 @@ class Main extends Component {
           )}
           <span> </span>
           <SentenceMiscellaneous
-            value={conjunction["tier1_" + this.state.tier1].conjunct4}
+            value={this.props.conjunction["tier1_" + this.state.tier1].conjunct4}
           />
           <span> for </span>
-          <SentenceMiscellaneous value={year} />.
+          <SentenceMiscellaneous value={this.props.year} />.
         </p>
         <UpdatedVisualization
           className="main"
+          choropleth_map_fill={this.props.choropleth_map_fill}
+          plant_fuels={this.props.plant_fuels}
+          plant_outlier={this.props.plant_outlier}
+          fuel_label_lookup={this.props.fuel_label_lookup}
+          fuel_color_lookup={this.props.fuel_color_lookup}
+          wrap_long_labels={this.props.wrap_long_labels}
           field={this.state.field}
           name={this.state.name}
           unit={this.state.unit}

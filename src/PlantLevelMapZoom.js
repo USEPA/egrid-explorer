@@ -5,6 +5,7 @@ import * as d3 from "d3";
 import * as d3_composite from "d3-composite-projections";
 
 import UpdatedTable from "./Table";
+
 import "./Visualization.css";
 
 mapboxgl.accessToken =

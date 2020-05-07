@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-import Main from "./Components/Main";
-import logo from "./assets/img/logo.png";
+import Spinner from "react-bootstrap/Spinner";
+import Dialog from "./Dialog";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 
-import Spinner from "react-bootstrap/Spinner";
-import Dialog from "./Components/Dialog";
+import logo from "./assets/img/logo.png";
 
 import subrgn_topo from "./assets/data/json/SUBRGN.json";
 import nerc_topo from "./assets/data/json/NERC.json";
@@ -21,6 +20,10 @@ import plant from "./assets/data/csv/plant.csv";
 import ggl from "./assets/data/csv/GGL.csv";
 import us from "./assets/data/csv/US.csv";
 
+import Main from "./Main";
+
+import "./App.css";
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -33,6 +36,193 @@ class App extends Component {
       nerc_data: [],
       ggl_data: [],
       us_data: [],
+    };
+
+    this.year = 2018;
+    this.conjunction = {
+      tier1_0: {
+        conjunct1: "for",
+        conjunct2: "for",
+        conjunct3: "at the",
+        conjunct4: "level",
+      },
+      tier1_1: {
+        conjunct1: "for",
+        conjunct2: "for",
+        conjunct3: "at the",
+        conjunct4: "level",
+      },
+      tier1_2: {
+        conjunct1: "for",
+        conjunct2: "for",
+        conjunct3: "at the",
+        conjunct4: "level",
+      },
+      tier1_3: {
+        conjunct1: "of",
+        conjunct2: "",
+        conjunct3: "at the",
+        conjunct4: "level",
+      },
+      tier1_4: {
+        conjunct1: "from",
+        conjunct2: "",
+        conjunct3: "at the",
+        conjunct4: "level",
+      },
+      tier1_5: {
+        conjunct1: "from",
+        conjunct2: "",
+        conjunct3: "at the",
+        conjunct4: "level",
+      },
+      tier1_6: {
+        conjunct1: "for",
+        conjunct2: "",
+        conjunct3: "at the",
+        conjunct4: "level",
+      },
+      tier1_7: {
+        conjunct1: "for",
+        conjunct2: "for",
+        conjunct3: "at the",
+        conjunct4: "level",
+      },
+      tier1_8: {
+        conjunct1: "",
+        conjunct2: "",
+        conjunct3: "at the",
+        conjunct4: "level",
+      },
+      tier1_9: { conjunct1: "", conjunct2: "", conjunct3: "", conjunct4: "" },
+    };
+    this.choropleth_map_fill = {
+      emission: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"],
+      generation: ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"],
+      others: ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"]
+    };
+    this.plant_fuels = [
+      "COAL",
+      "OIL",
+      "GAS",
+      "NUCLEAR",
+      "HYDRO",
+      "BIOMASS",
+      "WIND",
+      "SOLAR",
+      "GEOTHERMAL",
+      "OFSL",
+      "OTHF",
+    ];
+    this.plant_outlier = {
+      PLNOXRTA: 2000,
+      PLNOXRTO: 1000,
+      PLSO2RTA: 800,
+      PLCO2RTA: 10000,
+      PLCH4RTA: 20,
+      PLN2ORTA: 3,
+      PLC2ERTA: 10000,
+      PLNOXRA: 7,
+      PLNOXRO: 7,
+      PLSO2RA: 6,
+      PLCO2RA: 300,
+      PLNGENAN: 20000000,
+      PLNGENOZ: 10000000,
+      PLGENACL: undefined,
+      PLGENAOL: undefined,
+      PLGENAGS: 13000000,
+      PLGENANC: 27000000,
+      PLGENAHY: 16000000,
+      PLGENABM: undefined,
+      PLGENAWI: 2000000,
+      PLGENASO: 1000000,
+      PLGENAGT: 1000000,
+      PLGENAOF: 1000000,
+      PLGENAOP: undefined,
+      PLGENATN: 20000000,
+      PLGENATR: 20000000,
+      PLGENATH: 2000000,
+      PLGENACY: 20000000,
+      PLGENACN: 20000000,
+      PLHTIAN: 165000000,
+      PLHTIOZ: 75000000,
+      PLNOXAN: undefined,
+      PLNOXOZ: undefined,
+      PLSO2AN: 30000,
+      PLCO2AN: 17000000,
+      PLCH4AN: undefined,
+      PLN2OAN: undefined,
+      PLCO2EQA: 17000000,
+    };
+    this.fuel_label_lookup = {
+      COAL: "Coal",
+      OIL: "Oil",
+      GAS: "Gas",
+      NUCLEAR: "Nuclear",
+      HYDRO: "Hydro",
+      BIOMASS: "Biomass",
+      WIND: "Wind",
+      SOLAR: "Solar",
+      GEOTHERMAL: "Geothermal",
+      OFSL: "Other Fossil",
+      OTHF: "Other Unknown",
+      HYPR: "Hydro",
+      THPR: "All Non-Hydro Renewables",
+      TNPR: "All Non-Renewables",
+      CYPR: "All Combustion",
+      CNPR: "All Non-Combustion",
+    };
+    this.fuel_color_lookup = {
+      COAL: "rgb(85, 85, 85)",
+      OIL: "rgb(237, 28, 36)",
+      GAS: "rgb(246, 139, 40)",
+      NUCLEAR: "rgb(207, 74, 154)",
+      HYDRO: "rgb(0, 129, 197)",
+      BIOMASS: "rgb(44, 160, 44)",
+      WIND: "rgb(13, 177, 75)",
+      SOLAR: "rgb(215, 201, 68)",
+      GEOTHERMAL: "rgb(255, 152, 150)",
+      OFSL: "rgb(140, 86, 75)",
+      OTHF: "rgb(255, 239, 213)",
+      HYPR: "rgb(0, 129, 197)",
+      THPR: "rgb(13, 177, 75)",
+      TNPR: "rgb(255, 187, 120)",
+      CYPR: "rgb(237, 28, 36)",
+      CNPR: "rgb(255, 187, 120)",
+    };
+    this.wrap_long_labels = function (text, width) {
+      text.each(function () {
+        var text = d3.select(this),
+          words = text.text().split(/\s+/).reverse(),
+          word,
+          line = [],
+          lineNumber = 0,
+          lineHeight = 1.1, // ems
+          x = text.attr("x"),
+          y = text.attr("y"),
+          dy = parseFloat(text.attr("dy")),
+          tspan = text
+            .text(null)
+            .append("tspan")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("dy", dy + "em");
+        while ((word = words.pop())) {
+          line.push(word);
+          tspan.text(line.join(" "));
+          if (tspan.node().getComputedTextLength() > width) {
+            line.pop();
+            tspan.text(line.join(" "));
+            line = [word];
+            tspan = text
+              .append("tspan")
+              .attr("x", x)
+              .attr("y", y)
+              .attr("dy", ++lineNumber * lineHeight + dy + "em")
+              .text(word);
+          }
+        }
+      });
     };
 
     this.ggl_layer = topojson.feature(ggl_topo, "GGL");
@@ -185,6 +375,14 @@ class App extends Component {
               <img id="logo" src={logo}></img>
             </header>
             <Main
+              year={this.year}
+              conjunction={this.conjunction}
+              choropleth_map_fill={this.choropleth_map_fill}
+              plant_fuels={this.plant_fuels}
+              plant_outlier={this.plant_outlier}
+              fuel_label_lookup={this.fuel_label_lookup}
+              fuel_color_lookup={this.fuel_color_lookup}
+              wrap_long_labels={this.wrap_long_labels}
               options={this.state.options}
               plant_data={this.state.plant_data}
               state_data={this.state.state_data}

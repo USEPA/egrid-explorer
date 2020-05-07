@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import "../App.css";
 import * as d3 from "d3";
 import * as d3_composite from "d3-composite-projections";
 
