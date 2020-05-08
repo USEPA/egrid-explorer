@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/eGrid_2018_v2/precache-manifest.ad18f139ab3c68d945c99ae7d553fd49.js"
+  "/eGrid_2018_v2/precache-manifest.bcdf85127454855e0bd32cb6bbdbe4c4.js"
 );
 
 self.addEventListener('message', (event) => {

@@ -298,12 +298,12 @@ class PlantLevelMapZoom extends Component {
     // set up map
     this.map = new mapboxgl.Map({
       container: this.container,
-      style: "mapbox://styles/mapbox/light-v10",
+      style: "mapbox://styles/mapbox/light-v10?optimize=true",
       center: init_center,
       zoom: init_zoom,
+      minzoom: this.props.min_zoom,
+      maxzoom: this.props.max_zoom
     });
-    this.map.setMaxZoom(this.props.max_zoom);
-    this.map.setMinZoom(this.props.min_zoom);
     this.map.addControl(new mapboxgl.NavigationControl());
     this.map.addControl(new mapboxgl.FullscreenControl());
 

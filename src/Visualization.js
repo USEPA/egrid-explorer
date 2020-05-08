@@ -114,7 +114,7 @@ class Visualization extends Component {
         category.split("heat input").length > 1 ||
         category.split("nameplate").length > 1
       ) {
-        map_fill = this.props.choropleth_map_fill.other;
+        map_fill = this.props.choropleth_map_fill.others;
       }
 
       choropleth_data = data.map((d) => {
