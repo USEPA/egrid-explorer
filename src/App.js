@@ -22,7 +22,7 @@ import us from "./assets/data/csv/US.csv";
 
 import Main from "./Main";
 
-import "./App.css";
+import "./EPAStyle.css";
 
 class App extends Component {
   constructor(props) {
