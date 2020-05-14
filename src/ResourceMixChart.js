@@ -163,9 +163,9 @@ class ResourceMixChart extends Component {
           d3.select(this.tooltip.current)
             .html(html)
             .style("position", "absolute")
-            .style("top", (d3.event.pageY + 25) + "px")
-            .style("left", (d3.event.pageX - 500) + "px")
-            .style("opacity", 1);
+            .style("top", 350 + "px")
+            .style("left", 1700 + "px")
+            .style("opacity", .9);
           d3.select(this.wrapper.current)
             .select("rect.bars_" + d.id + "_" + d.type)
             .classed("selected", true)
@@ -208,9 +208,9 @@ class ResourceMixChart extends Component {
           d3.select(this.tooltip.current)
             .html(html)
             .style("position", "absolute")
-            .style("top", (d3.event.pageY + 25) + "px")
-            .style("left", (d3.event.pageX - 500) + "px")
-            .style("opacity", 1);
+            .style("top", 350 + "px")
+            .style("left", 1700 + "px")
+            .style("opacity", .9);
         }
 
       });
@@ -252,16 +252,7 @@ class ResourceMixChart extends Component {
       .attr("width", boxlen)
       .attr("height", h_legend);
 
-    // fuels_svg
-    //   .append("image")
-    //   .attr("xlink:href", (d) => this.props.fuel_icon_lookup[d])
-    //   .attr("x", boxlen / 2 - Math.min(boxlen, h_legend * 0.5) / 2)
-    //   .attr("y", 0)
-    //   .attr("width", Math.min(boxlen, h_legend * 0.5))
-    //   .attr("height", Math.min(boxlen, h_legend * 0.5));
-
     fuels_svg
-      // .filter((d) => this.props.fuel_icon_lookup[d] === "")
       .append("circle")
       .attr("r", Math.min(boxlen, h_legend * 0.5) / 4)
       .attr("fill", (d) => this.props.fuel_color_lookup[d])
@@ -453,10 +444,6 @@ class ResourceMixChart extends Component {
     return (
       <div ref={this.wrapper}>
         {title}
-        <svg
-          style={{ width: "100%", height: 150, margin: "0 auto" }}
-          ref={this.micromap}
-        ></svg>
         <div
           style={{ width: "100%", height: 100, margin: "0 auto" }}
           ref={this.fuels}
@@ -468,6 +455,10 @@ class ResourceMixChart extends Component {
           <g ref={this.barchart}></g>
           <g ref={this.axis_y} className={"axis axis_y"}></g>
         </svg>
+        <svg
+          style={{ width: "100%", height: 150, margin: "0 auto" }}
+          ref={this.micromap}
+        ></svg>
         <div
           ref={this.tooltip}
           style={{

@@ -256,19 +256,28 @@ class OtherLevelBarchart extends Component {
       }
     }
   }
-
   render() {
     return (
       <div>
-        <ToggleButtonGroup
-          type="radio"
-          name="options"
-          defaultValue={this.state.sort_by}
-          onChange={(val) => this.setState({ sort_by: val })}
-        >
-          <ToggleButton value={"alphabet"}>Sort Alphabetically</ToggleButton>
-          <ToggleButton value={"amount"}>Sort by Amount</ToggleButton>
-        </ToggleButtonGroup>
+        <input type="button" value={"alphabet"} onChange={(val) => this.setState({ sort_by: val })}/>
+        <input type="button" value={"amount"} onChange={(val) => this.setState({ sort_by: val })}/>
+
+        <p
+        style={{
+          fontSize: "1em",
+          fontWeight: "bold",
+          fill: "#000",
+          className: "title",
+          textAnchor: "middle",
+          padding: "10px"
+        }}
+      >
+        {"US: " +
+          this.formatNumber(this.props.us_data[0][this.props.field]) +
+          "(" +
+          this.props.unit +
+          ")"}
+      </p>
         <svg style={{display:"block", margin: "0 auto"}} width={this.props.width} height={this.props.height}>
           <g className={"axis"}>
             <g ref={this.axis_x}></g>

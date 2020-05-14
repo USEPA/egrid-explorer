@@ -225,23 +225,6 @@ class OtherLevelMap extends Component {
         >
           {this.props.title}
         </p>
-        {this.props.layer_type !== "grid gross loss rates" && (
-          <p
-            style={{
-              fontSize: "1em",
-              fontWeight: "bold",
-              fill: "#000",
-              className: "title",
-              textAnchor: "middle",
-            }}
-          >
-            {"US: " +
-              this.formatNumber(this.props.us_data[0][this.props.field]) +
-              "(" +
-              this.props.unit +
-              ")"}
-          </p>
-        )}
       </div>
     );
 
