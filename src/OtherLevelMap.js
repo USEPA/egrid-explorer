@@ -90,16 +90,17 @@ class OtherLevelMap extends Component {
         d3.select(this.tooltip.current)
         .html(html)
         .style("position", "absolute")
-        .style("top", d3.event.pageY + 30 + "px")
-        .style("left", d3.event.pageX - 150 + "px")
+        .style("top", (d3.event.pageY + 25) + "px")
+        .style("left", (d3.event.pageX - 500) + "px")
         .style("opacity", 1);
 
-        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true);
-        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true);
-        d3.selectAll('path.region_'+d.properties.id).classed('selected', true);
-        d3.selectAll('.mouseover_target rect').classed('deemphasized', true);
-        d3.selectAll('.mouseover_target text').classed('deemphasized', true);
-        d3.selectAll('path.mouseover_target').classed('deemphasized', true);
+        d3.selectAll('.mouseover_target rect').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+        d3.selectAll('.mouseover_target text').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+        d3.selectAll('path.mouseover_target').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+
+        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true).style("stroke", "#000").style("stroke-width", 1).style("opacity", 1);
+        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true).style("font-weight", "bold").style("opacity", 1);
+        d3.selectAll('path.region_'+d.properties.id).classed('selected', true).style("stroke-width", 1).style("opacity", 1);
       })
       .on('mouseout', d=>{
         d3.select(this.tooltip.current)
@@ -107,8 +108,11 @@ class OtherLevelMap extends Component {
         .duration(500)
         .style("opacity", 0);
 
-        d3.selectAll('.deemphasized').classed('deemphasized', false);
-        d3.selectAll('.selected').classed('selected', false);
+        d3.selectAll('.deemphasized').classed('deemphasized', false).style("opacity", 1).style("transition", "opacity 0.5s");
+
+        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true).style("stroke", "none");
+        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true).style("font-weight", "normal");
+        d3.selectAll('path.region_'+d.properties.id).classed('selected', true).style("stroke-width", 0.5);
       });
 
     // add labels
@@ -156,16 +160,18 @@ class OtherLevelMap extends Component {
         d3.select(this.tooltip.current)
         .html(html)
         .style("position", "absolute")
-        .style("top", d3.event.pageY + 30 + "px")
-        .style("left", d3.event.pageX - 150 + "px")
+        .style("top", (d3.event.pageY + 25) + "px")
+        .style("left", (d3.event.pageX - 500) + "px")
         .style("opacity", 1);
 
-        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true);
-        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true);
-        d3.selectAll('path.region_'+d.properties.id).classed('selected', true);
-        d3.selectAll('.mouseover_target rect').classed('deemphasized', true);
-        d3.selectAll('.mouseover_target text').classed('deemphasized', true);
-        d3.selectAll('path.mouseover_target').classed('deemphasized', true);
+        d3.selectAll('.mouseover_target rect').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+        d3.selectAll('.mouseover_target text').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+        d3.selectAll('path.mouseover_target').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+
+        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true).style("stroke", "#000").style("stroke-width", 1).style("opacity", 1);
+        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true).style("font-weight", "bold").style("opacity", 1);
+        d3.selectAll('path.region_'+d.properties.id).classed('selected', true).style("stroke-width", 1).style("opacity", 1);
+
       })
       .on('mouseout', d=>{
         d3.select(this.tooltip.current)
@@ -173,8 +179,11 @@ class OtherLevelMap extends Component {
         .duration(500)
         .style("opacity", 0);
 
-        d3.selectAll('.deemphasized').classed('deemphasized', false);
-        d3.selectAll('.selected').classed('selected', false);
+        d3.selectAll('.deemphasized').classed('deemphasized', false).style("opacity", 1).style("transition", "opacity 0.5s");
+
+        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', false).style("stroke", "none");
+        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', false).style("font-weight", "normal");
+        d3.selectAll('path.region_'+d.properties.id).classed('selected', false).style("stroke-width", 0.5);
       });
 
     // add background (grid gross loss rates)
@@ -239,7 +248,7 @@ class OtherLevelMap extends Component {
     return (
       <div>
         {title}
-        <svg width={this.props.width} height={this.props.height}>
+        <svg style={{display:"block", margin: "0 auto"}} width={this.props.width} height={this.props.height}>
           <g ref={this.background} />
           <g ref={this.map} />
           <g ref={this.labels} />

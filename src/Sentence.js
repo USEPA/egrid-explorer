@@ -37,7 +37,19 @@ class SentenceDropdown extends Component {
     });
 
     return (
-      <select value={selected_option} onChange={this.props.change}>
+      <select style={{fontSize: "1em",
+        fontWeight: "bold",
+        border: "none",
+        borderBottom: "1px dashed #000",
+        paddingLeft: "5px",
+        paddingRight: "17px",
+        marginRight: "6px",
+        backgroundImage: "url('./assets/img/dropdown_arrow.png')",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "14px 14px",
+        backgroundPosition: "100% 90%",
+        outline: "none"}}
+        value={selected_option} onChange={this.props.change}>
         {opts}
       </select>
     );

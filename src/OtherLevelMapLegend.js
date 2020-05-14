@@ -52,7 +52,7 @@ class OtherLevelMapLegend extends Component {
       });
 
     return (
-      <svg width={this.props.width} height={this.props.height}>
+      <svg style={{display:"block", margin: "0 auto"}} width={this.props.width} height={this.props.height}>
         <g
           ref={(node) =>
             d3

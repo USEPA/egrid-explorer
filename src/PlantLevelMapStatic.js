@@ -67,12 +67,15 @@ class PlantLevelMapStatic extends Component {
     );
 
     return (
-      <div id="map_static">
+      <div id="map_static" style={{ width: "100%", margin: "0 auto" }}>
         {title}
         <div
           className="fuels_selection"
+          style={{height: 100}}
         ></div>
-        <div className="map_container" ref={this.container} >
+        <div className="map_container"
+          style={{height: 600}} 
+          ref={this.container} >
         </div>
       </div>
     );

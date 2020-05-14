@@ -8,7 +8,7 @@ class UpdatedTable extends Component {
         {this.props.title.startsWith("Resource Mix") ? (
           <Table striped bordered hover responsive="sm">
             <thead>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <th>Generation by Fuel Type</th>
                 {this.props.region !== "US" && (
                   <th>
@@ -22,7 +22,7 @@ class UpdatedTable extends Component {
             {this.props.title === "Resource Mix by all fuel types" && (
               <tbody>
                 {+this.props.table_info.COAL !== 0 && (
-                  <tr className={this.props.type === "COAL" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "COAL" ? "bold" : "normal"}}>
                     <td>Coal</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.COAL}</td>
@@ -31,7 +31,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.OIL !== 0 && (
-                  <tr className={this.props.type === "OIL" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "OIL" ? "bold" : "normal"}}>
                     <td>Oil</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.OIL}</td>
@@ -40,7 +40,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.GAS !== 0 && (
-                  <tr className={this.props.type === "GAS" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "GAS" ? "bold" : "normal"}}>
                     <td>Gas</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.GAS}</td>
@@ -49,8 +49,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.NUCLEAR !== 0 && (
-                  <tr
-                    className={this.props.type === "NUCLEAR" ? "selected" : ""}
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "NUCLEAR" ? "bold" : "normal"}}
                   >
                     <td>Nuclear</td>
                     {this.props.region !== "US" && (
@@ -60,7 +59,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.HYDRO !== 0 && (
-                  <tr className={this.props.type === "HYDRO" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "HYDRO" ? "bold" : "normal"}}>
                     <td>Hydro</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.HYDRO}</td>
@@ -70,8 +69,7 @@ class UpdatedTable extends Component {
                 )}
 
                 {+this.props.table_info.BIOMASS !== 0 && (
-                  <tr
-                    className={this.props.type === "BIOMASS" ? "selected" : ""}
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "BIOMASS" ? "bold" : "normal"}}
                   >
                     <td>Biomass</td>
                     {this.props.region !== "US" && (
@@ -81,7 +79,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.WIND !== 0 && (
-                  <tr className={this.props.type === "WIND" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "WIND" ? "bold" : "normal"}}>
                     <td>Wind</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.WIND}</td>
@@ -90,7 +88,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.SOLAR !== 0 && (
-                  <tr className={this.props.type === "SOLAR" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "SOLAR" ? "bold" : "normal"}}>
                     <td>Solar</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.SOLAR}</td>
@@ -99,11 +97,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.GEOTHERMAL !== 0 && (
-                  <tr
-                    className={
-                      this.props.type === "GEOTHERMAL" ? "selected" : ""
-                    }
-                  >
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "GEOTHERMAL" ? "bold" : "normal"}}>
                     <td>Geothermal</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.GEOTHERMAL}</td>
@@ -112,7 +106,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.OFSL !== 0 && (
-                  <tr className={this.props.type === "OFSL" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "OFSL" ? "bold" : "normal"}}>
                     <td>Other Fossil</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.OFSL}</td>
@@ -121,7 +115,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.OTHF !== 0 && (
-                  <tr className={this.props.type === "OTHF" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "OTHF" ? "bold" : "normal"}}>
                     <td>Other Unknown/Purchased Fuel</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.OTHF}</td>
@@ -135,7 +129,7 @@ class UpdatedTable extends Component {
               "Resource Mix by renewable vs. non-renewable fuels" && (
               <tbody>
                 {+this.props.table_info.HYDRO !== 0 && (
-                  <tr className={this.props.type === "HYDRO" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "HYDRO" ? "bold" : "normal"}}>
                     <td>Hydro</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.HYDRO}</td>
@@ -144,7 +138,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.TNPR !== 0 && (
-                  <tr className={this.props.type === "TNPR" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "TNPR" ? "bold" : "normal"}}>
                     <td>Total Nonrenewables</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.TNPR}</td>
@@ -153,7 +147,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.THPR !== 0 && (
-                  <tr className={this.props.type === "THPR" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "THPR" ? "bold" : "normal"}}>
                     <td>Total Nonhydro Renewables</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.THPR}</td>
@@ -167,7 +161,7 @@ class UpdatedTable extends Component {
               "Resource Mix by combustible vs. non-combustible fuels" && (
               <tbody>
                 {+this.props.table_info.CYPR !== 0 && (
-                  <tr className={this.props.type === "CYPR" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "CYPR" ? "bold" : "normal"}}>
                     <td>Total Combustion</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.CYPR}</td>
@@ -176,7 +170,7 @@ class UpdatedTable extends Component {
                   </tr>
                 )}
                 {+this.props.table_info.CNPR !== 0 && (
-                  <tr className={this.props.type === "CNPR" ? "selected" : ""}>
+                  <tr style={{lineHeight: 1, fontWeight: this.props.type === "CNPR" ? "bold" : "normal"}}>
                     <td>Total Noncumbustion</td>
                     {this.props.region !== "US" && (
                       <td>{this.props.table_info.CNPR}</td>
@@ -190,21 +184,21 @@ class UpdatedTable extends Component {
         ) : (
           <Table striped bordered hover responsive="sm">
             <thead>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <th>Plant Name</th>
                 <th>{this.props.table_info.PNAME}</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>Facility ID</td>
                 <td>{this.props.table_info.ORISPL}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>Plant State</td>
                 <td>{this.props.table_info.PSTATABB}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>eGRID Subregion</td>
                 <td>
                   <a href="https://www.epa.gov/sites/production/files/styles/large/public/2020-03/2018_egrid_subregions.png">
@@ -212,79 +206,79 @@ class UpdatedTable extends Component {
                   </a>
                 </td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>Plant Primary Fuel</td>
                 <td>{this.props.table_info.PLPRMFL}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>Nameplate Capacity (MW)</td>
                 <td>{this.props.table_info.NAMEPCAP}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>Plant Capacity Factor</td>
                 <td>{this.props.table_info.CAPFAC}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>Generation (MWh)</td>
                 <td>{this.props.table_info.PLNGENAN}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>Heat Input (MMBtu)</td>
                 <td>{this.props.table_info.PLHTIANT}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>NOₓ Annual Emissions (tons)</td>
                 <td>{this.props.table_info.PLNOXAN}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>NOₓ Annual Output Emission Rate (lb/MWh)</td>
                 <td>{this.props.table_info.PLNOXRTA}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>NOₓ Ozone Season Emissions (tons)</td>
                 <td>{this.props.table_info.PLNOXOZ}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>NOₓ Ozone Season Output Emission Rate (lb/MWh)</td>
                 <td>{this.props.table_info.PLNOXRTO}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>SO₂ Annual Emissions (tons)</td>
                 <td>{this.props.table_info.PLSO2AN}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>SO₂ Annual Output Emission Rate (lb/MWh)</td>
                 <td>{this.props.table_info.PLSO2RTA}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>CO₂ Annual Emissions (tons)</td>
                 <td>{this.props.table_info.PLCO2AN}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>CO₂ Annual Output Emission Rate (lb/MWh)</td>
                 <td>{this.props.table_info.PLCO2RTA}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>CH₄ Annual Emissions (lbs)</td>
                 <td>{this.props.table_info.PLCH4AN}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>CH₄ Annual Output Emission Rate (lb/MWh)</td>
                 <td>{this.props.table_info.PLCH4RTA}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>N₂O Annual Emissions (lbs)</td>
                 <td>{this.props.table_info.PLN2OAN}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>N₂O Annual Output Emission Rate (lb/MWh)</td>
                 <td>{this.props.table_info.PLN2ORTA}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>CO₂ equivalent Annual Emissions (tons)</td>
                 <td>{this.props.table_info.PLCO2EQA}</td>
               </tr>
-              <tr>
+              <tr style={{lineHeight: 1}}>
                 <td>CO₂ equivalent Output Emission Rate (lb/MWh)</td>
                 <td>{this.props.table_info.PLC2ERTA}</td>
               </tr>

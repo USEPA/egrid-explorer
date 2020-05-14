@@ -270,11 +270,11 @@ class Visualization extends Component {
               <Spinner animation="grow" variant="success" />
             </div>
           ) : (
-            <div className="visualization">
-              <div className="visualization-parts">
+            <div style={{textAlign: "center"}}>
+              <div style={{display: "inline-block", verticalAlign: "top"}}>
                 <OtherLevelMap
                   title={this.state.name}
-                  width={800}
+                  width={600}
                   height={500}
                   data={this.state.data}
                   layer={this.state.layer}
@@ -292,10 +292,10 @@ class Visualization extends Component {
                   map_fill={this.state.map_fill}
                 />
               </div>
-              <div className="visualization-parts">
+              <div style={{display: "inline-block", verticalAlign: "top"}}>
                 <OtherLevelBarchart
                   title={this.state.name}
-                  width={400}
+                  width={350}
                   height={600}
                   data={this.state.data}
                   field={this.state.field}
@@ -314,7 +314,7 @@ class Visualization extends Component {
               <Spinner animation="grow" variant="success" />
             </div>
           ) : (
-            <div className="visualization">
+            <div style={{textAlign: "center"}}>
               <PlantLevelMapZoom
                 title={this.state.name}
                 static_map_scale={900}
@@ -342,7 +342,7 @@ class Visualization extends Component {
           );
       }
     }
-    return <div className="visualization">{vis}</div>;
+    return <div style={{textAlign: "center"}}>{vis}</div>;
   }
 }
 
@@ -370,7 +370,7 @@ class UpdatedVisualization extends Component {
   render() {
     return (
       <div>
-        <div className="export-div">
+        <div style={{marginBottom: "1rem"}}>
           <Button variant="secondary" size="sm">
             Export Table
           </Button>{" "}
@@ -392,6 +392,7 @@ class UpdatedVisualization extends Component {
           )}
         </div>
         <Visualization
+          style={{textAlign:"center"}}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}
           plant_outlier={this.props.plant_outlier}

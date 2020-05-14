@@ -6,7 +6,7 @@ import * as d3_composite from "d3-composite-projections";
 
 import UpdatedTable from "./Table";
 
-import "./Visualization.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 mapboxgl.accessToken =
   "pk.eyJ1Ijoia2F0aWVsb25nIiwiYSI6ImNpenpudmY1dzAxZmYzM2tmY2tobDN1MXoifQ._aoE2Zj7vx3dUlZw-gBCrg";
@@ -71,24 +71,27 @@ class PlantLevelMapZoom extends Component {
         .data(this.props.fuels)
         .enter()
         .append("div")
+        .attr("class", "fuel")
         .style("display", "inline-block")
-        .attr("class", "fuel");
+        .style("cursor", "pointer")
+        .style("margin", 0)
+        .style("border-radius", "5px");
 
       let fuels_svg = fuels
         .append("svg")
         .attr("width", boxlen)
         .attr("height", h);
 
-      fuels_svg
-        .append("image")
-        .attr("xlink:href", (d) => this.props.fuel_icon_lookup[d])
-        .attr("x", boxlen / 2 - Math.min(boxlen, h * 0.5) / 2)
-        .attr("y", 0)
-        .attr("width", Math.min(boxlen, h * 0.5))
-        .attr("height", Math.min(boxlen, h * 0.5));
+      // fuels_svg
+      //   .append("image")
+      //   .attr("xlink:href", (d) => this.props.fuel_icon_lookup[d])
+      //   .attr("x", boxlen / 2 - Math.min(boxlen, h * 0.5) / 2)
+      //   .attr("y", 0)
+      //   .attr("width", Math.min(boxlen, h * 0.5))
+      //   .attr("height", Math.min(boxlen, h * 0.5));
 
       fuels_svg
-        .filter((d) => this.props.fuel_icon_lookup[d] === "")
+        // .filter((d) => this.props.fuel_icon_lookup[d] === "")
         .append("circle")
         .attr("r", Math.min(boxlen, h * 0.5) / 4)
         .attr("fill", (d) => this.props.fuel_color_lookup[d])
@@ -109,6 +112,8 @@ class PlantLevelMapZoom extends Component {
         .insert("div", ".fuel")
         .style("display", "inline-block")
         .attr("class", "reset")
+        .style("opacity", 0.5)
+        .style("cursor", "not-allowed")
         .append("svg")
         .attr("width", boxlen)
         .attr("height", h)
@@ -123,23 +128,48 @@ class PlantLevelMapZoom extends Component {
         .style("font-size", "1.2em")
         .call(this.props.wrap_long_labels, boxlen);
 
-      d3.selectAll(".fuel").on("click", (d) => {
-        let n = d3
-          .select(this.fuels.current)
-          .selectAll(".fuel")
-          .filter((e) => e === d);
-        if (this.map.loaded()) {
-          if (n.classed("selected")) {
-            this.setState({
-              selected_fuel: this.state.selected_fuel.filter((e) => e !== d),
-            });
-          } else {
-            this.setState({
-              selected_fuel: this.state.selected_fuel.concat(d),
-            });
+      d3.selectAll(".fuel")
+        .on("click", (d) => {
+          let n = d3
+            .select(this.fuels.current)
+            .selectAll(".fuel")
+            .filter((e) => e === d);
+          if (this.map.loaded()) {
+            if (n.classed("selected")) {
+              this.setState({
+                selected_fuel: this.state.selected_fuel.filter((e) => e !== d),
+              });
+            } else {
+              this.setState({
+                selected_fuel: this.state.selected_fuel.concat(d),
+              });
+            }
           }
-        }
-      });
+        })
+        .on("mouseover", (d) => {
+          let n = d3
+            .select(this.fuels.current)
+            .selectAll(".fuel")
+            .filter((e) => e === d);
+          if (this.map.loaded()) {
+            if (!n.classed("selected")) {
+              n.style("background", "#eee");
+            }
+          }
+        })
+        .on("mouseout", (d) => {
+          let n = d3
+            .select(this.fuels.current)
+            .selectAll(".fuel")
+            .filter((e) => e === d);
+          if (this.map.loaded()) {
+            if (!n.classed("selected")) {
+              n.style("background", "none");
+            } else {
+              n.style("background", "#ddd");
+            }
+          }
+        });
 
       if (this.map.loaded()) {
         const data = {
@@ -163,7 +193,8 @@ class PlantLevelMapZoom extends Component {
 
         d3.selectAll(".fuels_selection")
           .select(".reset")
-          .classed("reset_clickable", false);
+          .style("opacity", 0.5)
+          .style("cursor", "not-allowed");
         d3.selectAll(".fuels_selection")
           .select(".reset text")
           .text(this.filter_text)
@@ -172,7 +203,9 @@ class PlantLevelMapZoom extends Component {
             d3.select(".fuels_selection").node().clientWidth /
               (this.props.fuels.length + 1)
           );
-        d3.selectAll(".selected").classed("selected", false);
+        d3.selectAll(".selected")
+          .classed("selected", false)
+          .style("background", "none");
 
         this.map.on("zoom", "plants", () => {
           let features = data.features;
@@ -211,10 +244,13 @@ class PlantLevelMapZoom extends Component {
           };
           this.map.getSource("plants").setData(data);
           this.setRadius(data.features);
-          d3.selectAll(".selected").classed("selected", false);
+          d3.selectAll(".selected")
+            .classed("selected", false)
+            .style("background", "none");
           d3.selectAll(".fuels_selection")
             .select(".reset")
-            .classed("reset_clickable", true)
+            .style("opacity", 1)
+            .style("cursor", "pointer")
             .on("click", (d) => {
               this.setState({ selected_fuel: [] });
             });
@@ -231,7 +267,8 @@ class PlantLevelMapZoom extends Component {
           d3.selectAll(".fuels_selection")
             .selectAll(".fuel")
             .filter((d) => this.state.selected_fuel.indexOf(d) !== -1)
-            .classed("selected", true);
+            .classed("selected", true)
+            .style("background", "#ddd");
 
           this.map.on("zoom", "plants", () => {
             let features = data.features;
@@ -268,7 +305,8 @@ class PlantLevelMapZoom extends Component {
 
           d3.selectAll(".fuels_selection")
             .select(".reset")
-            .classed("reset_clickable", false);
+            .style("opacity", 0.5)
+            .style("cursor", "not-allowed");
           d3.selectAll(".fuels_selection")
             .select(".reset text")
             .text(this.filter_text)
@@ -277,7 +315,9 @@ class PlantLevelMapZoom extends Component {
               d3.select(".fuels_selection").node().clientWidth /
                 (this.props.fuels.length + 1)
             );
-          d3.selectAll(".selected").classed("selected", false);
+          d3.selectAll(".selected")
+            .classed("selected", false)
+            .style("background", "none");
 
           this.map.on("zoom", "plants", () => {
             let features = data.features;
@@ -302,7 +342,7 @@ class PlantLevelMapZoom extends Component {
       center: init_center,
       zoom: init_zoom,
       minzoom: this.props.min_zoom,
-      maxzoom: this.props.max_zoom
+      maxzoom: this.props.max_zoom,
     });
     this.map.addControl(new mapboxgl.NavigationControl());
     this.map.addControl(new mapboxgl.FullscreenControl());
@@ -313,7 +353,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl";
         this._container.innerHTML =
-          "<span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src='reset_view_icon.png' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span>";
+          "<span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src='/eGrid_2018_v2/reset_view_icon.png' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span>";
         this._container.style.borderRadius = "4px";
         this._container.style.boxShadow = "0 0 0 2px rgba(0,0,0,.1)";
         this._container.style.cursor = "pointer";
@@ -355,7 +395,7 @@ class PlantLevelMapZoom extends Component {
         this._map = undefined;
       }
     }
-    this.map.addControl(new LayerControl());
+    // this.map.addControl(new LayerControl());
 
     class Legend {
       onAdd(map) {
@@ -363,7 +403,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl";
         this._container.innerHTML =
-          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span id='legend_title'></span></div><div><svg id='legend'></svg></div></div>";
+          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span id='legend_title'></span></div><div><svg id='legend' style='width:300px;height:80px;'></svg></div></div>";
 
         return this._container;
       }
@@ -373,8 +413,13 @@ class PlantLevelMapZoom extends Component {
         this._map = undefined;
       }
     }
-
     this.map.addControl(new Legend(), "bottom-right");
+
+    d3.selectAll(".mapboxgl-ctrl-group button")
+    .style("margin", 0)
+    .style("padding", 0);
+
+    d3.select(".mapboxgl-ctrl-compass").style("display", "none");
 
     this.map.on("load", () => {
       const data = {
@@ -665,8 +710,8 @@ class PlantLevelMapZoom extends Component {
     scale = d3.scaleOrdinal().domain(field_values).range(radius_values);
 
     // draw plants on static map
-    let w = d3.select('.map_container').node().clientWidth,
-    h = d3.select('.map_container').node().clientHeight;
+    let w = d3.select(".map_container").node().clientWidth,
+      h = d3.select(".map_container").node().clientHeight;
     let projection = d3_composite
       .geoAlbersUsaTerritories()
       .scale(this.props.static_map_scale)
@@ -702,7 +747,7 @@ class PlantLevelMapZoom extends Component {
     ]);
 
     this.updateLegend(features, factor);
-    this.updateStaticMap(features, factor);
+    // this.updateStaticMap(features, factor);
   }
 
   render() {
@@ -721,14 +766,16 @@ class PlantLevelMapZoom extends Component {
     );
 
     return (
-      <div id="map_zoomable" >
+      <div id="map_zoomable" style={{ width: "100%", margin: "0 auto" }}>
         {title}
         <div
           className="fuels_selection"
+          style={{ height: 100 }}
           ref={this.fuels}
         ></div>
         <div
           className="map_container"
+          style={{ height: 600 }}
           ref={(node) => (this.container = node)}
         />
       </div>

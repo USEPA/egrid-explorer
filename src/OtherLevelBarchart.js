@@ -127,6 +127,7 @@ class OtherLevelBarchart extends Component {
       .attr("dx", 5)
       .attr("dy", barYScale.bandwidth() / 2 + 5)
       .text((d) => this.formatLabel(d.value))
+      .style("font-size", "0.8em")
       .style("fill", "#000")
       .style("stroke", "none");
 
@@ -182,25 +183,35 @@ class OtherLevelBarchart extends Component {
       d3.select(this.tooltip.current)
       .html(html)
       .style("position", "absolute")
-      .style("top", d3.event.pageY - 30 + "px")
-      .style("left", d3.event.pageX + 30 + "px")
+      .style("top", (d3.event.pageY+25) + "px")
+      .style("left", (d3.event.pageX-500) + "px")
       .style("opacity", 1);
 
-      d3.selectAll('.region_'+id+' rect').classed('selected', true);
-      d3.selectAll('.region_'+id+' text').classed('selected', true);
-      d3.selectAll('path.region_'+id).classed('selected', true);
-        d3.selectAll('.mouseover_target rect').classed('deemphasized', true);
-        d3.selectAll('.mouseover_target text').classed('deemphasized', true);
-        d3.selectAll('path.mouseover_target').classed('deemphasized', true);
+      d3.selectAll('.mouseover_target rect').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+      d3.selectAll('.mouseover_target text').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+      d3.selectAll('path.mouseover_target').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+
+      d3.selectAll('.region_'+id+' rect').classed('selected', true).style("stroke", "#000").style("stroke-width", 1).style("opacity", 1);
+      d3.selectAll('.region_'+id+' text').classed('selected', true).style("font-weight", "bold").style("opacity", 1);
+      d3.selectAll('path.region_'+id).classed('selected', true).style("stroke-width", 1).style("opacity", 1);
     })
     .on('mouseout', d=>{
+      let id;
+      if (typeof(d)==="object") {
+        id = d.id;
+      } else if (typeof(d)==="string") {
+        id = this.props.data.filter(e=>e.name===d).map(e=>e.id)[0];
+      }
       d3.select(this.tooltip.current)
       .transition()
       .duration(500)
       .style("opacity", 0);
 
-      d3.selectAll('.deemphasized').classed('deemphasized', false);
-      d3.selectAll('.selected').classed('selected', false);
+      d3.selectAll('.deemphasized').classed('deemphasized', false).style("opacity", 1).style("transition", "opacity 0.5s");
+
+      d3.selectAll('.region_'+id+' rect').classed('selected', false).style("stroke", "none");
+      d3.selectAll('.region_'+id+' text').classed('selected', false).style("font-weight", "normal");
+      d3.selectAll('path.region_'+id).classed('selected', false).style("stroke-width", 0.5);
     });
 
     this.updateView(by);
@@ -258,7 +269,7 @@ class OtherLevelBarchart extends Component {
           <ToggleButton value={"alphabet"}>Sort Alphabetically</ToggleButton>
           <ToggleButton value={"amount"}>Sort by Amount</ToggleButton>
         </ToggleButtonGroup>
-        <svg width={this.props.width} height={this.props.height}>
+        <svg style={{display:"block", margin: "0 auto"}} width={this.props.width} height={this.props.height}>
           <g className={"axis"}>
             <g ref={this.axis_x}></g>
             <text ref={this.axis_x_title}></text>

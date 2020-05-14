@@ -163,7 +163,7 @@ class App extends Component {
       BIOMASS: "Biomass",
       WIND: "Wind",
       SOLAR: "Solar",
-      GEOTHERMAL: "Geothermal",
+      GEOTHERMAL: "Geo thermal",
       OFSL: "Other Fossil",
       OTHF: "Other Unknown",
       HYPR: "Hydro",
@@ -353,7 +353,7 @@ class App extends Component {
 
   render() {
     return (
-      <div className="app">
+      <div style={{padding: "5px"}}>
         {this.state.options.length > 0 &&
         this.state.plant_data.length > 0 &&
         this.state.state_data.length > 0 &&
@@ -362,18 +362,6 @@ class App extends Component {
         this.state.ggl_data.length > 0 &&
         this.state.us_data.length > 0 ? (
           <div>
-            <header>
-              <h2>Emissions and Generation Resource Integrated Database</h2>
-              <span className="dialog"> (</span>
-              <span
-                className="dialog-text"
-                onClick={() => this.setState({ show_modal: true })}
-              >
-                More Information
-              </span>
-              <span className="dialog">)</span>
-              <img id="logo" src={logo}></img>
-            </header>
             <Main
               year={this.year}
               conjunction={this.conjunction}
