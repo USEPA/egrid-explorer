@@ -362,18 +362,7 @@ class App extends Component {
         this.state.ggl_data.length > 0 &&
         this.state.us_data.length > 0 ? (
           <div>
-            <header>
-              <h2>Emissions and Generation Resource Integrated Database</h2>
-              <span className="dialog"> (</span>
-              <span
-                className="dialog-text"
-                onClick={() => this.setState({ show_modal: true })}
-              >
-                More Information
-              </span>
-              <span className="dialog">)</span>
-              <img id="logo" src={logo}></img>
-            </header>
+            <header></header>
             <Main
               year={this.year}
               conjunction={this.conjunction}
@@ -409,5 +398,17 @@ class App extends Component {
     );
   }
 }
+/**<header>
+              <h2>Emissions and Generation Resource Integrated Database</h2>
+              <span className="dialog"> (</span>
+              <span
+                className="dialog-text"
+                onClick={() => this.setState({ show_modal: true })}
+              >
+                More Information
+              </span>
+              <span className="dialog">)</span>
+              <img id="logo" src={logo}></img>
+            </header> */
 
 export default App;

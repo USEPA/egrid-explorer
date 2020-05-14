@@ -245,7 +245,6 @@ class OtherLevelBarchart extends Component {
       }
     }
   }
-
   render() {
     return (
       <div>
@@ -258,6 +257,22 @@ class OtherLevelBarchart extends Component {
           <ToggleButton value={"alphabet"}>Sort Alphabetically</ToggleButton>
           <ToggleButton value={"amount"}>Sort by Amount</ToggleButton>
         </ToggleButtonGroup>
+        <p
+        style={{
+          fontSize: "1em",
+          fontWeight: "bold",
+          fill: "#000",
+          className: "title",
+          textAnchor: "middle",
+          padding: "10px"
+        }}
+      >
+        {"US: " +
+          this.formatNumber(this.props.us_data[0][this.props.field]) +
+          "(" +
+          this.props.unit +
+          ")"}
+      </p>
         <svg width={this.props.width} height={this.props.height}>
           <g className={"axis"}>
             <g ref={this.axis_x}></g>

@@ -80,15 +80,6 @@ class PlantLevelMapZoom extends Component {
         .attr("height", h);
 
       fuels_svg
-        .append("image")
-        .attr("xlink:href", (d) => this.props.fuel_icon_lookup[d])
-        .attr("x", boxlen / 2 - Math.min(boxlen, h * 0.5) / 2)
-        .attr("y", 0)
-        .attr("width", Math.min(boxlen, h * 0.5))
-        .attr("height", Math.min(boxlen, h * 0.5));
-
-      fuels_svg
-        .filter((d) => this.props.fuel_icon_lookup[d] === "")
         .append("circle")
         .attr("r", Math.min(boxlen, h * 0.5) / 4)
         .attr("fill", (d) => this.props.fuel_color_lookup[d])

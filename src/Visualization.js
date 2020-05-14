@@ -299,7 +299,7 @@ class Visualization extends Component {
                   height={600}
                   data={this.state.data}
                   field={this.state.field}
-                  us_data={this.us_data}
+                  us_data={this.state.us_data}
                   layer_type={region}
                   unit={this.state.unit}
                   map_fill={this.state.map_fill}
