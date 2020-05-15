@@ -12,21 +12,11 @@ import PlantLevelMapZoom from "./PlantLevelMapZoom";
 import PlantLevelMapStatic from "./PlantLevelMapStatic";
 import ResourceMixChart from "./ResourceMixChart";
 
-import coal from "./assets/img/coal.svg";
-import gas from "./assets/img/gas.svg";
-import hydro from "./assets/img/hydro.svg";
-import nuclear from "./assets/img/nuclear.svg";
-import oil from "./assets/img/oil.svg";
-import papaya from "./assets/img/papaya.svg";
-import solar from "./assets/img/solar.svg";
-import wind from "./assets/img/wind.svg";
-
 import "./Visualization.css";
 
 class Visualization extends Component {
   constructor(props) {
     super(props);
-    console.log(props);
 
     this.state = {
       field: this.props.field,
@@ -167,26 +157,7 @@ class Visualization extends Component {
     const plant_outlier = this.props.plant_outlier;
     const fuel_label_lookup = this.props.fuel_label_lookup;
     const fuel_color_lookup = this.props.fuel_color_lookup;
-    const fuel_icon_lookup = {
-      COAL: coal,
-      OIL: oil,
-      GAS: gas,
-      NUCLEAR: nuclear,
-      HYDRO: hydro,
-      BIOMASS: "",
-      WIND: wind,
-      SOLAR: solar,
-      GEOTHERMAL: "",
-      OFSL: "",
-      OTHF: papaya,
-      HYPR: "",
-      THPR: "",
-      TNPR: "",
-      CYPR: "",
-      CNPR: "",
-    };
     const wrap_long_labels = this.props.wrap_long_labels;
-
     let fuel_name_lookup = {};
     this.state.fuels.forEach((d) => {
       if (d.endsWith("CLPR")) {
@@ -245,7 +216,7 @@ class Visualization extends Component {
       vis = (
         <ResourceMixChart
           title={this.state.name}
-          width={800}
+          width={600}
           height={600}
           data={this.state.resource_mix_data}
           layer={this.state.layer}
@@ -253,11 +224,11 @@ class Visualization extends Component {
           unit={this.props.unit}
           fuels={this.state.fuels}
           category={category}
+          region={region}
           field={this.state.field}
           layer_type={region}
           fuel_label_lookup={fuel_label_lookup}
           fuel_color_lookup={fuel_color_lookup}
-          fuel_icon_lookup={fuel_icon_lookup}
           fuel_name_lookup={fuel_name_lookup}
           wrap_long_labels={wrap_long_labels}
         />
@@ -270,12 +241,12 @@ class Visualization extends Component {
               <Spinner animation="grow" variant="success" />
             </div>
           ) : (
-            <div style={{textAlign: "center"}}>
-              <div style={{display: "inline-block", verticalAlign: "top"}}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ display: "inline-block", verticalAlign: "top" }}>
                 <OtherLevelMap
                   title={this.state.name}
                   width={600}
-                  height={500}
+                  height={600}
                   data={this.state.data}
                   layer={this.state.layer}
                   us_data={this.state.us_data}
@@ -292,7 +263,7 @@ class Visualization extends Component {
                   map_fill={this.state.map_fill}
                 />
               </div>
-              <div style={{display: "inline-block", verticalAlign: "top"}}>
+              <div style={{ display: "inline-block", verticalAlign: "top" }}>
                 <OtherLevelBarchart
                   title={this.state.name}
                   width={350}
@@ -314,7 +285,7 @@ class Visualization extends Component {
               <Spinner animation="grow" variant="success" />
             </div>
           ) : (
-            <div style={{textAlign: "center"}}>
+            <div style={{ textAlign: "center" }}>
               <PlantLevelMapZoom
                 title={this.state.name}
                 static_map_scale={900}
@@ -330,7 +301,6 @@ class Visualization extends Component {
                 plant_outlier={plant_outlier}
                 fuel_label_lookup={fuel_label_lookup}
                 fuel_color_lookup={fuel_color_lookup}
-                fuel_icon_lookup={fuel_icon_lookup}
                 wrap_long_labels={wrap_long_labels}
               />
               <PlantLevelMapStatic
@@ -342,7 +312,7 @@ class Visualization extends Component {
           );
       }
     }
-    return <div style={{textAlign: "center"}}>{vis}</div>;
+    return <div style={{ textAlign: "center" }}>{vis}</div>;
   }
 }
 
@@ -370,7 +340,7 @@ class UpdatedVisualization extends Component {
   render() {
     return (
       <div>
-        <div style={{marginBottom: "1rem"}}>
+        <div style={{ marginBottom: "1rem" }}>
           <Button variant="secondary" size="sm">
             Export Table
           </Button>{" "}
@@ -386,13 +356,17 @@ class UpdatedVisualization extends Component {
           )}
           {lookup[this.props.tier5] === "Plant" && " "}
           {lookup[this.props.tier5] === "Plant" && (
-            <Button variant="secondary" size="sm" onClick={this.exportStaticMap}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={this.exportStaticMap}
+            >
               Export Static Map
             </Button>
           )}
         </div>
         <Visualization
-          style={{textAlign:"center"}}
+          style={{ textAlign: "center" }}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}
           plant_outlier={this.props.plant_outlier}

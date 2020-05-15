@@ -738,7 +738,7 @@ class PlantLevelMapZoom extends Component {
     ]);
 
     this.updateLegend(features, factor);
-    // this.updateStaticMap(features, factor);
+    this.updateStaticMap(features, factor);
   }
 
   render() {

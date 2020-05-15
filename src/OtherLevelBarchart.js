@@ -76,8 +76,8 @@ class OtherLevelBarchart extends Component {
     // scale
     let marginTop = 40,
       marginBottom = 0,
-      marginRight = 60,
-      marginLeft = this.props.layer_type === "state" ? 130 : 60;
+      marginRight = 70,
+      marginLeft = this.props.layer_type === "state" ? 150 : 60;
     let barFillScale = d3.scaleThreshold().range(this.props.map_fill),
       barXScale = d3
         .scaleLinear()
@@ -95,7 +95,9 @@ class OtherLevelBarchart extends Component {
     barFillScale.domain(
       d3
         .range(this.props.map_fill.length - 1)
-        .map((d) => d3.quantile(domainArr, (d + 1) / this.props.map_fill.length))
+        .map((d) =>
+          d3.quantile(domainArr, (d + 1) / this.props.map_fill.length)
+        )
     );
 
     // bars
@@ -108,7 +110,11 @@ class OtherLevelBarchart extends Component {
       .data(this.props.data)
       .enter()
       .append("g")
-      .attr("class", d=>"bars mouseover_target barchart_mouseover_target" + " region_" + d.id)
+      .attr(
+        "class",
+        (d) =>
+          "bars mouseover_target barchart_mouseover_target" + " region_" + d.id
+      )
       .attr("transform", (d) => "translate(0," + barYScale(d.name) + ")");
 
     bars
@@ -138,7 +144,9 @@ class OtherLevelBarchart extends Component {
       .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
       .call(d3.axisTop(barXScale).ticks(5).tickFormat(this.formatXaxis))
       .selectAll("text")
-      .attr("transform", "rotate(-30)");
+      .attr("transform", "rotate(-30)")
+      .style("text-anchor", "start")
+      .style("font-size", "1.2em");
 
     d3.select(this.axis_x_title.current)
       .attr(
@@ -152,7 +160,8 @@ class OtherLevelBarchart extends Component {
       .style("fill", "#000")
       .style("text-anchor", "start")
       .style("stroke", "none")
-      .style("font-size", "0.75em")
+      .style("font-size", "0.8em")
+      .style("font-weight", "bold")
       .text(this.props.unit);
 
     d3.select(this.axis_y.current).selectAll("g").remove();
@@ -160,64 +169,143 @@ class OtherLevelBarchart extends Component {
       .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
       .attr("class", "axis_y")
       .call(d3.axisLeft(barYScale))
-      .selectAll('.tick')
-      .attr('class', d=>'tick mouseover_target barchart_mouseover_target region_'+ this.props.data.filter(e=>e.name===d).map(e=>e.id)[0]);
-    
-    d3.selectAll('.barchart_mouseover_target')
-    .on('mouseover', d=>{
-      d3.select(this.tooltip.current)
-      .transition()
-      .duration(100)
-      .style("opacity", 1);
-    })
-    .on('mousemove', d=>{
-      let html, id;
-      if (typeof(d)==="object") {
-        id = d.id;
-        html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.name + "</b><br>is <b>" + d.value + " " + d.unit + "</b>.</span>";
-      } else if (typeof(d)==="string") {
-        id = this.props.data.filter(e=>e.name===d).map(e=>e.id)[0];
-        html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d + "</b><br>is <b>" + this.props.data.filter(e=>e.name===d).map(e=>e.value)[0] + " " + this.props.data.filter(e=>e.name===d).map(e=>e.unit)[0] + "</b>.</span>";
-      }
-      
-      d3.select(this.tooltip.current)
-      .html(html)
-      .style("position", "absolute")
-      .style("top", (d3.event.pageY+25) + "px")
-      .style("left", (d3.event.pageX-500) + "px")
-      .style("opacity", 1);
+      .selectAll(".tick")
+      .attr(
+        "class",
+        (d) =>
+          "tick mouseover_target barchart_mouseover_target region_" +
+          this.props.data.filter((e) => e.name === d).map((e) => e.id)[0]
+      )
+      .selectAll("text")
+      .style("font-size", "1.2em");
 
-      d3.selectAll('.mouseover_target rect').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
-      d3.selectAll('.mouseover_target text').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
-      d3.selectAll('path.mouseover_target').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+    d3.selectAll(".barchart_mouseover_target")
+      .on("mouseover", (d) => {
+        d3.select(this.tooltip.current)
+          .transition()
+          .duration(100)
+          .style("opacity", 1);
+      })
+      .on("mousemove", (d) => {
+        let html, id;
+        if (typeof d === "object") {
+          id = d.id;
+          html =
+            "<span>The <b>" +
+            this.props.title.slice(0, 1).toLowerCase() +
+            this.props.title.slice(1).split(" (")[0] +
+            "</b><br>for <b>" +
+            d.name +
+            "</b><br>is <b>" +
+            d.value +
+            " " +
+            d.unit +
+            "</b>.</span>";
+        } else if (typeof d === "string") {
+          id = this.props.data.filter((e) => e.name === d).map((e) => e.id)[0];
+          html =
+            "<span>The <b>" +
+            this.props.title.slice(0, 1).toLowerCase() +
+            this.props.title.slice(1).split(" (")[0] +
+            "</b><br>for <b>" +
+            d +
+            "</b><br>is <b>" +
+            this.props.data.filter((e) => e.name === d).map((e) => e.value)[0] +
+            " " +
+            this.props.data.filter((e) => e.name === d).map((e) => e.unit)[0] +
+            "</b>.</span>";
+        }
 
-      d3.selectAll('.region_'+id+' rect').classed('selected', true).style("stroke", "#000").style("stroke-width", 1).style("opacity", 1);
-      d3.selectAll('.region_'+id+' text').classed('selected', true).style("font-weight", "bold").style("opacity", 1);
-      d3.selectAll('path.region_'+id).classed('selected', true).style("stroke-width", 1).style("opacity", 1);
-    })
-    .on('mouseout', d=>{
-      let id;
-      if (typeof(d)==="object") {
-        id = d.id;
-      } else if (typeof(d)==="string") {
-        id = this.props.data.filter(e=>e.name===d).map(e=>e.id)[0];
-      }
-      d3.select(this.tooltip.current)
-      .transition()
-      .duration(500)
-      .style("opacity", 0);
+        d3.select(this.tooltip.current)
+          .html(html)
+          .style("position", "absolute")
+          .style("top", d3.event.pageY + 25 + "px")
+          .style("left", d3.event.pageX - 500 + "px")
+          .style("opacity", 1);
 
-      d3.selectAll('.deemphasized').classed('deemphasized', false).style("opacity", 1).style("transition", "opacity 0.5s");
+        d3.selectAll(".mouseover_target rect")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
+        d3.selectAll(".mouseover_target text")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
+        d3.selectAll("path.mouseover_target")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
 
-      d3.selectAll('.region_'+id+' rect').classed('selected', false).style("stroke", "none");
-      d3.selectAll('.region_'+id+' text').classed('selected', false).style("font-weight", "normal");
-      d3.selectAll('path.region_'+id).classed('selected', false).style("stroke-width", 0.5);
-    });
+        d3.selectAll(".region_" + id + " rect")
+          .classed("selected", true)
+          .style("stroke", "#000")
+          .style("stroke-width", 1)
+          .style("opacity", 1);
+        d3.selectAll(".region_" + id + " text")
+          .classed("selected", true)
+          .style("font-weight", "bold")
+          .style("opacity", 1);
+        d3.selectAll("path.region_" + id)
+          .classed("selected", true)
+          .style("stroke-width", 1)
+          .style("opacity", 1);
+      })
+      .on("mouseout", (d) => {
+        let id;
+        if (typeof d === "object") {
+          id = d.id;
+        } else if (typeof d === "string") {
+          id = this.props.data.filter((e) => e.name === d).map((e) => e.id)[0];
+        }
+        d3.select(this.tooltip.current)
+          .transition()
+          .duration(500)
+          .style("opacity", 0);
+
+        d3.selectAll(".deemphasized")
+          .classed("deemphasized", false)
+          .style("opacity", 1)
+          .style("transition", "opacity 0.5s");
+
+        d3.selectAll(".region_" + id + " rect")
+          .classed("selected", false)
+          .style("stroke", "none");
+        d3.selectAll(".region_" + id + " text")
+          .classed("selected", false)
+          .style("font-weight", "normal");
+        d3.selectAll("path.region_" + id)
+          .classed("selected", false)
+          .style("stroke-width", 0.5);
+      });
 
     this.updateView(by);
   }
 
   updateView(by) {
+    // update sort buttons
+    let input_n = d3.select(".sort-buttons").selectAll("input").nodes();
+    let selected_input =
+      by === "alphabet"
+        ? input_n.filter((e) => e.defaultValue === "Sort by Alphabet")[0]
+        : input_n.filter((e) => e.defaultValue === "Sort by Amount")[0];
+    let non_selected_input =
+      by === "alphabet"
+        ? input_n.filter((e) => e.defaultValue === "Sort by Amount")[0]
+        : input_n.filter((e) => e.defaultValue === "Sort by Alphabet")[0];
+
+    d3.select(selected_input)
+      .style("font-weight", "bold")
+      .style("border", "2px solid black")
+      .style("background-color", "#0071bc")
+      .style("color", "#fff");
+
+    d3.select(non_selected_input)
+      .style("font-weight", "normal")
+      .style("border", "none")
+      .style("background-color", "#ddd")
+      .style("color", "#000");
+
+    // update chart
     let marginTop = 40,
       marginBottom = 0;
     let barYScale = d3
@@ -235,12 +323,15 @@ class OtherLevelBarchart extends Component {
       .paddingInner(0.1)
       .paddingOuter(0.2);
 
+    // update barchart
     d3.select(this.barchart.current)
       .selectAll(".bars")
       .transition()
+      .duration(100)
       .attr("transform", (d) => "translate(0," + barYScale(d.name) + ")");
 
-    d3.select(this.axis_y.current).call(d3.axisLeft(barYScale));
+    // update y axis
+    d3.select(this.axis_y.current).transition().duration(100).call(d3.axisLeft(barYScale));
   }
 
   componentDidMount() {
@@ -256,29 +347,59 @@ class OtherLevelBarchart extends Component {
       }
     }
   }
+
   render() {
     return (
       <div>
-        <input type="button" value={"alphabet"} onChange={(val) => this.setState({ sort_by: val })}/>
-        <input type="button" value={"amount"} onChange={(val) => this.setState({ sort_by: val })}/>
-
+        <div className="sort-buttons">
+          <input
+            style={{
+              padding: "1rem",
+              borderTopLeftRadius: "4px",
+              borderBottomLeftRadius: "4px",
+              borderTopRightRadius: 0,
+              borderBottomRightRadius: 0,
+            }}
+            type="button"
+            value="Sort by Alphabet"
+            onClick={(e) => this.setState({ sort_by: "alphabet" })}
+          />
+          <input
+            style={{
+              padding: "1rem",
+              marginLeft: 0,
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: 0,
+              borderTopRightRadius: "4px",
+              borderBottomRightRadius: "4px",
+            }}
+            type="button"
+            value="Sort by Amount"
+            onClick={(e) => this.setState({ sort_by: "amount" })}
+          />
+        </div>
         <p
-        style={{
-          fontSize: "1em",
-          fontWeight: "bold",
-          fill: "#000",
-          className: "title",
-          textAnchor: "middle",
-          padding: "10px"
-        }}
-      >
-        {"US: " +
-          this.formatNumber(this.props.us_data[0][this.props.field]) +
-          "(" +
-          this.props.unit +
-          ")"}
-      </p>
-        <svg style={{display:"block", margin: "0 auto"}} width={this.props.width} height={this.props.height}>
+          style={{
+            fontSize: "1em",
+            fontWeight: "bold",
+            fill: "#000",
+            className: "title",
+            textAnchor: "middle",
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          {"US: " +
+            this.formatNumber(this.props.us_data[0][this.props.field]) +
+            "(" +
+            this.props.unit +
+            ")"}
+        </p>
+        <svg
+          style={{ display: "block", margin: "0 auto" }}
+          width={this.props.width}
+          height={this.props.height}
+        >
           <g className={"axis"}>
             <g ref={this.axis_x}></g>
             <text ref={this.axis_x_title}></text>
