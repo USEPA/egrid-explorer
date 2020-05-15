@@ -5,12 +5,12 @@ class UpdatedTable extends Component {
     return (
       <div>
         {this.props.title.startsWith("Resource Mix") ? (
-          <table style={{ maxWidth: 300, maxHeight: 600, fontSize: "0.8em"}}>
+          <table style={{ maxWidth: 400, fontSize: "0.9em"}}>
             <thead>
               <tr style={{ lineHeight: 1 }}>
-                <th>Generation by Fuel Type</th>
-                <th>US Resource Mix (%)</th>                
-                <th>
+                <th style={{height: 90}}>Generation by Fuel Type</th>
+                <th style={{height: 90}}>US Resource Mix (%)</th>                
+                <th style={{height: 90}}>
                   {this.props.region}
                   {" Resource Mix (%)"}
                 </th>
@@ -18,7 +18,6 @@ class UpdatedTable extends Component {
             </thead>
             {this.props.title === "Resource Mix by all fuel types" && (
               <tbody>
-                {+this.props.table_info.COAL !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -26,48 +25,42 @@ class UpdatedTable extends Component {
                         this.props.type === "COAL" ? "bold" : "normal",
                     }}
                   >
-                    <td>Coal</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Coal</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_COAL}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.COAL}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.OIL !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
                       fontWeight: this.props.type === "OIL" ? "bold" : "normal",
                     }}
                   >
-                    <td>Oil</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Oil</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_OIL}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.OIL}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.GAS !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
                       fontWeight: this.props.type === "GAS" ? "bold" : "normal",
                     }}
                   >
-                    <td>Gas</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Gas</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_GAS}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.GAS}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.NUCLEAR !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -75,16 +68,14 @@ class UpdatedTable extends Component {
                         this.props.type === "NUCLEAR" ? "bold" : "normal",
                     }}
                   >
-                    <td>Nuclear</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Nuclear</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_NUCLEAR}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.NUCLEAR}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.HYDRO !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -92,17 +83,14 @@ class UpdatedTable extends Component {
                         this.props.type === "HYDRO" ? "bold" : "normal",
                     }}
                   >
-                    <td>Hydro</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Hydro</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_HYDRO}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.HYDRO}
                     </td>
                   </tr>
-                )}
-
-                {+this.props.table_info.BIOMASS !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -110,16 +98,14 @@ class UpdatedTable extends Component {
                         this.props.type === "BIOMASS" ? "bold" : "normal",
                     }}
                   >
-                    <td>Biomass</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Biomass</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_BIOMASS}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.BIOMASS}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.WIND !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -127,16 +113,14 @@ class UpdatedTable extends Component {
                         this.props.type === "WIND" ? "bold" : "normal",
                     }}
                   >
-                    <td>Wind</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Wind</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_WIND}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.WIND}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.SOLAR !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -144,16 +128,14 @@ class UpdatedTable extends Component {
                         this.props.type === "SOLAR" ? "bold" : "normal",
                     }}
                   >
-                    <td>Solar</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Solar</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_SOLAR}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.SOLAR}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.GEOTHERMAL !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -161,16 +143,14 @@ class UpdatedTable extends Component {
                         this.props.type === "GEOTHERMAL" ? "bold" : "normal",
                     }}
                   >
-                    <td>Geothermal</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Geothermal</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_GEOTHERMAL}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.GEOTHERMAL}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.OFSL !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -178,16 +158,14 @@ class UpdatedTable extends Component {
                         this.props.type === "OFSL" ? "bold" : "normal",
                     }}
                   >
-                    <td>Other Fossil</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Other Fossil</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_OFSL}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.OFSL}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.OTHF !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -195,21 +173,19 @@ class UpdatedTable extends Component {
                         this.props.type === "OTHF" ? "bold" : "normal",
                     }}
                   >
-                    <td>Other Unknown or Purchased Fuel</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Other Unknown or Purchased Fuel</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_OTHF}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.OTHF}
                     </td>
                   </tr>
-                )}
               </tbody>
             )}
             {this.props.title ===
               "Resource Mix by renewable vs. non-renewable fuels" && (
               <tbody>
-                {+this.props.table_info.HYDRO !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -217,16 +193,14 @@ class UpdatedTable extends Component {
                         this.props.type === "HYDRO" ? "bold" : "normal",
                     }}
                   >
-                    <td>Hydro</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Hydro</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_HYDRO}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.HYDRO}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.TNPR !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -234,16 +208,14 @@ class UpdatedTable extends Component {
                         this.props.type === "TNPR" ? "bold" : "normal",
                     }}
                   >
-                    <td>Total Nonrenewables</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Total Nonrenewables</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_TNPR}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.TNPR}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.THPR !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -251,21 +223,19 @@ class UpdatedTable extends Component {
                         this.props.type === "THPR" ? "bold" : "normal",
                     }}
                   >
-                    <td>Total Nonhydro Renewables</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Total Nonhydro Renewables</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_THPR}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.THPR}
                     </td>
                   </tr>
-                )}
               </tbody>
             )}
             {this.props.title ===
               "Resource Mix by combustible vs. non-combustible fuels" && (
               <tbody>
-                {+this.props.table_info.CYPR !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -273,16 +243,14 @@ class UpdatedTable extends Component {
                         this.props.type === "CYPR" ? "bold" : "normal",
                     }}
                   >
-                    <td>Total Combustion</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Total Combustion</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_CYPR}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.CYPR}
                     </td>
                   </tr>
-                )}
-                {+this.props.table_info.CNPR !== 0 && (
                   <tr
                     style={{
                       lineHeight: 1,
@@ -290,118 +258,117 @@ class UpdatedTable extends Component {
                         this.props.type === "CNPR" ? "bold" : "normal",
                     }}
                   >
-                    <td>Total Noncumbustion</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ padding: "0.8em" }}>Total Noncumbustion</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_CNPR}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.CNPR}
                     </td>
                   </tr>
-                )}
               </tbody>
             )}
           </table>
         ) : (
-          <table striped bordered hover responsive="sm">
+          <table style={{ maxWidth: 400, fontSize: "0.8em"}}>
             <thead>
               <tr style={{ lineHeight: 1 }}>
                 <th>Plant Name</th>
-                <th>{this.props.table_info.PNAME}</th>
+                <th style={{ textAlign: "right", height: 50 }}>{this.props.table_info.PNAME}</th>
               </tr>
             </thead>
             <tbody>
               <tr style={{ lineHeight: 1 }}>
-                <td>Facility ID</td>
-                <td>{this.props.table_info.ORISPL}</td>
+                <td style={{ padding: "0.5em" }}>Facility ID</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.ORISPL}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>Plant State</td>
-                <td>{this.props.table_info.PSTATABB}</td>
+                <td style={{ padding: "0.5em" }}>Plant State</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PSTATABB}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>eGRID Subregion</td>
-                <td>
+                <td style={{ padding: "0.5em" }}>eGRID Subregion</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>
                   <a href="https://www.epa.gov/sites/production/files/styles/large/public/2020-03/2018_egrid_subregions.png">
                     {this.props.table_info.SUBRGN}
                   </a>
                 </td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>Plant Primary Fuel</td>
-                <td>{this.props.table_info.PLPRMFL}</td>
+                <td style={{ padding: "0.5em" }}>Plant Primary Fuel</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLPRMFL}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>Nameplate Capacity (MW)</td>
-                <td>{this.props.table_info.NAMEPCAP}</td>
+                <td style={{ padding: "0.5em" }}>Nameplate Capacity (MW)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLNAMEPCAP}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>Plant Capacity Factor</td>
-                <td>{this.props.table_info.CAPFAC}</td>
+                <td style={{ padding: "0.5em" }}>Plant Capacity Factor</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.CAPFAC}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>Generation (MWh)</td>
-                <td>{this.props.table_info.PLNGENAN}</td>
+                <td style={{ padding: "0.5em" }}>Generation (MWh)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLNGENAN}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>Heat Input (MMBtu)</td>
-                <td>{this.props.table_info.PLHTIANT}</td>
+                <td style={{ padding: "0.5em" }}>Heat Input (MMBtu)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLHTIANT}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>NOₓ Annual Emissions (tons)</td>
-                <td>{this.props.table_info.PLNOXAN}</td>
+                <td style={{ padding: "0.5em", height: 40}}>NOₓ Annual Emissions (tons)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLNOXAN}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>NOₓ Annual Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLNOXRTA}</td>
+                <td style={{ padding: "0.5em" , height: 40}}>NOₓ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLNOXRTA}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>NOₓ Ozone Season Emissions (tons)</td>
-                <td>{this.props.table_info.PLNOXOZ}</td>
+                <td style={{ padding: "0.5em", height: 40 }}>NOₓ Ozone Season Emissions (tons)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLNOXOZ}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>NOₓ Ozone Season Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLNOXRTO}</td>
+                <td style={{ padding: "0.5em", height: 40 }}>NOₓ Ozone Season Output Emission Rate (lb/MWh)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLNOXRTO}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>SO₂ Annual Emissions (tons)</td>
-                <td>{this.props.table_info.PLSO2AN}</td>
+                <td style={{ padding: "0.5em" }}>SO₂ Annual Emissions (tons)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLSO2AN}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>SO₂ Annual Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLSO2RTA}</td>
+                <td style={{ padding: "0.5em", height: 40 }}>SO₂ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLSO2RTA}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>CO₂ Annual Emissions (tons)</td>
-                <td>{this.props.table_info.PLCO2AN}</td>
+                <td style={{ padding: "0.5em" }}>CO₂ Annual Emissions (tons)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLCO2AN}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>CO₂ Annual Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLCO2RTA}</td>
+                <td style={{ padding: "0.5em", height: 40 }}>CO₂ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLCO2RTA}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>CH₄ Annual Emissions (lbs)</td>
-                <td>{this.props.table_info.PLCH4AN}</td>
+                <td style={{ padding: "0.5em" }}>CH₄ Annual Emissions (lbs)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLCH4AN}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>CH₄ Annual Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLCH4RTA}</td>
+                <td style={{ padding: "0.5em", height: 40 }}>CH₄ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLCH4RTA}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>N₂O Annual Emissions (lbs)</td>
-                <td>{this.props.table_info.PLN2OAN}</td>
+                <td style={{ padding: "0.5em" }}>N₂O Annual Emissions (lbs)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLN2OAN}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>N₂O Annual Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLN2ORTA}</td>
+                <td style={{ padding: "0.5em", height: 40 }}>N₂O Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLN2ORTA}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>CO₂ equivalent Annual Emissions (tons)</td>
-                <td>{this.props.table_info.PLCO2EQA}</td>
+                <td style={{ padding: "0.5em", height: 40 }}>CO₂ equivalent Annual Emissions (tons)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLCO2EQA}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td>CO₂ equivalent Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLC2ERTA}</td>
+                <td style={{ padding: "0.5em", height: 40 }}>CO₂ equivalent Output Emission Rate (lb/MWh)</td>
+                <td style={{ textAlign: "right", padding: "0.5em" }}>{this.props.table_info.PLC2ERTA}</td>
               </tr>
             </tbody>
           </table>

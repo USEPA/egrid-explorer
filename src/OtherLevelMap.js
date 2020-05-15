@@ -91,7 +91,7 @@ class OtherLevelMap extends Component {
         .html(html)
         .style("position", "absolute")
         .style("top", (d3.event.pageY + 25) + "px")
-        .style("left", (d3.event.pageX - 500) + "px")
+        .style("left", (d3.event.pageX - 50) + "px")
         .style("opacity", 1);
 
         d3.selectAll('.mouseover_target rect').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
@@ -161,7 +161,7 @@ class OtherLevelMap extends Component {
         .html(html)
         .style("position", "absolute")
         .style("top", (d3.event.pageY + 25) + "px")
-        .style("left", (d3.event.pageX - 500) + "px")
+        .style("left", (d3.event.pageX - 50) + "px")
         .style("opacity", 1);
 
         d3.selectAll('.mouseover_target rect').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");

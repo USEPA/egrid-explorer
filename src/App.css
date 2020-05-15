@@ -1,0 +1,93 @@
+.app {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+header {
+  min-height: 80px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+h2 {
+  display: inline-block;
+  font-family: Merriweather, Georgia, Cambria, "Times New Roman", Times, serif;
+  max-width: 85%;
+  vertical-align: middle;
+  margin: 0;
+}
+
+p {
+  display: block;
+  font-weight: bold;
+  font-size: 1em;
+  margin-bottom: 0.5rem; 
+}
+
+.loading div{
+  display: block;
+  margin: 0 auto;
+  margin-top: 20%;
+}
+
+#logo {
+  width: 14%;
+  float: right;
+}
+
+td {
+  width: 220px;
+}
+
+.mapboxgl-popup-close-button {
+  color: #000 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mapboxgl-ctrl-zoom-in, .mapboxgl-ctrl-zoom-out, .mapboxgl-ctrl-fullscreen {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mapboxgl-popup-content {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+@media print {
+  .no-export, .no-export svg, .mapboxgl-ctrl, .mapboxgl-popup-content{
+    display: none;
+  }
+
+  .fuel.selected circle {
+    stroke: #000;
+    stroke-width: 2px;
+  }
+
+  .fuel.selected text {
+    font-weight: "bold";
+    font-size: 1.2em;
+  }
+
+  #map-zoomable .fuel {
+    width: 90px;
+    height: 10px;
+  }
+
+  #resource-mix-chart .fuel {
+    width: 71px;
+    height: 10px;
+  }
+
+  #resource-mix-micromap {
+    clear:right;
+    width:100%;
+  }
+
+  #vertical-barchart {
+    margin-top: 40px;
+  }
+
+
+}

@@ -314,8 +314,9 @@ class Main extends Component {
       tier4_options = _.uniq(all_options.map((op) => lookup[op.tier4])),
       tier5_options = _.uniq(all_options.map((op) => lookup[op.tier5]));
     return (
-      <main className="main-content">
-        <p style={{fontSize: "1em",
+      <div>
+        <p className="no-export"
+           style={{fontSize: "1em",
                    fontWeight: "bold",
                    marginBottom: "0.5rem",
                    padding: ".8rem 0", 
@@ -448,7 +449,7 @@ class Main extends Component {
           nerc_layer={this.props.nerc_layer}
           ggl_layer={this.props.ggl_layer}
         ></UpdatedVisualization>
-      </main>
+      </div>
     );
   }
 }

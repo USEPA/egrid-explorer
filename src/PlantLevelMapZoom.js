@@ -1,12 +1,9 @@
 import React, { Component } from "react";
-import { renderToString } from "react-dom/server";
 import mapboxgl from "mapbox-gl";
 import * as d3 from "d3";
 import * as d3_composite from "d3-composite-projections";
 
 import UpdatedTable from "./Table";
-
-import "mapbox-gl/dist/mapbox-gl.css";
 
 mapboxgl.accessToken =
   "pk.eyJ1Ijoia2F0aWVsb25nIiwiYSI6ImNpenpudmY1dzAxZmYzM2tmY2tobDN1MXoifQ._aoE2Zj7vx3dUlZw-gBCrg";
@@ -18,6 +15,7 @@ class PlantLevelMapZoom extends Component {
     this.legend = React.createRef();
     this.state = {
       selected_fuel: [],
+      table_info: {}
     };
 
     this.field_factor_divided_by = 8;
@@ -29,6 +27,32 @@ class PlantLevelMapZoom extends Component {
 
     this.filter_text = "Filter by Primary Fuel";
     this.filter_reset_text = "Show All Fuels";
+
+    this.show_plant_info = false;
+    this.hoveredPlantId = null;
+    this.tooltip =  new mapboxgl.Popup({
+      closeButton: true,
+      closeOnClick: false,
+    }).on("close", () => {
+      this.show_plant_info = false;
+      this.tooltip.options.anchor = "bottom";
+
+      let table_info = {};
+      Object.keys(this.state.table_info).forEach((e) => {
+        table_info[e] = "-";
+      });
+      this.setState({table_info: table_info});
+    });
+  }
+
+  formatNumber(d) {
+    if (d < 1) {
+      return d3.format(".3f")(d);
+    } else if (d >= 1000000) {
+      return d3.format(",.0f")(d);
+    } else {
+      return isNaN(d) ? "" : d3.format(",.2f")(Math.floor(d * 100) / 100);
+    }
   }
 
   formatLegend(d) {
@@ -62,9 +86,9 @@ class PlantLevelMapZoom extends Component {
       let nbox = this.props.fuels.length + 1;
       let boxlen = w / nbox;
 
-      d3.selectAll(".fuels_selection").selectAll("div").remove();
+      d3.selectAll(".fuels-selection").selectAll("div").remove();
       let fuels = d3
-        .selectAll(".fuels_selection")
+        .selectAll(".fuels-selection")
         .append("div")
         .attr("class", "fuels")
         .selectAll("div")
@@ -102,7 +126,7 @@ class PlantLevelMapZoom extends Component {
       d3.select(".fuels")
         .insert("div", ".fuel")
         .style("display", "inline-block")
-        .attr("class", "reset")
+        .attr("class", "reset no-export")
         .style("opacity", 0.5)
         .style("cursor", "not-allowed")
         .append("svg")
@@ -182,16 +206,16 @@ class PlantLevelMapZoom extends Component {
         this.map.getSource("plants").setData(data);
         this.setRadius(data.features);
 
-        d3.selectAll(".fuels_selection")
+        d3.selectAll(".fuels-selection")
           .select(".reset")
           .style("opacity", 0.5)
           .style("cursor", "not-allowed");
-        d3.selectAll(".fuels_selection")
+        d3.selectAll(".fuels-selection")
           .select(".reset text")
           .text(this.filter_text)
           .call(
             this.props.wrap_long_labels,
-            d3.select(".fuels_selection").node().clientWidth /
+            d3.select(".fuels-selection").node().clientWidth /
               (this.props.fuels.length + 1)
           );
         d3.selectAll(".selected")
@@ -238,7 +262,7 @@ class PlantLevelMapZoom extends Component {
           d3.selectAll(".selected")
             .classed("selected", false)
             .style("background", "none");
-          d3.selectAll(".fuels_selection")
+          d3.selectAll(".fuels-selection")
             .select(".reset")
             .style("opacity", 1)
             .style("cursor", "pointer")
@@ -246,7 +270,7 @@ class PlantLevelMapZoom extends Component {
               this.setState({ selected_fuel: [] });
             });
 
-          d3.selectAll(".fuels_selection")
+          d3.selectAll(".fuels-selection")
             .select(".reset text")
             .text(this.filter_reset_text)
             .call(
@@ -255,7 +279,7 @@ class PlantLevelMapZoom extends Component {
                 (this.props.fuels.length + 1)
             );
 
-          d3.selectAll(".fuels_selection")
+          d3.selectAll(".fuels-selection")
             .selectAll(".fuel")
             .filter((d) => this.state.selected_fuel.indexOf(d) !== -1)
             .classed("selected", true)
@@ -268,6 +292,25 @@ class PlantLevelMapZoom extends Component {
               this.field_factor_divided_by;
             this.updateLegend(features, factor);
           });
+
+          // refresh tooltip
+          this.show_plant_info = false;
+          this.tooltip.options.anchor = "bottom";
+
+          let table_info = {};
+          Object.keys(this.state.table_info).forEach((e) => {
+            table_info[e] = "-";
+          });
+          this.setState({table_info: table_info});
+
+          this.tooltip.remove();
+          if (this.hoveredPlantId) {
+            this.map.setFeatureState(
+              { source: "plants", id: this.hoveredPlantId },
+              { hover: false }
+            );
+          }
+          this.hoveredPlantId = null;
         }
       } else if (
         JSON.stringify(this.state.selected_fuel) !==
@@ -294,16 +337,16 @@ class PlantLevelMapZoom extends Component {
           this.map.getSource("plants").setData(data);
           this.setRadius(data.features);
 
-          d3.selectAll(".fuels_selection")
+          d3.selectAll(".fuels-selection")
             .select(".reset")
             .style("opacity", 0.5)
             .style("cursor", "not-allowed");
-          d3.selectAll(".fuels_selection")
+          d3.selectAll(".fuels-selection")
             .select(".reset text")
             .text(this.filter_text)
             .call(
               this.props.wrap_long_labels,
-              d3.select(".fuels_selection").node().clientWidth /
+              d3.select(".fuels-selection").node().clientWidth /
                 (this.props.fuels.length + 1)
             );
           d3.selectAll(".selected")
@@ -348,6 +391,7 @@ class PlantLevelMapZoom extends Component {
         this._container.style.borderRadius = "4px";
         this._container.style.boxShadow = "0 0 0 2px rgba(0,0,0,.1)";
         this._container.style.cursor = "pointer";
+        this._container.style.height = "29px";
         this._container.onclick = function () {
           map.flyTo({ center: init_center, zoom: init_zoom });
         };
@@ -406,10 +450,6 @@ class PlantLevelMapZoom extends Component {
     }
     this.map.addControl(new Legend(), "bottom-right");
 
-    d3.selectAll(".mapboxgl-ctrl-group button")
-    .style("margin", 0)
-    .style("padding", 0);
-
     d3.select(".mapboxgl-ctrl-compass").style("display", "none");
 
     this.map.on("load", () => {
@@ -429,6 +469,11 @@ class PlantLevelMapZoom extends Component {
             return d;
           }),
       };
+
+      let table_info = {};
+      Object.keys(data.features[0].properties).forEach((e) => {
+        table_info[e] = "-";
+      });
 
       this.map.addSource("plants", {
         type: "geojson",
@@ -507,95 +552,92 @@ class PlantLevelMapZoom extends Component {
       this.setRadius(data.features);
 
       // interaction: mousemove, mouseleave, click
-      let show_tooltip = false,
-        hoveredPlantId = null,
-        tooltip = new mapboxgl.Popup({
-          closeButton: false,
-          closeOnClick: false,
-          maxWidth: d3.select(this.fuels.current).node().clientWidth * 0.7,
-        }).on("close", () => {
-          tooltip.options.closeButton = false;
-          tooltip.options.anchor = "bottom";
-          show_tooltip = false;
-        });
-
       this.map.on("mousemove", "plants", (d) => {
-        if (!show_tooltip) {
+        if (!this.show_plant_info) {
           if (d.features.length > 0) {
-            if (hoveredPlantId) {
+            if (this.hoveredPlantId) {
               this.map.setFeatureState(
-                { source: "plants", id: hoveredPlantId },
+                { source: "plants", id: this.hoveredPlantId },
                 { hover: false }
               );
             }
-            hoveredPlantId = d.features[0].id;
+            this.hoveredPlantId = d.features[0].id;
             this.map.setFeatureState(
-              { source: "plants", id: hoveredPlantId },
+              { source: "plants", id: this.hoveredPlantId },
               { hover: true }
             );
           }
 
           this.map.getCanvas().style.cursor = "pointer";
-          tooltip
+          this.tooltip
             .setLngLat(d.features[0].geometry.coordinates.slice())
             .setText(d.features[0].properties.name)
             .addTo(this.map);
+
+          let table_info = {};
+          Object.keys(d.features[0].properties).forEach((e) => {
+            table_info[e] = typeof(d.features[0].properties[e])==="number" && e!=="ORISPL" ? this.formatNumber(d.features[0].properties[e]) : d.features[0].properties[e];
+          });
+          this.setState({table_info: table_info});
         }
       });
 
       this.map.on("mouseleave", "plants", () => {
-        if (!show_tooltip) {
+        if (!this.show_plant_info) {
           this.map.getCanvas().style.cursor = "";
-          tooltip.remove();
-          if (hoveredPlantId) {
+          this.tooltip.remove();
+          if (this.hoveredPlantId) {
             this.map.setFeatureState(
-              { source: "plants", id: hoveredPlantId },
+              { source: "plants", id: this.hoveredPlantId },
               { hover: false }
             );
           }
-          hoveredPlantId = null;
+          this.hoveredPlantId = null;
+
+          let table_info = {};
+          Object.keys(this.state.table_info).forEach((e) => {
+            table_info[e] = "-";
+          });
+          this.setState({table_info: table_info});
         }
       });
 
       this.map.on("click", "plants", (d) => {
         if (
-          show_tooltip &&
+          this.show_plant_info &&
           d.features[0].geometry.coordinates.slice()[0] ===
-            tooltip.getLngLat().lng &&
+          this.tooltip.getLngLat().lng &&
           d.features[0].geometry.coordinates.slice()[1] ===
-            tooltip.getLngLat().lat
+          this.tooltip.getLngLat().lat
         ) {
-          tooltip.options.closeButton = false;
-          tooltip.options.anchor = "bottom";
-          show_tooltip = false;
+          this.tooltip.remove();
         } else {
           if (d.features.length > 0) {
-            if (hoveredPlantId) {
+            if (this.hoveredPlantId) {
               this.map.setFeatureState(
-                { source: "plants", id: hoveredPlantId },
+                { source: "plants", id: this.hoveredPlantId },
                 { hover: false }
               );
             }
-            hoveredPlantId = d.features[0].id;
+            this.hoveredPlantId = d.features[0].id;
             this.map.setFeatureState(
-              { source: "plants", id: hoveredPlantId },
+              { source: "plants", id: this.hoveredPlantId },
               { hover: true }
             );
           }
+
+          this.tooltip.remove();
+          this.tooltip
+          .setLngLat(d.features[0].geometry.coordinates.slice())
+          .setText(d.features[0].properties.name)
+          .addTo(this.map);
+
           let table_info = {};
           Object.keys(d.features[0].properties).forEach((e) => {
-            table_info[e] = d.features[0].properties[e];
+            table_info[e] = typeof(d.features[0].properties[e])==="number" && e!=="ORISPL" ? this.formatNumber(d.features[0].properties[e]) : d.features[0].properties[e];
           });
-          let description = renderToString(
-            <UpdatedTable title={this.props.title} table_info={table_info} />
-          );
-          tooltip.options.closeButton = true;
-          tooltip.options.anchor = "left";
-          tooltip
-            .setLngLat(d.features[0].geometry.coordinates.slice())
-            .setHTML(description)
-            .addTo(this.map);
-          show_tooltip = true;
+          this.setState({table_info: table_info});
+          this.show_plant_info = true;
         }
       });
 
@@ -606,6 +648,8 @@ class PlantLevelMapZoom extends Component {
           this.field_factor_divided_by;
         this.updateLegend(features, factor);
       });
+
+      this.setState({table_info: table_info});
     });
   }
 
@@ -701,15 +745,15 @@ class PlantLevelMapZoom extends Component {
     scale = d3.scaleOrdinal().domain(field_values).range(radius_values);
 
     // draw plants on static map
-    let w = d3.select(".map_container").node().clientWidth,
-      h = d3.select(".map_container").node().clientHeight;
+    let w = d3.select(this.fuels.current).node().clientWidth,
+      h = d3.select(".map-container").node().clientHeight;
     let projection = d3_composite
       .geoAlbersUsaTerritories()
       .scale(this.props.static_map_scale)
       .translate([w / 2, h / 2.5]);
 
-    d3.select(".static_map").selectAll("circle").remove();
-    d3.select(".static_map")
+    d3.select(".map-static-svg").selectAll("circle").remove();
+    d3.select(".map-static-svg")
       .selectAll("circle")
       .data(features)
       .enter()
@@ -757,18 +801,33 @@ class PlantLevelMapZoom extends Component {
     );
 
     return (
-      <div id="map_zoomable" style={{ width: "100%", margin: "0 auto" }}>
+      <div id="map-zoomable" style={{ width: "100%", margin: "0 auto" }}>
         {title}
         <div
-          className="fuels_selection"
-          style={{ height: 100 }}
-          ref={this.fuels}
-        ></div>
-        <div
-          className="map_container"
-          style={{ height: 600 }}
-          ref={(node) => (this.container = node)}
-        />
+            className="fuels-selection"
+            style={{ width: "100%", height: 100, display: "inline-block"}}
+            ref={this.fuels}
+          ></div>
+        <div>
+          <div
+            className="map-container"
+            style={{ width: "65%", height: 730, display: "inline-block"}}
+            ref={(node) => (this.container = node)}
+          />
+          <div
+            style={{
+              width: "33%",
+              height: 750,
+              float: "right",
+              display: "inline-block",
+            }}
+          >
+            <UpdatedTable
+              title={this.props.title}
+              table_info={this.state.table_info}
+            />
+          </div>
+        </div>
       </div>
     );
   }

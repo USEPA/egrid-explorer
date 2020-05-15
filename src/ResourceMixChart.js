@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { renderToString } from "react-dom/server";
 import * as d3 from "d3";
 import * as _ from "underscore";
 import * as d3_composite from "d3-composite-projections";
@@ -14,16 +13,17 @@ class ResourceMixChart extends Component {
     this.barchart = React.createRef();
     this.barchart_wrapper = React.createRef();
     this.axis_y = React.createRef();
+    this.axis_x = React.createRef();
     this.micromap = React.createRef();
-    this.tooltip = React.createRef();
     this.state = {
-      selected_fuel: null,
-      show_tooltip: false,
+      sort_fuel: null,
+      mouseover_fuel: null,
+      clicked_on_bar: false,
       selected_region: this.props.region,
       table_info: {},
     };
-    this.sort_text = "Sort by Fuel";
-    this.sort_reset_text = "Sort by Alphabet";
+    this.sort_text = "Click to Rearrange";
+    this.sort_reset_text = "Click to Rearrange";
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -31,8 +31,8 @@ class ResourceMixChart extends Component {
       this.initView();
     } else {
       if (
-        this.state.selected_fuel !== prevState.selected_fuel &&
-        this.state.selected_fuel !== null
+        this.state.sort_fuel !== prevState.sort_fuel &&
+        this.state.sort_fuel !== null
       ) {
         d3.selectAll(".selected")
           .classed("selected", false)
@@ -41,25 +41,36 @@ class ResourceMixChart extends Component {
           .select(".reset")
           .style("opacity", 1)
           .style("cursor", "pointer")
+          .on("mouseover", () => {
+            d3.select(".reset").style("opacity", 0.7);
+          })
+          .on("mouseout", () => {
+            d3.select(".reset").style("opacity", 1);
+          })
           .on("click", () => {
             this.initView();
           });
-          d3.select(this.fuels.current)
+        d3.select(this.fuels.current)
           .select(".reset text")
           .text(this.sort_reset_text)
-          .call(this.props.wrap_long_labels, 
+          .call(
+            this.props.wrap_long_labels,
+            Math.min(
               d3.select(this.fuels.current).node().clientWidth /
-                (this.props.fuels.length + 1) * 0.8)
+                (this.props.fuels.length + 1),
+              100
+            )
+          );
         d3.select(this.fuels.current)
           .selectAll(".fuel")
-          .filter((e) => e === this.state.selected_fuel)
+          .filter((e) => e === this.state.sort_fuel)
           .classed("selected", true)
           .style("background", "#ddd");
 
-        this.updateView(this.state.selected_fuel);
+        this.updateView(this.state.sort_fuel);
       } else if (
-        this.state.selected_fuel !== prevState.selected_fuel &&
-        this.state.selected_fuel === null
+        this.state.sort_fuel !== prevState.sort_fuel &&
+        this.state.sort_fuel === null
       ) {
         d3.selectAll(".selected")
           .classed("selected", false)
@@ -75,12 +86,13 @@ class ResourceMixChart extends Component {
   }
 
   initView() {
-    let marginRight = 0,
+    let marginRight = 10,
+      marginTop = 20,
       marginLeft = this.props.layer_type === "state" ? 150 : 60;
     let w = d3.select(this.barchart_wrapper.current).node().clientWidth,
       h = d3.select(this.barchart_wrapper.current).node().clientHeight;
 
-    let fuel_names = this.props.fuels,
+    let fuel_names = this.props.fuels, avail_fuels = [],
       fuel_colors = Object.values(this.props.fuel_name_lookup).map(
         (d) => this.props.fuel_color_lookup[d]
       );
@@ -100,8 +112,10 @@ class ResourceMixChart extends Component {
           cumsum: cumsum,
         });
         cumsum = cumsum + d[f];
+        if (d[f] > 0) avail_fuels.push(this.props.fuel_name_lookup[f]);
       });
     });
+    avail_fuels = _.uniq(avail_fuels);
     data
       .filter((e) => e.name === "US")
       .forEach((e) => {
@@ -117,7 +131,7 @@ class ResourceMixChart extends Component {
     let barYScale = d3
       .scaleBand()
       .domain(name)
-      .range([0, h])
+      .range([0, h - marginTop])
       .paddingInner(0.1)
       .paddingOuter(0.2);
 
@@ -144,13 +158,13 @@ class ResourceMixChart extends Component {
     // barchart
     d3.select(this.barchart.current).selectAll("g").remove();
     d3.select(this.barchart.current)
-      .attr("transform", "translate(" + marginLeft + ",0)")
+      .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
       .append("g")
       .selectAll("rect")
       .data(data)
       .enter()
       .append("rect")
-      .attr("class", (d) => "bars_" + d.id + "_" + d.type)
+      .attr("class", (d) => "bars_" + d.id + " bars_" + d.id + "_" + d.type)
       .attr("x", (d) => barXScale(d.cumsum))
       .attr("y", (d) => barYScale(d.name))
       .attr("rx", 4)
@@ -159,49 +173,43 @@ class ResourceMixChart extends Component {
       .attr("height", barYScale.bandwidth())
       .style("cursor", "pointer")
       .style("fill", (d) => barFillScale(d.type))
-      .on("mouseover", (d) => {
-        if (!this.state.show_tooltip) {
-
-        }
-        d3.select(this.tooltip.current)
-        .transition()
-        .duration(100)
-        .style("opacity", 1);
-      })
       .on("mousemove", (d) => {
-        // if (!this.state.show_tooltip) {
-        //   let table_info = {};
-        //   data
-        //     .filter((e) => e.name === d.name || e.name === "US")
-        //     .forEach((e) => {
-        //       if (e.name === "US") {
-        //         table_info[e.name + "_" + e.type] = d3.format(".2f")(e.value);
-        //       } else {
-        //         table_info[e.type] = d3.format(".2f")(e.value);
-        //       }
-        //     });
-        // }
-        let html = "<span><b>" + this.props.fuel_label_lookup[d.type] + "</b> accounts for <b><br>" + d3.format(".2f")(d.value) + "%</b> of the resource mix in <b>" + d.name + "</b>.</span>";
-        d3.select(this.tooltip.current)
-          .html(html)
-          .style("position", "absolute")
-          .style("top", d3.event.pageY + 25 + "px")
-          .style("left", d3.event.pageX - 500 + "px")
-          .style("opacity", 1);
-        d3.select(this.wrapper.current)
-          .select("rect.bars_" + d.id + "_" + d.type)
-          .classed("selected", true)
-          .style("stroke", "#000")
-          .style("stroke-width", 1);
+        if (!this.state.clicked_on_bar) {
+          let table_info = {};
+          data
+            .filter((e) => e.name === d.name || e.name === "US")
+            .forEach((e) => {
+              if (e.name === "US") {
+                table_info[e.name + "_" + e.type] = d3.format(".2f")(e.value);
+              } else {
+                table_info[e.type] = d3.format(".2f")(e.value);
+              }
+            });
+
+          d3.select(this.wrapper.current)
+            .select("rect.bars_" + d.id + "_" + d.type)
+            .classed("selected", true)
+            .style("stroke", "#000")
+            .style("stroke-width", 1);
+
+          this.setState({
+            table_info: table_info,
+            selected_region: d.name,
+            mouseover_fuel: d.type,
+          });
+        }
       })
       .on("mouseout", (d) => {
-        d3.select(this.tooltip.current)
-        .transition()
-        .duration(500)
-        .style("opacity", 0);
-        d3.selectAll("rect.selected")
-          .classed("selected", false)
-          .style("stroke", "none");
+        if (!this.state.clicked_on_bar) {
+          d3.selectAll("rect.selected")
+            .classed("selected", false)
+            .style("stroke", "none");
+          this.setState({
+            table_info: table_info,
+            selected_region: this.props.region,
+            mouseover_fuel: null,
+          });
+        }
       })
       .on("click", (d) => {
         if (
@@ -213,71 +221,96 @@ class ResourceMixChart extends Component {
           d3.selectAll("rect.highlighted")
             .classed("highlighted", false)
             .style("stroke", "none");
-          this.setState({ show_tooltip: false });
+          d3.selectAll("rect").style("opacity", 1);
+          this.setState({
+            clicked_on_bar: false,
+            table_info: table_info,
+            selected_region: this.props.region,
+            mouseover_fuel: null,
+          });
         } else {
+          let table_info = {};
+          data
+            .filter((e) => e.name === d.name || e.name === "US")
+            .forEach((e) => {
+              if (e.name === "US") {
+                table_info[e.name + "_" + e.type] = d3.format(".2f")(e.value);
+              } else {
+                table_info[e.type] = d3.format(".2f")(e.value);
+              }
+            });
+
           d3.selectAll("rect.highlighted")
             .classed("highlighted", false)
             .style("stroke", "none");
+
           d3.selectAll("rect.selected")
             .classed("selected", false)
             .style("stroke", "none");
+
+          d3.selectAll("rect").style("opacity", 0.3);
+
+          d3.select(this.wrapper.current)
+            .selectAll("rect.bars_" + "-1")
+            .style("opacity", 1);
+
+          d3.select(this.wrapper.current)
+            .selectAll("rect.bars_" + d.id)
+            .style("opacity", 1);
+
+          d3.select(this.wrapper.current)
+            .select("rect.bars_" + "-1" + "_" + d.type)
+            .classed("highlighted", true)
+            .style("stroke", "#000")
+            .style("stroke-width", 1);
+
           d3.select(this.wrapper.current)
             .select("rect.bars_" + d.id + "_" + d.type)
             .classed("highlighted", true)
             .style("stroke", "#000")
             .style("stroke-width", 1);
-          this.setState({ show_tooltip: true });
 
-          // let table_info = {};
-          // data
-          //   .filter((e) => e.name === d.name || e.name === "US")
-          //   .forEach((e) => {
-          //     if (e.name === "US") {
-          //       table_info[e.name + "_" + e.type] = d3.format(".2f")(e.value);
-          //     } else {
-          //       table_info[e.type] = d3.format(".2f")(e.value);
-          //     }
-          //   });
-
-          // let html = renderToString(
-          //   <UpdatedTable
-          //     region={d.name}
-          //     title={this.props.title}
-          //     type={d.type}
-          //     table_info={table_info}
-          //   />
-          // );
-          // d3.select(this.tooltip.current)
-          //   .html(html)
-          //   .style("position", "absolute")
-          //   .style("top", 200 + "px")
-          //   .style("left", 700 + "px")
-          //   .style("opacity", 0.9);
+          this.setState({
+            clicked_on_bar: true,
+            table_info: table_info,
+            selected_region: d.name,
+            mouseover_fuel: d.type,
+          });
         }
       });
 
     // axis
     d3.select(this.axis_y.current).selectAll("g").remove();
     d3.select(this.axis_y.current)
-      .attr("transform", "translate(" + marginLeft + ",0)")
+      .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
       .call(d3.axisLeft(barYScale))
       .selectAll("text")
-      .style("font-size", (d) => d === "US" ? "1.5em": "1.2em")
-      .style("font-weight", (d) => d === "US" ? "bold": "normal");
+      .style("font-size", (d) => (d === "US" ? "1.5em" : "1.2em"))
+      .style("font-weight", (d) => (d === "US" ? "bold" : "normal"));
+
+    d3.select(this.axis_x.current).selectAll("g").remove();
+    d3.select(this.axis_x.current)
+      .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
+      .call(d3.axisTop(barXScale))
+      .selectAll("text")
+      .attr("transform", "rotate(-30)")
+      .style("font-size", (d) => (d === "US" ? "1.5em" : "1.2em"))
+      .style("font-weight", (d) => (d === "US" ? "bold" : "normal"));
 
     // filter
     let w_legend = d3.select(this.fuels.current).node().clientWidth,
       h_legend = d3.select(this.fuels.current).node().clientHeight;
     let nbox = fuel_names.length + 1;
-    let boxlen = w_legend / nbox;
+    let boxlen = w_legend / nbox > 100 ? 100 : w_legend / nbox;
 
     d3.select(this.fuels.current).selectAll("div").remove();
     let fuels = d3
       .select(this.fuels.current)
       .append("div")
       .attr("class", "fuels")
+      .style("text-align", "left")
       .selectAll("div")
-      .data(fuel_names.map(d=>this.props.fuel_name_lookup[d]))
+      .data(fuel_names.map((d) => this.props.fuel_name_lookup[d]))
       .enter()
       .append("div")
       .attr("class", "fuel")
@@ -301,14 +334,15 @@ class ResourceMixChart extends Component {
     fuels_svg
       .append("text")
       .attr("x", boxlen / 2)
-      .attr("y", Math.min(boxlen, h_legend * 0.5) * 1.5)
+      .attr("y", Math.min(boxlen, h_legend * 0.5) * 1.2)
       .attr("dx", 0)
       .attr("dy", 0)
       .text((d) => this.props.fuel_label_lookup[d])
       .style("text-anchor", "middle")
       .call(this.props.wrap_long_labels, boxlen);
 
-    d3.select(".fuels")
+    let reset = d3
+      .select(".fuels")
       .insert("div", ".fuel")
       .style("display", "inline-block")
       .attr("class", "reset")
@@ -316,17 +350,31 @@ class ResourceMixChart extends Component {
       .style("cursor", "not-allowed")
       .append("svg")
       .attr("width", boxlen)
-      .attr("height", h_legend)
+      .attr("height", h_legend);
+
+    reset
       .append("text")
-      .attr("x", 0)
-      .attr("y", Math.min(boxlen, h_legend * 0.5) / 2)
+      .attr("x", boxlen / 2)
+      .attr("y", h_legend / 2)
       .attr("dx", 0)
       .attr("dy", 0)
       .text(this.sort_text)
-      .style("text-anchor", "start")
+      .style("text-anchor", "middle")
       .style("font-size", "1em")
       .style("font-weight", "bold")
-      .call(this.props.wrap_long_labels, boxlen*0.8);
+      .call(this.props.wrap_long_labels, boxlen);
+
+    reset
+      .append("text")
+      .attr("x", boxlen / 2)
+      .attr("y", h_legend / 4)
+      .attr("dx", 0)
+      .attr("dy", 0)
+      .attr("font-family", "FontAwesome")
+      .style("font-size", "20px")
+      .style("text-decoration", "unset")
+      .style("text-anchor", "middle")
+      .text("\uf15d");
 
     d3.selectAll(".fuel")
       .on("click", (d) => {
@@ -335,9 +383,9 @@ class ResourceMixChart extends Component {
           .selectAll(".fuel")
           .filter((e) => e === d);
         if (n.classed("selected")) {
-          this.setState({ selected_fuel: null });
+          this.setState({ sort_fuel: null });
         } else {
-          this.setState({ selected_fuel: d });
+          this.setState({ sort_fuel: d });
         }
       })
       .on("mouseover", (d) => {
@@ -360,17 +408,22 @@ class ResourceMixChart extends Component {
           n.style("background", "#ddd");
         }
       });
+    
+    d3.selectAll(".fuel")
+    .filter(d=>avail_fuels.indexOf(d)===-1)
+    .style("opacity", 0.3)
+    .style("pointer-events", "none");
 
     // set state
     this.setState({
-      selected_fuel: null,
+      sort_fuel: null,
       selected_region: this.props.region,
       table_info: table_info,
     });
   }
 
   updateView(fuel) {
-    let marginRight = 0,
+    let marginRight = 10,
       marginLeft = this.props.layer_type === "state" ? 150 : 60;
     let w = d3.select(this.barchart_wrapper.current).node().clientWidth,
       h = d3.select(this.barchart_wrapper.current).node().clientHeight;
@@ -416,7 +469,10 @@ class ResourceMixChart extends Component {
         .attr("y", (d) => barYScale(d.name));
 
       // axis
-      d3.select(this.axis_y.current).transition().duration(100).call(d3.axisLeft(barYScale));
+      d3.select(this.axis_y.current)
+        .transition()
+        .duration(100)
+        .call(d3.axisLeft(barYScale));
     } else {
       const fuel_names = _.flatten([
         [_.invert(this.props.fuel_name_lookup)[fuel]],
@@ -494,15 +550,17 @@ class ResourceMixChart extends Component {
     );
 
     return (
-      <div ref={this.wrapper}>
+      <div id="resource-mix-chart" ref={this.wrapper}>
         {title}
         <div>
           <svg
-            style={{ width: "20%", height: 100, display: "inline-block" }}
+            style={{ width: "15%", height: 100, display: "inline-block" }}
             ref={this.micromap}
+            id="resource-mix-micromap"
           ></svg>
           <div
-            style={{ width: "79%", height: 100, display: "inline-block", fontSize: "0.9em"}}
+            className="fuels-selection"
+            style={{ width: "83%", height: 100, display: "inline-block" }}
             ref={this.fuels}
           ></div>
         </div>
@@ -513,29 +571,23 @@ class ResourceMixChart extends Component {
           >
             <g ref={this.barchart}></g>
             <g ref={this.axis_y} className={"axis axis_y"}></g>
+            <g ref={this.axis_x} className={"axis axis_x"}></g>
           </svg>
-          <div style={{ width: "30%", height: 600, float: "right", display: "inline-block" }}>
+          <div
+            style={{
+              width: "30%",
+              height: 600,
+              display: "inline-block",
+            }}
+          >
             <UpdatedTable
               title={this.props.title}
               region={this.state.selected_region}
-              type={this.state.selected_fuel}
+              type={this.state.mouseover_fuel}
               table_info={this.state.table_info}
             />
           </div>
         </div>
-
-        <div
-          ref={this.tooltip}
-          style={{
-            opacity: 0,
-            maxWidth: 250,
-            maxHeight: 520,
-            overflow: "auto",
-            backgroundColor: "rgba(255,255,255,0.95)",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
-            borderRadius: "4px",
-          }}
-        ></div>
       </div>
     );
   }

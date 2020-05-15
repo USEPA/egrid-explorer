@@ -22,7 +22,10 @@ import us from "./assets/data/csv/US.csv";
 
 import Main from "./Main";
 
+
+import "mapbox-gl/dist/mapbox-gl.css";
 import "./EPAStyle.css";
+import "./App.css";
 
 class App extends Component {
   constructor(props) {
@@ -99,7 +102,7 @@ class App extends Component {
     this.choropleth_map_fill = {
       emission: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"],
       generation: ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"],
-      others: ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"]
+      others: ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"],
     };
     this.plant_fuels = [
       "COAL",
@@ -168,9 +171,9 @@ class App extends Component {
       OTHF: "Other Unknown",
       HYPR: "Hydro",
       THPR: "All Non-Hydro Renewables",
-      TNPR: "All Non-Renewables",
+      TNPR: "All Non Renewables",
       CYPR: "All Combustion",
-      CNPR: "All Non-Combustion",
+      CNPR: "All Non Combustion",
     };
     this.fuel_color_lookup = {
       COAL: "rgb(85, 85, 85)",
@@ -238,7 +241,9 @@ class App extends Component {
         return d;
       });
     this.subrgn_layer.features.map((d) => (d.name = d.properties.Subregions));
-    this.state_layer.features = this.state_layer.features.filter(d=>d.id !== 72 && d.id !== 78); // no data for state 72 and state 78
+    this.state_layer.features = this.state_layer.features.filter(
+      (d) => d.id !== 72 && d.id !== 78
+    ); // no data for state 72 and state 78
   }
 
   componentDidMount() {
@@ -353,7 +358,7 @@ class App extends Component {
 
   render() {
     return (
-      <div style={{padding: "5px"}}>
+      <div>
         {this.state.options.length > 0 &&
         this.state.plant_data.length > 0 &&
         this.state.state_data.length > 0 &&
@@ -361,8 +366,11 @@ class App extends Component {
         this.state.nerc_data.length > 0 &&
         this.state.ggl_data.length > 0 &&
         this.state.us_data.length > 0 ? (
-          <div>
-            <header></header>
+          <div className="app">
+            <header style={{minHeight: 100}} className="no-export">
+              <h2>Emissions and Generation Resource Integrated Database</h2>
+              <img id="logo" src={logo}></img>
+            </header>
             <Main
               year={this.year}
               conjunction={this.conjunction}
@@ -398,17 +406,5 @@ class App extends Component {
     );
   }
 }
-/**<header>
-              <h2>Emissions and Generation Resource Integrated Database</h2>
-              <span className="dialog"> (</span>
-              <span
-                className="dialog-text"
-                onClick={() => this.setState({ show_modal: true })}
-              >
-                More Information
-              </span>
-              <span className="dialog">)</span>
-              <img id="logo" src={logo}></img>
-            </header> */
 
 export default App;

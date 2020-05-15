@@ -324,13 +324,13 @@ class UpdatedVisualization extends Component {
   }
 
   exportStaticMap() {
-    let zoomable_status = d3.select("#map_zoomable").style("display");
-    let static_status = d3.select("#map_static").style("display");
-    d3.select("#map_zoomable").style("display", "none");
-    d3.select("#map_static").style("display", null);
+    let zoomable_status = d3.select("#map-zoomable").style("display");
+    let static_status = d3.select("#map-static").style("display");
+    d3.select("#map-zoomable").style("display", "none");
+    d3.select("#map-static").style("display", null);
     window.print();
-    d3.select("#map_zoomable").style("display", zoomable_status);
-    d3.select("#map_static").style("display", static_status);
+    d3.select("#map-zoomable").style("display", zoomable_status);
+    d3.select("#map-static").style("display", static_status);
   }
 
   exportVis() {
@@ -340,7 +340,7 @@ class UpdatedVisualization extends Component {
   render() {
     return (
       <div>
-        <div style={{ marginBottom: "1rem" }}>
+        <div style={{ marginBottom: "1rem" }} className="no-export">
           <Button variant="secondary" size="sm">
             Export Table
           </Button>{" "}

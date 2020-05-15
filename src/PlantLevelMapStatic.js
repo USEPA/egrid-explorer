@@ -27,7 +27,7 @@ class PlantLevelMapStatic extends Component {
     .attr('height', h);
 
     // placeholder for map content
-    svg.append('g').attr('class', 'static_map');
+    svg.append('g').attr('class', 'map-static-svg');
     
     // add background
     let background = svg.append('g');
@@ -42,7 +42,7 @@ class PlantLevelMapStatic extends Component {
       .style("fill", "transparent")
       .style("stroke", "rgb(221, 221, 221)");
 
-    d3.select("#map_static").style("display", "none");
+    d3.select("#map-static").style("display", "none");
   }
 
   componentDidMount() {
@@ -67,14 +67,14 @@ class PlantLevelMapStatic extends Component {
     );
 
     return (
-      <div id="map_static" style={{ width: "100%", margin: "0 auto" }}>
+      <div id="map-static" style={{ width: "100%", margin: "0 auto" }}>
         {title}
         <div
-          className="fuels_selection"
-          style={{height: 100}}
-        ></div>
-        <div className="map_container"
-          style={{height: 600}} 
+            className="fuels-selection"
+            style={{width: "100%", height: 100, display: "inline-block"}}
+          ></div>
+        <div className="map-container"
+          style={{width: "100%", height: 730, display: "inline-block"}} 
           ref={this.container} >
         </div>
       </div>

@@ -220,7 +220,7 @@ class OtherLevelBarchart extends Component {
           .html(html)
           .style("position", "absolute")
           .style("top", d3.event.pageY + 25 + "px")
-          .style("left", d3.event.pageX - 500 + "px")
+          .style("left", d3.event.pageX - 50 + "px")
           .style("opacity", 1);
 
         d3.selectAll(".mouseover_target rect")
@@ -331,7 +331,10 @@ class OtherLevelBarchart extends Component {
       .attr("transform", (d) => "translate(0," + barYScale(d.name) + ")");
 
     // update y axis
-    d3.select(this.axis_y.current).transition().duration(100).call(d3.axisLeft(barYScale));
+    d3.select(this.axis_y.current)
+      .transition()
+      .duration(100)
+      .call(d3.axisLeft(barYScale));
   }
 
   componentDidMount() {
@@ -351,7 +354,7 @@ class OtherLevelBarchart extends Component {
   render() {
     return (
       <div>
-        <div className="sort-buttons">
+        <div className="sort-buttons no-export">
           <input
             style={{
               padding: "1rem",
@@ -378,36 +381,38 @@ class OtherLevelBarchart extends Component {
             onClick={(e) => this.setState({ sort_by: "amount" })}
           />
         </div>
-        <p
-          style={{
-            fontSize: "1em",
-            fontWeight: "bold",
-            fill: "#000",
-            className: "title",
-            textAnchor: "middle",
-            margin: 0,
-            padding: 0,
-          }}
-        >
-          {"US: " +
-            this.formatNumber(this.props.us_data[0][this.props.field]) +
-            "(" +
-            this.props.unit +
-            ")"}
-        </p>
-        <svg
-          style={{ display: "block", margin: "0 auto" }}
-          width={this.props.width}
-          height={this.props.height}
-        >
-          <g className={"axis"}>
-            <g ref={this.axis_x}></g>
-            <text ref={this.axis_x_title}></text>
-            <g ref={this.axis_y}></g>
-          </g>
+        <div id="vertical-barchart">
+          <p
+            style={{
+              fontSize: "1em",
+              fontWeight: "bold",
+              fill: "#000",
+              className: "title",
+              textAnchor: "middle",
+              margin: 0,
+              padding: 0,
+            }}
+          >
+            {"US: " +
+              this.formatNumber(this.props.us_data[0][this.props.field]) +
+              "(" +
+              this.props.unit +
+              ")"}
+          </p>
+          <svg
+            style={{ display: "block", margin: "0 auto" }}
+            width={this.props.width}
+            height={this.props.height}
+          >
+            <g className={"axis"}>
+              <g ref={this.axis_x}></g>
+              <text ref={this.axis_x_title}></text>
+              <g ref={this.axis_y}></g>
+            </g>
 
-          <g ref={this.barchart}></g>
-        </svg>
+            <g ref={this.barchart}></g>
+          </svg>
+        </div>
         <div
           ref={this.tooltip}
           style={{
