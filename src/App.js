@@ -22,7 +22,6 @@ import us from "./assets/data/csv/US.csv";
 
 import Main from "./Main";
 
-
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./EPAStyle.css";
 import "./App.css";
@@ -233,14 +232,21 @@ class App extends Component {
     this.nerc_layer = topojson.feature(nerc_topo, "NERC");
     this.state_layer = topojson.feature(us_topo, "states");
 
-    this.ggl_layer.features.map((d) => (d.name = d.properties.GGL));
+    this.ggl_layer.features.map((d) => {
+      d.id = null;
+      d.name = d.properties.GGL;
+    });
+    this.subrgn_layer.features.map((d) => {
+      d.id = null;
+      d.name = d.properties.Subregions;
+    });
     this.nerc_layer.features = this.nerc_layer.features
       .filter((d) => d.properties.NERC !== "-" && d.properties.NERC !== "SPP") // no data for "-" and "SPP"
       .map((d) => {
+        d.id = null;
         d.name = d.properties.NERC;
         return d;
       });
-    this.subrgn_layer.features.map((d) => (d.name = d.properties.Subregions));
     this.state_layer.features = this.state_layer.features.filter(
       (d) => d.id !== 72 && d.id !== 78
     ); // no data for state 72 and state 78
@@ -305,6 +311,9 @@ class App extends Component {
           });
           d.id = i;
         });
+        this.subrgn_layer.features.map(d=>{
+          d.id = subrgn.filter(e=>e.name===d.name).map(e=>e.id)[0];
+        });
 
         nerc = nerc.filter((d) => d.NERC !== "NA");
         nerc.map((d, i) => {
@@ -317,6 +326,9 @@ class App extends Component {
           });
           d.id = i;
         });
+        this.nerc_layer.features.map(d=>{
+          d.id = nerc.filter(e=>e.name===d.name).map(e=>e.id)[0];
+        });
 
         ggl.map((d, i) => {
           d.label = d.GGL;
@@ -324,6 +336,9 @@ class App extends Component {
           d.id = i;
           d.unit = "%";
           d.value = +d.percentage;
+        });
+        this.ggl_layer.features.map(d=>{
+          d.id = ggl.filter(e=>e.name===d.name).map(e=>e.id)[0];
         });
 
         us.map((d) => {
@@ -367,7 +382,7 @@ class App extends Component {
         this.state.ggl_data.length > 0 &&
         this.state.us_data.length > 0 ? (
           <div className="app">
-            <header style={{minHeight: 100}} className="no-export">
+            <header style={{ minHeight: 100 }} className="no-export">
               <h2>Emissions and Generation Resource Integrated Database</h2>
               <img id="logo" src={logo}></img>
             </header>

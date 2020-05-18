@@ -85,6 +85,10 @@ td {
     width:100%;
   }
 
+  #resource-mix-table {
+    margin-left: 5px;
+  }
+
   #vertical-barchart {
     margin-top: 40px;
   }
