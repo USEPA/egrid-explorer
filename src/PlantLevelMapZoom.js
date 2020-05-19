@@ -802,10 +802,6 @@ class PlantLevelMapZoom extends Component {
           this.map.on("mousemove", "plants-" + this.state.map_style + '-' + this.map_layer_load_times.toString(), (d) => {
             if (!this.show_plant_info) {
               this.map.getCanvas().style.cursor = "pointer";
-              this.tooltip
-                .setLngLat(d.features[0].geometry.coordinates.slice())
-                .setText(d.features[0].properties.name)
-                .addTo(this.map);
 
               if (d.features.length > 0) {
                 if (this.hoveredPlantId) {
@@ -820,6 +816,15 @@ class PlantLevelMapZoom extends Component {
                   { hover: true }
                 );
               }
+
+              while (Math.abs(d.lngLat.lng - d.features[0].geometry.coordinates.slice()[0]) > 180) {
+                d.features[0].geometry.coordinates.slice()[0] += d.lngLat.lng > d.features[0].geometry.coordinates.slice()[0] ? 360 : -360;
+              }
+              
+              this.tooltip
+                .setLngLat(d.features[0].geometry.coordinates.slice())
+                .setText(d.features[0].properties.name)
+                .addTo(this.map);
 
               let table_info = {};
               Object.keys(d.features[0].properties).forEach((e) => {
@@ -854,10 +859,6 @@ class PlantLevelMapZoom extends Component {
               this.tooltip.remove();
             } else {
               this.show_plant_info = true;
-              this.tooltip
-                .setLngLat(d.features[0].geometry.coordinates.slice())
-                .setText(d.features[0].properties.name)
-                .addTo(this.map);
 
               if (d.features.length > 0) {
                 if (this.hoveredPlantId) {
@@ -872,6 +873,11 @@ class PlantLevelMapZoom extends Component {
                   { hover: true }
                 );
               }
+
+              this.tooltip
+              .setLngLat(d.features[0].geometry.coordinates.slice())
+              .setText(d.features[0].properties.name)
+              .addTo(this.map);
 
               let table_info = {};
               Object.keys(d.features[0].properties).forEach((e) => {
