@@ -25,7 +25,7 @@ class OtherLevelMap extends Component {
     const layer = this.props.layer,
       label_width =
         this.props.layer_type === "grid gross loss rates"
-          ? 120
+          ? 125
           : this.props.layer_type === "state"
           ? 20
           : 40,
@@ -45,6 +45,39 @@ class OtherLevelMap extends Component {
         if (this.props.data.filter((e) => e.name === d.name)[0]) {
           let prop = this.props.data.filter((e) => e.name === d.name)[0];
           prop.centroid = path.centroid(d);
+          
+          // special cases of centroid to edit
+          switch (d.name) {
+            case "AKMS":
+              prop.centroid[1] = prop.centroid[1] - 25;
+              break;
+            case "NYLI":
+              prop.centroid[0] = prop.centroid[0] + 20;
+              break;
+            case "NYCW":
+              prop.centroid[0] = prop.centroid[0] - 10;
+              break;
+            case "DELAWARE":
+              prop.centroid[0] = prop.centroid[0] + 15;
+              break;
+            case "RHODE ISLAND":
+              prop.centroid[0] = prop.centroid[0] + 10;
+              break;
+            case "CONNECTICUT":
+              prop.centroid[1] = prop.centroid[1] + 5;
+              break;
+            case "MASSACHUSETTS":
+              prop.centroid[0] = prop.centroid[0] + 5;
+              prop.centroid[1] = prop.centroid[1] - 15;
+              break;
+            case "NEW HAMPSHIRE":
+              prop.centroid[0] = prop.centroid[0] + 10;
+              prop.centroid[1] = prop.centroid[1] - 10;
+              break;
+            default:
+              break;
+          }
+
           d.properties = prop;
         } else {
           d.properties = {id: null, name: null, label: null, value: null, centroid:[null, null]};

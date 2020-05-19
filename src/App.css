@@ -39,21 +39,32 @@ td {
   width: 220px;
 }
 
+
+/* mapbox */
+.mapboxgl-ctrl-group button {
+  width: 29px !important;
+  height: 29px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color: transparent !important;
+}
+
+.mapboxgl-popup-content {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
 .mapboxgl-popup-close-button {
   color: #000 !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.mapboxgl-ctrl-zoom-in, .mapboxgl-ctrl-zoom-out, .mapboxgl-ctrl-fullscreen {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.mapboxgl-popup-content {
-  font-size: 1.5em;
+.map-zoomable-legend-title, .map-static-legend-title {
+  font-size: 1.2em;
   font-weight: bold;
 }
+
 
 @media print {
   .no-export, .no-export svg, .mapboxgl-ctrl, .mapboxgl-popup-content{

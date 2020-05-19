@@ -384,7 +384,7 @@ class App extends Component {
           <div className="app">
             <header style={{ minHeight: 100 }} className="no-export">
               <h2>Emissions and Generation Resource Integrated Database</h2>
-              <img id="logo" src={logo}></img>
+              <img id="logo" src={logo} alt="eGrid Logo"></img>
             </header>
             <Main
               year={this.year}

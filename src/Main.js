@@ -424,6 +424,7 @@ class Main extends Component {
           <SentenceMiscellaneous value={this.props.year} />.
         </p>
         <UpdatedVisualization
+          options = {this.props.options}
           style={{padding: ".8rem 0", borderBottom: "1px solid rgba(0, 0, 0, 0.5)"}}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}

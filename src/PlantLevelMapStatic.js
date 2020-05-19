@@ -9,28 +9,30 @@ class PlantLevelMapStatic extends Component {
     super(props);
     this.background = React.createRef();
     this.container = React.createRef();
+    this.legend = React.createRef();
   }
 
   initStaticMap() {
     let w = d3.select(this.container.current).node().clientWidth,
-    h = d3.select(this.container.current).node().clientHeight;
-    
+      h = d3.select(this.container.current).node().clientHeight;
+
     let projection = d3_composite
-    .geoAlbersUsaTerritories()
-    .scale(this.props.scale)
-    .translate([w/ 2, h / 2.5]);
+      .geoAlbersUsaTerritories()
+      .scale(this.props.scale)
+      .translate([w / 2, h / 2]);
     let path = d3.geoPath().projection(projection);
 
-    let svg = d3.select(this.container.current)
-    .append('svg')
-    .attr('width', w)
-    .attr('height', h);
+    let svg = d3
+      .select(this.container.current)
+      .append("svg")
+      .attr("width", w)
+      .attr("height", h);
 
     // placeholder for map content
-    svg.append('g').attr('class', 'map-static-svg');
-    
+    svg.append("g").attr("class", "map-static-svg");
+
     // add background
-    let background = svg.append('g');
+    let background = svg.append("g");
     background.selectAll("path").remove();
     background
       .selectAll("path")
@@ -70,12 +72,20 @@ class PlantLevelMapStatic extends Component {
       <div id="map-static" style={{ width: "100%", margin: "0 auto" }}>
         {title}
         <div
-            className="fuels-selection"
-            style={{width: "100%", height: 100, display: "inline-block"}}
+          className="fuels-selection"
+          style={{ width: "100%", height: 100, display: "inline-block" }}
+        ></div>
+        <div
+          className="map-container"
+          style={{ width: "100%", height: 500, display: "inline-block" }}
+          ref={this.container}
+        ></div>
+        <div>
+          <div><span className="map-static-legend-title"></span></div>
+          <div className="map-static-legend"
+            style={{ width: 300, height: 70, display: "inline-block" }}
+            ref={this.legend}
           ></div>
-        <div className="map-container"
-          style={{width: "100%", height: 730, display: "inline-block"}} 
-          ref={this.container} >
         </div>
       </div>
     );

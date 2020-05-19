@@ -6,7 +6,7 @@ class SentenceDropdown extends Component {
     let selected_option = this.props.selected_option,
       available_options = this.props.available_options;
 
-    this.props.options.some((option) => {
+    this.props.options.forEach((option) => {
       let opt = null;
       if (this.props.id === "tier1") {
         opt = (
@@ -48,7 +48,8 @@ class SentenceDropdown extends Component {
         backgroundRepeat: "no-repeat",
         backgroundSize: "14px 14px",
         backgroundPosition: "100% 90%",
-        outline: "none"}}
+        outline: "none"
+      }}
         value={selected_option} onChange={this.props.change}>
         {opts}
       </select>

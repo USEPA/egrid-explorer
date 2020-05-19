@@ -114,8 +114,7 @@ class ResourceMixChart extends Component {
         .scale(h_micro * 2)
         .translate([w_micro / 2, h_micro / 2]);
       const path = d3.geoPath().projection(projection);
-      let micromap = d3
-        .select(this.micromap.current)
+      d3.select(this.micromap.current)
         .selectAll("path")
         .data(this.props.layer.features)
         .enter()

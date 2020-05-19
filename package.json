@@ -1,6 +1,6 @@
 {
   "name": "egrid-react",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "homepage": "/eGrid_2018_v2",
   "dependencies": {
@@ -35,6 +35,7 @@
       "not op_mini all"
     ],
     "development": [
+      "ie 11",
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"

@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import ToggleButtonGroup from "react-bootstrap/ToggleButtonGroup";
-import ToggleButton from "react-bootstrap/ToggleButton";
 
 import * as d3 from "d3";
 class OtherLevelBarchart extends Component {
@@ -77,7 +75,7 @@ class OtherLevelBarchart extends Component {
     let marginTop = 40,
       marginBottom = 0,
       marginRight = 70,
-      marginLeft = this.props.layer_type === "state" ? 150 : 60;
+      marginLeft = this.props.layer_type === "state" ? 155 : 60;
     let barFillScale = d3.scaleThreshold().range(this.props.map_fill),
       barXScale = d3
         .scaleLinear()

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Spinner from "react-bootstrap/Spinner";
 import Button from "react-bootstrap/Button";
 import * as d3 from "d3";
+import * as _ from "underscore";
 
 import lookup from "./assets/data/json/eGRID lookup.json";
 
@@ -30,6 +31,7 @@ class Visualization extends Component {
       us_data: [],
       resource_mix_data: [],
       plant_data: [],
+      plant_data_map_only: [],
       fuels: [],
       map_fill: [],
       background_layer: {},
@@ -52,6 +54,7 @@ class Visualization extends Component {
       region = lookup[this.props.tier5];
     let choropleth_data = [],
       plant_data = { type: "FeatureCollection", features: [] },
+      plant_data_map_only = { type: "FeatureCollection", features: [] },
       resource_mix_data = [],
       fuels = [],
       map_fill = [],
@@ -120,7 +123,8 @@ class Visualization extends Component {
 
       if (region === "Plant") {
         fuels = this.props.plant_fuels;
-        data.map((d) => {
+        data.forEach((d) => {
+          d.value = d[this.props.field];
           plant_data.features.push({
             type: "Feature",
             properties: d,
@@ -128,7 +132,16 @@ class Visualization extends Component {
             title: d.name,
             geometry: { type: "Point", coordinates: [+d.LON, +d.LAT] },
           });
+          plant_data_map_only.features.push({
+            type: "Feature",
+            properties: _.pick(d, _.flatten([["label","name","id","value", "PSTATABB","PNAME","ORISPL","CAPFAC","SUBRGN","PLPRMFL", "FUEL"], this.props.options.map(d=>d["Final field name in eGRID"]).filter(d=>d.startsWith("PL"))])),
+            id: d.id,
+            title: d.name,
+            geometry: { type: "Point", coordinates: [+d.LON, +d.LAT] },
+          });
         });
+        console.log(plant_data_map_only);
+
       }
     }
 
@@ -144,10 +157,88 @@ class Visualization extends Component {
       us_data: us_data,
       resource_mix_data: resource_mix_data,
       plant_data: plant_data,
+      plant_data_map_only: plant_data_map_only,
       fuels: fuels,
       map_fill: map_fill,
       layer: layer,
       background_layer: background_layer,
+    }, ()=>{
+      // update export table
+      d3.select("#export-table").on("click", ()=>{
+        let export_table, csv = "data:text/csv;charset=utf-8,";
+        
+        if (+this.state.tier1 !== 7 && +this.state.tier1 !== 9) {
+          if (+this.state.tier5 === 99) {
+            export_table = this.state.plant_data.features.map(d=>d.properties);
+          } else {
+            export_table = this.state.data;
+          }
+          csv += "Region, Units(" + this.state.unit + ")\r\n";
+          export_table.forEach(r => {
+            csv += r.name.toString().replace(/,/g, " ") + "," + r.value + "\r\n";
+          });
+        } else if (+this.state.tier1 === 7) {
+          export_table = _.flatten([this.state.us_data[0], this.state.resource_mix_data]);
+
+          let fuel_name_lookup = {};
+          this.state.fuels.forEach((d) => {
+            if (d.endsWith("CLPR")) {
+              fuel_name_lookup[d] = "COAL";
+            } else if (d.endsWith("OLPR")) {
+              fuel_name_lookup[d] = "OIL";
+            } else if (d.endsWith("GSPR")) {
+              fuel_name_lookup[d] = "GAS";
+            } else if (d.endsWith("NCPR")) {
+              fuel_name_lookup[d] = "NUCLEAR";
+            } else if (d.endsWith("HYPR")) {
+              fuel_name_lookup[d] = "HYDRO";
+            } else if (d.endsWith("BMPR")) {
+              fuel_name_lookup[d] = "BIOMASS";
+            } else if (d.endsWith("WIPR")) {
+              fuel_name_lookup[d] = "WIND";
+            } else if (d.endsWith("SOPR")) {
+              fuel_name_lookup[d] = "SOLAR";
+            } else if (d.endsWith("GTPR")) {
+              fuel_name_lookup[d] = "GEOTHERMAL";
+            } else if (d.endsWith("OFPR")) {
+              fuel_name_lookup[d] = "OFSL";
+            } else if (d.endsWith("OPPR")) {
+              fuel_name_lookup[d] = "OTHF";
+            } else if (d.endsWith("HYPR")) {
+              fuel_name_lookup[d] = "HYPR";
+            } else if (d.endsWith("THPR")) {
+              fuel_name_lookup[d] = "THPR";
+            } else if (d.endsWith("TNPR")) {
+              fuel_name_lookup[d] = "TNPR";
+            } else if (d.endsWith("CYPR")) {
+              fuel_name_lookup[d] = "CYPR";
+            } else if (d.endsWith("CNPR")) {
+              fuel_name_lookup[d] = "CNPR";
+            }
+          });
+          
+          csv += "Region," + Object.keys(fuel_name_lookup).map(c=>this.props.fuel_label_lookup[fuel_name_lookup[c]]).join(",") + "\r\n";
+
+          export_table.forEach(r => {
+            csv += r.name + ',';
+            csv += Object.keys(fuel_name_lookup).map(c => r[c].toString() + "%").join(',');
+            csv += "\r\n";
+          });
+        } else if (+this.state.tier1 === 9) {
+          export_table = this.state.data;
+          csv += "Region, Percentage\r\n";
+          export_table.forEach(r => {
+            csv += r.name + "," + r.value.toString() + "%" + "\r\n";
+          });
+        }
+        let encodedUri = encodeURI(csv);
+        let link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("target", "_blank");
+        link.setAttribute("download", this.state.name + ".csv");
+        document.body.appendChild(link);
+        link.click();
+      });
     });
   }
 
@@ -200,10 +291,10 @@ class Visualization extends Component {
       vis = (
         <OtherLevelMap
           title={this.state.name}
+          data={this.props.ggl_data}
           width={800}
           height={600}
           scale={800}
-          data={this.props.ggl_data}
           layer={this.props.ggl_layer}
           us_data={this.state.us_data}
           background_layer={this.props.state_layer}
@@ -216,9 +307,9 @@ class Visualization extends Component {
       vis = (
         <ResourceMixChart
           title={this.state.name}
+          data={this.state.resource_mix_data}
           width={600}
           height={600}
-          data={this.state.resource_mix_data}
           layer={this.state.layer}
           us_data={this.state.us_data}
           unit={this.props.unit}
@@ -245,9 +336,9 @@ class Visualization extends Component {
               <div style={{ display: "inline-block", verticalAlign: "top" }}>
                 <OtherLevelMap
                   title={this.state.name}
+                  data={this.state.data}
                   width={600}
                   height={600}
-                  data={this.state.data}
                   layer={this.state.layer}
                   us_data={this.state.us_data}
                   unit={this.state.unit}
@@ -257,18 +348,20 @@ class Visualization extends Component {
                   map_fill={this.state.map_fill}
                 />
                 <OtherLevelMapLegend
-                  width={500}
+                  width={600}
                   height={50}
                   data={this.state.data}
+                  field={this.state.field}
                   map_fill={this.state.map_fill}
+                  unit={this.state.unit}
                 />
               </div>
               <div style={{ display: "inline-block", verticalAlign: "top" }}>
                 <OtherLevelBarchart
                   title={this.state.name}
+                  data={this.state.data}
                   width={350}
                   height={600}
-                  data={this.state.data}
                   field={this.state.field}
                   us_data={this.state.us_data}
                   layer_type={region}
@@ -288,15 +381,16 @@ class Visualization extends Component {
             <div style={{ textAlign: "center" }}>
               <PlantLevelMapZoom
                 title={this.state.name}
+                plant_data={this.state.plant_data_map_only}
                 static_map_scale={900}
                 data={this.state.data}
                 fuels={this.state.fuels}
-                plant_data={this.state.plant_data}
                 init_center={[-97.922211, 42.381266]}
                 init_zoom={3}
-                min_zoom={1}
-                max_zoom={20}
+                min_zoom={2}
+                max_zoom={12}
                 circle_opacity={0.8}
+                unit={this.state.unit}
                 field={this.state.field}
                 plant_outlier={plant_outlier}
                 fuel_label_lookup={fuel_label_lookup}
@@ -341,7 +435,7 @@ class UpdatedVisualization extends Component {
     return (
       <div>
         <div style={{ marginBottom: "1rem" }} className="no-export">
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" id="export-table">
             Export Table
           </Button>{" "}
           {lookup[this.props.tier5] !== "Plant" && (
@@ -367,6 +461,7 @@ class UpdatedVisualization extends Component {
         </div>
         <Visualization
           style={{ textAlign: "center" }}
+          options = {this.props.options}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}
           plant_outlier={this.props.plant_outlier}
