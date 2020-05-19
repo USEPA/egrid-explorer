@@ -732,7 +732,7 @@ class ResourceMixChart extends Component {
         </div>
         <div>
           <svg
-            style={{ width: "67%", height: 600, display: "inline-block" }}
+            style={{ width: "67%", height: 600, display: "inline-block", verticalAlign: "bottom"}}
             ref={this.barchart_wrapper}
           >
             <g ref={this.barchart}></g>
@@ -744,7 +744,8 @@ class ResourceMixChart extends Component {
             style={{
               width: "30%",
               height: 580,
-              display: "inline-block",
+              display: "inline-block", 
+              verticalAlign: "bottom"
             }}
           >
             <UpdatedTable

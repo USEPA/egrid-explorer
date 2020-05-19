@@ -23,7 +23,7 @@ import us from "./assets/data/csv/US.csv";
 import Main from "./Main";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import "./EPAStyle.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
 
 class App extends Component {

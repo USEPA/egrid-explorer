@@ -453,7 +453,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl-group mapboxgl-ctrl";
         this._container.innerHTML =
-          "<button><span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src='/eGrid_2018_v2/reset_view_icon.jpg' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
+          "<button><span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src='reset_view_icon.jpg' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
         this._container.style.borderRadius = "4px";
         this._container.style.boxShadow = "0 0 0 2px rgba(0,0,0,.1)";
         this._container.style.cursor = "pointer";
@@ -820,7 +820,7 @@ class PlantLevelMapZoom extends Component {
               while (Math.abs(d.lngLat.lng - d.features[0].geometry.coordinates.slice()[0]) > 180) {
                 d.features[0].geometry.coordinates.slice()[0] += d.lngLat.lng > d.features[0].geometry.coordinates.slice()[0] ? 360 : -360;
               }
-              
+
               this.tooltip
                 .setLngLat(d.features[0].geometry.coordinates.slice())
                 .setText(d.features[0].properties.name)

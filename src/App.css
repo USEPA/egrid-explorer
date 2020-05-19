@@ -1,3 +1,7 @@
+body {
+  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+}
+
 .app {
   width: 100%;
   max-width: 1200px;
@@ -33,6 +37,15 @@ p {
 #logo {
   width: 14%;
   float: right;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+th {
+  background-color: #f1f1f1;
+  font-weight: 700;
 }
 
 td {

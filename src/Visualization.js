@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Spinner from "react-bootstrap/Spinner";
-import Button from "react-bootstrap/Button";
 import * as d3 from "d3";
 import * as _ from "underscore";
 
@@ -134,112 +133,148 @@ class Visualization extends Component {
           });
           plant_data_map_only.features.push({
             type: "Feature",
-            properties: _.pick(d, _.flatten([["label","name","id","value", "PSTATABB","PNAME","ORISPL","CAPFAC","SUBRGN","PLPRMFL", "FUEL"], this.props.options.map(d=>d["Final field name in eGRID"]).filter(d=>d.startsWith("PL"))])),
+            properties: _.pick(
+              d,
+              _.flatten([
+                [
+                  "label",
+                  "name",
+                  "id",
+                  "value",
+                  "PSTATABB",
+                  "PNAME",
+                  "ORISPL",
+                  "CAPFAC",
+                  "SUBRGN",
+                  "PLPRMFL",
+                  "FUEL",
+                ],
+                this.props.options
+                  .map((d) => d["Final field name in eGRID"])
+                  .filter((d) => d.startsWith("PL")),
+              ])
+            ),
             id: d.id,
             title: d.name,
             geometry: { type: "Point", coordinates: [+d.LON, +d.LAT] },
           });
         });
         console.log(plant_data_map_only);
-
       }
     }
 
-    this.setState({
-      field: this.props.field,
-      name: this.props.name,
-      unit: this.props.unit,
-      tier1: this.props.tier1,
-      tier2: this.props.tier2,
-      tier4: this.props.tier4,
-      tier5: this.props.tier5,
-      data: choropleth_data,
-      us_data: us_data,
-      resource_mix_data: resource_mix_data,
-      plant_data: plant_data,
-      plant_data_map_only: plant_data_map_only,
-      fuels: fuels,
-      map_fill: map_fill,
-      layer: layer,
-      background_layer: background_layer,
-    }, ()=>{
-      // update export table
-      d3.select("#export-table").on("click", ()=>{
-        let export_table, csv = "data:text/csv;charset=utf-8,";
-        
-        if (+this.state.tier1 !== 7 && +this.state.tier1 !== 9) {
-          if (+this.state.tier5 === 99) {
-            export_table = this.state.plant_data.features.map(d=>d.properties);
-          } else {
-            export_table = this.state.data;
-          }
-          csv += "Region, Units(" + this.state.unit + ")\r\n";
-          export_table.forEach(r => {
-            csv += r.name.toString().replace(/,/g, " ") + "," + r.value + "\r\n";
-          });
-        } else if (+this.state.tier1 === 7) {
-          export_table = _.flatten([this.state.us_data[0], this.state.resource_mix_data]);
+    this.setState(
+      {
+        field: this.props.field,
+        name: this.props.name,
+        unit: this.props.unit,
+        tier1: this.props.tier1,
+        tier2: this.props.tier2,
+        tier4: this.props.tier4,
+        tier5: this.props.tier5,
+        data: choropleth_data,
+        us_data: us_data,
+        resource_mix_data: resource_mix_data,
+        plant_data: plant_data,
+        plant_data_map_only: plant_data_map_only,
+        fuels: fuels,
+        map_fill: map_fill,
+        layer: layer,
+        background_layer: background_layer,
+      },
+      () => {
+        // update export table
+        d3.select("#export-table").on("click", () => {
+          let export_table,
+            csv = "data:text/csv;charset=utf-8,";
 
-          let fuel_name_lookup = {};
-          this.state.fuels.forEach((d) => {
-            if (d.endsWith("CLPR")) {
-              fuel_name_lookup[d] = "COAL";
-            } else if (d.endsWith("OLPR")) {
-              fuel_name_lookup[d] = "OIL";
-            } else if (d.endsWith("GSPR")) {
-              fuel_name_lookup[d] = "GAS";
-            } else if (d.endsWith("NCPR")) {
-              fuel_name_lookup[d] = "NUCLEAR";
-            } else if (d.endsWith("HYPR")) {
-              fuel_name_lookup[d] = "HYDRO";
-            } else if (d.endsWith("BMPR")) {
-              fuel_name_lookup[d] = "BIOMASS";
-            } else if (d.endsWith("WIPR")) {
-              fuel_name_lookup[d] = "WIND";
-            } else if (d.endsWith("SOPR")) {
-              fuel_name_lookup[d] = "SOLAR";
-            } else if (d.endsWith("GTPR")) {
-              fuel_name_lookup[d] = "GEOTHERMAL";
-            } else if (d.endsWith("OFPR")) {
-              fuel_name_lookup[d] = "OFSL";
-            } else if (d.endsWith("OPPR")) {
-              fuel_name_lookup[d] = "OTHF";
-            } else if (d.endsWith("HYPR")) {
-              fuel_name_lookup[d] = "HYPR";
-            } else if (d.endsWith("THPR")) {
-              fuel_name_lookup[d] = "THPR";
-            } else if (d.endsWith("TNPR")) {
-              fuel_name_lookup[d] = "TNPR";
-            } else if (d.endsWith("CYPR")) {
-              fuel_name_lookup[d] = "CYPR";
-            } else if (d.endsWith("CNPR")) {
-              fuel_name_lookup[d] = "CNPR";
+          if (+this.state.tier1 !== 7 && +this.state.tier1 !== 9) {
+            if (+this.state.tier5 === 99) {
+              export_table = this.state.plant_data.features.map(
+                (d) => d.properties
+              );
+            } else {
+              export_table = this.state.data;
             }
-          });
-          
-          csv += "Region," + Object.keys(fuel_name_lookup).map(c=>this.props.fuel_label_lookup[fuel_name_lookup[c]]).join(",") + "\r\n";
+            csv += "Region, Units(" + this.state.unit + ")\r\n";
+            export_table.forEach((r) => {
+              csv +=
+                r.name.toString().replace(/,/g, " ") + "," + r.value + "\r\n";
+            });
+          } else if (+this.state.tier1 === 7) {
+            export_table = _.flatten([
+              this.state.us_data[0],
+              this.state.resource_mix_data,
+            ]);
 
-          export_table.forEach(r => {
-            csv += r.name + ',';
-            csv += Object.keys(fuel_name_lookup).map(c => r[c].toString() + "%").join(',');
-            csv += "\r\n";
-          });
-        } else if (+this.state.tier1 === 9) {
-          export_table = this.state.data;
-          csv += "Region, Percentage\r\n";
-          export_table.forEach(r => {
-            csv += r.name + "," + r.value.toString() + "%" + "\r\n";
-          });
-        }
-        let encodedUri = encodeURI(csv);
-        let link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("target", "_blank");
-        link.setAttribute("download", this.state.name + ".csv");
-        document.body.appendChild(link);
-        link.click();
-      });
-    });
+            let fuel_name_lookup = {};
+            this.state.fuels.forEach((d) => {
+              if (d.endsWith("CLPR")) {
+                fuel_name_lookup[d] = "COAL";
+              } else if (d.endsWith("OLPR")) {
+                fuel_name_lookup[d] = "OIL";
+              } else if (d.endsWith("GSPR")) {
+                fuel_name_lookup[d] = "GAS";
+              } else if (d.endsWith("NCPR")) {
+                fuel_name_lookup[d] = "NUCLEAR";
+              } else if (d.endsWith("HYPR")) {
+                fuel_name_lookup[d] = "HYDRO";
+              } else if (d.endsWith("BMPR")) {
+                fuel_name_lookup[d] = "BIOMASS";
+              } else if (d.endsWith("WIPR")) {
+                fuel_name_lookup[d] = "WIND";
+              } else if (d.endsWith("SOPR")) {
+                fuel_name_lookup[d] = "SOLAR";
+              } else if (d.endsWith("GTPR")) {
+                fuel_name_lookup[d] = "GEOTHERMAL";
+              } else if (d.endsWith("OFPR")) {
+                fuel_name_lookup[d] = "OFSL";
+              } else if (d.endsWith("OPPR")) {
+                fuel_name_lookup[d] = "OTHF";
+              } else if (d.endsWith("HYPR")) {
+                fuel_name_lookup[d] = "HYPR";
+              } else if (d.endsWith("THPR")) {
+                fuel_name_lookup[d] = "THPR";
+              } else if (d.endsWith("TNPR")) {
+                fuel_name_lookup[d] = "TNPR";
+              } else if (d.endsWith("CYPR")) {
+                fuel_name_lookup[d] = "CYPR";
+              } else if (d.endsWith("CNPR")) {
+                fuel_name_lookup[d] = "CNPR";
+              }
+            });
+
+            csv +=
+              "Region," +
+              Object.keys(fuel_name_lookup)
+                .map((c) => this.props.fuel_label_lookup[fuel_name_lookup[c]])
+                .join(",") +
+              "\r\n";
+
+            export_table.forEach((r) => {
+              csv += r.name + ",";
+              csv += Object.keys(fuel_name_lookup)
+                .map((c) => r[c].toString() + "%")
+                .join(",");
+              csv += "\r\n";
+            });
+          } else if (+this.state.tier1 === 9) {
+            export_table = this.state.data;
+            csv += "Region, Percentage\r\n";
+            export_table.forEach((r) => {
+              csv += r.name + "," + r.value.toString() + "%" + "\r\n";
+            });
+          }
+          let encodedUri = encodeURI(csv);
+          let link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("target", "_blank");
+          link.setAttribute("download", this.state.name + ".csv");
+          document.body.appendChild(link);
+          link.click();
+        });
+      }
+    );
   }
 
   render() {
@@ -435,33 +470,53 @@ class UpdatedVisualization extends Component {
     return (
       <div>
         <div style={{ marginBottom: "1rem" }} className="no-export">
-          <Button variant="secondary" size="sm" id="export-table">
-            Export Table
-          </Button>{" "}
+          <input
+            style={{
+              padding: "5px",
+              borderRadius: "4px",
+            }}
+            type="button"
+            id="export-table"
+            value="Export Table"
+          />{" "}
           {lookup[this.props.tier5] !== "Plant" && (
-            <Button variant="secondary" size="sm" onClick={this.exportVis}>
-              Export Visualization
-            </Button>
+            <input
+              style={{
+                padding: "5px",
+                borderRadius: "4px",
+              }}
+              type="button"
+              value="Export Visualization"
+              onClick={this.exportVis}
+            />
           )}
           {lookup[this.props.tier5] === "Plant" && (
-            <Button variant="secondary" size="sm" onClick={this.exportVis}>
-              Export Zoomable Map
-            </Button>
+            <input
+              style={{
+                padding: "5px",
+                borderRadius: "4px",
+              }}
+              type="button"
+              value="Export Zoomable Map"
+              onClick={this.exportVis}
+            />
           )}
           {lookup[this.props.tier5] === "Plant" && " "}
           {lookup[this.props.tier5] === "Plant" && (
-            <Button
-              variant="secondary"
-              size="sm"
+            <input
+              style={{
+                padding: "5px",
+                borderRadius: "4px",
+              }}
+              type="button"
+              value="Export Static Map"
               onClick={this.exportStaticMap}
-            >
-              Export Static Map
-            </Button>
+            />
           )}
         </div>
         <Visualization
           style={{ textAlign: "center" }}
-          options = {this.props.options}
+          options={this.props.options}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}
           plant_outlier={this.props.plant_outlier}

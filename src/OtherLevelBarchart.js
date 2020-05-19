@@ -352,10 +352,10 @@ class OtherLevelBarchart extends Component {
   render() {
     return (
       <div>
-        <div className="sort-buttons no-export">
+        <div className="sort-buttons no-export" style={{marginBottom: "5px"}}>
           <input
             style={{
-              padding: "1rem",
+              padding: "5px",
               borderTopLeftRadius: "4px",
               borderBottomLeftRadius: "4px",
               borderTopRightRadius: 0,
@@ -367,7 +367,7 @@ class OtherLevelBarchart extends Component {
           />
           <input
             style={{
-              padding: "1rem",
+              padding: "5px",
               marginLeft: 0,
               borderTopLeftRadius: 0,
               borderBottomLeftRadius: 0,
