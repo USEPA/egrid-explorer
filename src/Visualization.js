@@ -19,6 +19,8 @@ class Visualization extends Component {
     super(props);
 
     this.state = {
+      window_width: window.innerWidth,
+      window_height: window.innerHeight,
       field: this.props.field,
       name: this.props.name,
       unit: this.props.unit,
@@ -36,10 +38,18 @@ class Visualization extends Component {
       background_layer: {},
       layer: {},
     };
+
+    this.init_window_width = window.innerWidth;
   }
 
   componentDidMount() {
     this.updateState();
+    window.addEventListener("resize", ()=>{
+      this.setState({
+        window_width: window.innerWidth,
+        window_height: window.innerHeight
+      });
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -147,6 +157,7 @@ class Visualization extends Component {
                   "CAPFAC",
                   "SUBRGN",
                   "PLPRMFL",
+                  "PLNAMEPCAP",
                   "FUEL",
                 ],
                 this.props.options
@@ -159,7 +170,6 @@ class Visualization extends Component {
             geometry: { type: "Point", coordinates: [+d.LON, +d.LAT] },
           });
         });
-        console.log(plant_data_map_only);
       }
     }
 
@@ -327,9 +337,11 @@ class Visualization extends Component {
         <OtherLevelMap
           title={this.state.name}
           data={this.props.ggl_data}
-          width={800}
+          window_width = {this.state.window_width}
+          window_height = {this.state.window_height}
+          width={this.init_window_width/2 < 700 ? this.init_window_width/2: 700}
           height={600}
-          scale={800}
+          scale={this.init_window_width/2 < 700 ? this.init_window_width/1.6: 875}
           layer={this.props.ggl_layer}
           us_data={this.state.us_data}
           background_layer={this.props.state_layer}
@@ -343,6 +355,8 @@ class Visualization extends Component {
         <ResourceMixChart
           title={this.state.name}
           data={this.state.resource_mix_data}
+          window_width = {this.state.window_width}
+          window_height = {this.state.window_height}
           width={600}
           height={600}
           layer={this.state.layer}
@@ -367,23 +381,27 @@ class Visualization extends Component {
               <Spinner animation="grow" variant="success" />
             </div>
           ) : (
-            <div style={{ textAlign: "center" }}>
+            <div style={{ height: 700, textAlign: "center" }}>
               <div style={{ display: "inline-block", verticalAlign: "top" }}>
                 <OtherLevelMap
                   title={this.state.name}
                   data={this.state.data}
-                  width={600}
+                  window_width = {this.state.window_width}
+                  window_height = {this.state.window_height}
+                  width={this.init_window_width/2 < 600 ? this.init_window_width/2: 600}
                   height={600}
                   layer={this.state.layer}
                   us_data={this.state.us_data}
                   unit={this.state.unit}
                   field={this.state.field}
-                  scale={800}
+                  scale={this.init_window_width/2 < 600 ? this.init_window_width/1.6: 750}
                   layer_type={region}
                   map_fill={this.state.map_fill}
                 />
                 <OtherLevelMapLegend
-                  width={600}
+                  window_width = {this.state.window_width}
+                  window_height = {this.state.window_height}
+                  width={this.init_window_width/2 < 600 ? this.init_window_width/2: 600}
                   height={50}
                   data={this.state.data}
                   field={this.state.field}
@@ -395,7 +413,9 @@ class Visualization extends Component {
                 <OtherLevelBarchart
                   title={this.state.name}
                   data={this.state.data}
-                  width={350}
+                  window_width = {this.state.window_width}
+                  window_height = {this.state.window_height}
+                  width={this.init_window_width/3.5 < 350 ? this.init_window_width/3.5: 350}
                   height={600}
                   field={this.state.field}
                   us_data={this.state.us_data}
@@ -419,11 +439,13 @@ class Visualization extends Component {
                 plant_data={this.state.plant_data_map_only}
                 static_map_scale={900}
                 data={this.state.data}
+                window_width = {this.state.window_width}
+                window_height = {this.state.window_height}
                 fuels={this.state.fuels}
                 init_center={[-97.922211, 42.381266]}
                 init_zoom={3}
                 min_zoom={2}
-                max_zoom={12}
+                max_zoom={17}
                 circle_opacity={0.8}
                 unit={this.state.unit}
                 field={this.state.field}
@@ -435,6 +457,8 @@ class Visualization extends Component {
               <PlantLevelMapStatic
                 title={this.state.name}
                 scale={900}
+                window_width = {this.state.window_width}
+                window_height = {this.state.window_height}
                 background_layer={this.props.state_layer}
               />
             </div>

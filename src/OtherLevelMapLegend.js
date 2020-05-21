@@ -7,6 +7,10 @@ class OtherLevelMapLegend extends Component {
     super(props);
     this.legend = React.createRef();
     this.legend_title = React.createRef();
+    this.state = {
+      width: this.props.width,
+      height: this.props.height,
+    };
   }
 
   formatLegendLabel(t) {
@@ -24,11 +28,38 @@ class OtherLevelMapLegend extends Component {
 
   componentDidMount() {
     this.initView();
+    this.resize();
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.field !== prevProps.field) {
       this.initView();
+    }
+
+    if (this.props.window_width !== prevProps.window_width) {
+      this.resize();
+    }
+  }
+
+  resize(){
+    if (this.props.window_width / 2 < 600) {
+      this.setState(
+        {
+          width: this.props.window_width / 2,
+        },
+        () => {
+          this.initView();
+        }
+      );
+    } else {
+      this.setState(
+        {
+          width: 600,
+        },
+        () => {
+          this.initView();
+        }
+      );
     }
   }
 
@@ -46,7 +77,7 @@ class OtherLevelMapLegend extends Component {
       .legendColor()
       .scale(fill_scale)
       .shape("rect")
-      .shapeWidth(90)
+      .shapeWidth(this.state.width / 5)
       .shapeHeight(10)
       .shapePadding(0)
       .labelOffset(10)
@@ -63,8 +94,8 @@ class OtherLevelMapLegend extends Component {
         }
       });
 
-      let w = d3.select(this.legend.current).node().clientWidth,
-        h = d3.select(this.legend.current).node().clientHeight;
+    let w = d3.select(this.legend.current).node().clientWidth,
+      h = d3.select(this.legend.current).node().clientHeight;
 
     d3.select(this.legend.current).selectAll("svg").remove();
     d3.select(this.legend.current)
@@ -79,7 +110,8 @@ class OtherLevelMapLegend extends Component {
     d3.select(this.legend_title.current)
       .append("span")
       .html(this.props.unit)
-      .style("font-weight", "bold");
+      .style("font-weight", "bold")
+      .style("display", ()=>this.state.width<350?"none":null);
   }
 
   render() {
@@ -88,13 +120,30 @@ class OtherLevelMapLegend extends Component {
         style={{
           display: "block",
           margin: "0 auto",
-          width: this.props.width,
-          height: this.props.height,
+          width: this.state.width,
+          height: this.state.height,
         }}
       >
-        <div ref={this.legend} style={{ width: "75%", height: this.props.height, display: "inline-block", verticalAlign: "top" }}>
+        <div>
+          <div
+            ref={this.legend}
+            style={{
+              width: "75%",
+              height: this.state.height,
+              display: "inline-block",
+              verticalAlign: "top",
+            }}
+          />
+          <div
+            ref={this.legend_title}
+            style={{
+              width: "15%",
+              height: this.state.height,
+              display: "inline-block",
+              verticalAlign: "top",
+            }}
+          />
         </div>
-        <div ref={this.legend_title} style={{ width: "15%", height: this.props.height, display: "inline-block", verticalAlign: "top" }}></div>
       </div>
     );
   }

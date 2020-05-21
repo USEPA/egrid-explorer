@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Spinner from "react-bootstrap/Spinner";
-import Dialog from "./Dialog";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 
@@ -174,22 +173,23 @@ class App extends Component {
       CYPR: "All Combustion",
       CNPR: "All Non Combustion",
     };
+
     this.fuel_color_lookup = {
-      COAL: "rgb(85, 85, 85)",
-      OIL: "rgb(237, 28, 36)",
-      GAS: "rgb(246, 139, 40)",
-      NUCLEAR: "rgb(207, 74, 154)",
-      HYDRO: "rgb(0, 129, 197)",
+      COAL: "rgb(31, 119, 180)",
+      OIL: "rgb(255, 187, 120)",
+      GAS: "rgb(255, 127, 14)",
+      NUCLEAR: "rgb(148, 103, 189)",
+      HYDRO: "rgb(174, 199, 232)",
       BIOMASS: "rgb(44, 160, 44)",
-      WIND: "rgb(13, 177, 75)",
-      SOLAR: "rgb(215, 201, 68)",
+      WIND: "rgb(158, 218, 229)",
+      SOLAR: "rgb(214, 39, 40)",
       GEOTHERMAL: "rgb(255, 152, 150)",
       OFSL: "rgb(140, 86, 75)",
-      OTHF: "rgb(255, 239, 213)",
-      HYPR: "rgb(0, 129, 197)",
-      THPR: "rgb(13, 177, 75)",
-      TNPR: "rgb(255, 187, 120)",
-      CYPR: "rgb(237, 28, 36)",
+      OTHF: "rgb(127, 127, 127)",
+      HYPR: "rgb(174, 199, 232)",
+      THPR: "rgb(255, 187, 120)",
+      TNPR: "rgb(255, 127, 14)",
+      CYPR: "rgb(31, 119, 180)",
       CNPR: "rgb(255, 187, 120)",
     };
     this.wrap_long_labels = function (text, width) {
@@ -413,10 +413,6 @@ class App extends Component {
             <Spinner animation="grow" variant="success" />
           </div>
         )}
-        <Dialog
-          show={this.state.show_modal}
-          onHide={() => this.setState({ show_modal: false })}
-        />
       </div>
     );
   }

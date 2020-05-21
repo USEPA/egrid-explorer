@@ -1,19 +1,18 @@
-body {
-  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-}
-
 .app {
+  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-size: 18px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
+  padding: 10px;
 }
 
-header {
+.app header {
   min-height: 80px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.5);
 }
 
-h2 {
+.app h2 {
   display: inline-block;
   font-family: Merriweather, Georgia, Cambria, "Times New Roman", Times, serif;
   max-width: 85%;
@@ -21,40 +20,37 @@ h2 {
   margin: 0;
 }
 
-p {
+.app p {
   display: block;
   font-weight: bold;
   font-size: 1em;
   margin-bottom: 0.5rem; 
 }
 
-.loading div{
-  display: block;
-  margin: 0 auto;
-  margin-top: 20%;
-}
-
-#logo {
+.app #logo {
   width: 14%;
   float: right;
 }
 
-table, th, td {
+.app table, .app th, .app td {
   border: 1px solid black;
 }
 
-th {
+.app th {
   background-color: #f1f1f1;
   font-weight: 700;
 }
 
-td {
-  width: 220px;
+.loading div{
+  width: 50px;
+  height: 50px;
+  display: block;
+  margin: 0 auto;
+  margin-top: 50%;
 }
 
-
 /* mapbox */
-.mapboxgl-ctrl-group button {
+.app .mapboxgl-ctrl-group button {
   width: 29px !important;
   height: 29px !important;
   padding: 0 !important;
@@ -62,60 +58,63 @@ td {
   background-color: transparent !important;
 }
 
-.mapboxgl-popup-content {
+.app .mapboxgl-popup-content {
   font-size: 1.2em;
   font-weight: bold;
 }
 
-.mapboxgl-popup-close-button {
+.app .mapboxgl-popup-close-button {
   color: #000 !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.map-zoomable-legend-title, .map-static-legend-title {
+.app .map-zoomable-legend-title, .map-static-legend-title {
   font-size: 1.2em;
   font-weight: bold;
 }
 
-
 @media print {
-  .no-export, .no-export svg, .mapboxgl-ctrl, .mapboxgl-popup-content{
+  .app .no-export, .app .no-export svg, .app .mapboxgl-ctrl{
     display: none;
   }
 
-  .fuel.selected circle {
+  .app .fuel.selected circle {
     stroke: #000;
     stroke-width: 2px;
   }
 
-  .fuel.selected text {
+  .app .fuel.selected text {
     font-weight: "bold";
     font-size: 1.2em;
   }
 
-  #map-zoomable .fuel {
+  .app #map-zoomable .fuel {
     width: 90px;
     height: 10px;
   }
 
-  #resource-mix-chart .fuel {
+  .app #resource-mix-chart .fuel {
     width: 71px;
     height: 10px;
   }
 
-  #resource-mix-micromap {
+  .app #resource-mix-micromap {
     clear:right;
     width:100%;
   }
 
-  #resource-mix-table {
+  .app #resource-mix-table {
     margin-left: 5px;
   }
 
-  #vertical-barchart {
+  .app #vertical-barchart {
     margin-top: 40px;
   }
-
-
+  
+  .app table {
+    border-style: unset;
+    border: 1px solid black;
+    display: block;
+  }
 }

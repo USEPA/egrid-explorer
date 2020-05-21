@@ -156,7 +156,7 @@ class ResourceMixChart extends Component {
                 }
               });
 
-            d3.selectAll("path.region_" + d.id).style("fill", "#ddd");
+            d3.selectAll("path.region_" + d.id).style("fill", "#aaa");
             d3.selectAll(".region_" + d.id + " text").style(
               "font-weight",
               "bold"
@@ -439,7 +439,7 @@ class ResourceMixChart extends Component {
         .enter()
         .append("div")
         .attr("class", "fuel")
-        .style("display", "inline-block")
+        .style("display", "inline-flex")
         .style("cursor", "pointer")
         .style("margin", 0)
         .style("border-radius", "5px");
@@ -469,7 +469,7 @@ class ResourceMixChart extends Component {
       let reset = d3
         .select(".fuels")
         .insert("div", ".fuel")
-        .style("display", "inline-block")
+        .style("display","inline-flex")
         .attr("class", "reset")
         .style("opacity", 0.5)
         .style("cursor", "not-allowed")
@@ -488,21 +488,20 @@ class ResourceMixChart extends Component {
         .attr("dy", 0)
         .text(this.sort_text)
         .style("text-anchor", "middle")
-        .style("font-size", "1em")
+        .style("font-size", "0.9em")
         .style("font-weight", "bold")
         .call(this.props.wrap_long_labels, boxlen);
 
       reset
-        .append("text")
-        .attr("x", boxlen / 2)
-        .attr("y", h_legend / 4)
-        .attr("dx", 0)
-        .attr("dy", 0)
-        .attr("font-family", "FontAwesome")
+        .append("svg:image")
+        .attr("x", boxlen / 4)
+        .attr("y", h_legend / 16)
+        .attr("width", boxlen/2)
+        .attr("height", h_legend / 4)
+        .attr("xlink:href", "sort_icon.png")
         .style("font-size", "20px")
         .style("text-decoration", "unset")
-        .style("text-anchor", "middle")
-        .text("\uf15d");
+        .style("text-anchor", "middle");
 
       d3.selectAll(".fuel")
         .on("click", (d) => {
@@ -719,14 +718,14 @@ class ResourceMixChart extends Component {
       <div id="resource-mix-chart" ref={this.wrapper}>
         {title}
         <div>
-          <svg
-            style={{ width: "15%", height: 100, display: "inline-block" }}
+        <svg
+            style={{ width: "15%", height: 100, display: "inline-block", verticalAlign: "top"}}
             ref={this.micromap}
             id="resource-mix-micromap"
           ></svg>
           <div
             className="fuels-selection"
-            style={{ width: "83%", height: 100, display: "inline-block" }}
+            style={{ width: "83%", height: 100, display: "inline-block", verticalAlign: "top" }}
             ref={this.fuels}
           ></div>
         </div>

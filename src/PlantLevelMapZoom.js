@@ -169,7 +169,7 @@ class PlantLevelMapZoom extends Component {
           .scaleLinear()
           .domain([this.props.min_zoom, this.props.max_zoom])
           .range([d / factor, (d / factor) * this.zoom_factor])(
-          this.map.getZoom()
+          this.props.init_zoom
         )
       )
       .sort((a, b) => a - b);
@@ -300,13 +300,20 @@ class PlantLevelMapZoom extends Component {
       .classed("selected", true)
       .style("background", "#ddd");
 
-    this.map.on("zoom", "plants-" + this.state.map_style + '-' + this.map_layer_load_times.toString(), () => {
-      let features = data.features;
-      let factor =
-        d3.max(features.map((d) => d.properties[this.props.field])) /
-        this.field_factor_divided_by;
-      this.updateLegend(features, factor);
-    });
+    this.map.on(
+      "zoom",
+      "plants-" +
+        this.state.map_style +
+        "-" +
+        this.map_layer_load_times.toString(),
+      () => {
+        let features = data.features;
+        let factor =
+          d3.max(features.map((d) => d.properties[this.props.field])) /
+          this.field_factor_divided_by;
+        this.updateLegend(features, factor);
+      }
+    );
   }
 
   updateMapWithNOFuelFilter() {
@@ -347,13 +354,20 @@ class PlantLevelMapZoom extends Component {
       .classed("selected", false)
       .style("background", "none");
 
-    this.map.on("zoom", "plants-" + this.state.map_style + '-' + this.map_layer_load_times.toString(), () => {
-      let features = data.features;
-      let factor =
-        d3.max(features.map((d) => d.properties[this.props.field])) /
-        this.field_factor_divided_by;
-      this.updateLegend(features, factor);
-    });
+    this.map.on(
+      "zoom",
+      "plants-" +
+        this.state.map_style +
+        "-" +
+        this.map_layer_load_times.toString(),
+      () => {
+        let features = data.features;
+        let factor =
+          d3.max(features.map((d) => d.properties[this.props.field])) /
+          this.field_factor_divided_by;
+        this.updateLegend(features, factor);
+      }
+    );
   }
 
   setRadius(features) {
@@ -362,7 +376,10 @@ class PlantLevelMapZoom extends Component {
       this.field_factor_divided_by;
 
     this.map.setPaintProperty(
-      "plants-" + this.state.map_style + '-' + this.map_layer_load_times.toString(),
+      "plants-" +
+        this.state.map_style +
+        "-" +
+        this.map_layer_load_times.toString(),
       "circle-radius",
       [
         "interpolate",
@@ -432,8 +449,8 @@ class PlantLevelMapZoom extends Component {
       container: this.container,
       center: init_center,
       zoom: init_zoom,
-      minzoom: this.props.min_zoom,
-      maxzoom: this.props.max_zoom,
+      minZoom: this.props.min_zoom + 0.1,
+      maxZoom: this.props.max_zoom - 0.1,
     });
 
     // add controls
@@ -485,7 +502,7 @@ class PlantLevelMapZoom extends Component {
 
         const layers = this._createInput(
           ["light-v10", "satellite-v9"],
-          ["light", "satellite"]
+          ["street", "satellite"]
         );
         this._container.appendChild(layers);
         return this._container;
@@ -502,8 +519,8 @@ class PlantLevelMapZoom extends Component {
         container.style.position = "absolute";
         container.style.background = "#fff";
         container.style.ariaHaspopup = "true";
-        container.style.paddingLeft = "5px";
-        container.style.paddingTop = "2px";
+        container.style.marginLeft = "5px";
+        container.style.marginTop = "2px";
         container.style.title = "change layers";
 
         id_list.forEach((d, i) => {
@@ -527,16 +544,10 @@ class PlantLevelMapZoom extends Component {
           label.style.paddingLeft = "5px";
           label.innerHTML = value_list[i];
 
-          input.addEventListener(
-            "click",
-            (e) => {
-              let layer_id = e.target.id;
-              this._map.setStyle("mapbox://styles/mapbox/" + layer_id + "?optimize=true");
-              e.stopPropagation();
-            }
-          );
-
-          if (id_list[i] === "light-v10") input.click();
+          let m = this._map;
+          d3.select(input).on("click", () => {
+            m.setStyle("mapbox://styles/mapbox/" + d + "?optimize=true");
+          });
 
           div.appendChild(input);
           div.appendChild(label);
@@ -556,7 +567,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl";
         this._container.innerHTML =
-          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span class='map-zoomable-legend-title'></span></div><div><svg class='map-zoomable-legend' style='width:300px;height:70px;'></svg></div></div>";
+          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span class='map-zoomable-legend-title'></span></div><div><svg class='map-zoomable-legend' style='width:300px;height:75px;'></svg></div></div>";
 
         return this._container;
       }
@@ -567,6 +578,9 @@ class PlantLevelMapZoom extends Component {
       }
     }
     this.map.addControl(new Legend(), "bottom-right");
+
+    // init map
+    d3.select('#light-v10').property("checked", "checked").dispatch("click");
 
     // init map on style loaded
     this.map.on("style.load", (d) => {
@@ -594,7 +608,7 @@ class PlantLevelMapZoom extends Component {
             .enter()
             .append("div")
             .attr("class", "fuel")
-            .style("display", "inline-block")
+            .style("display", "inline-flex")
             .style("cursor", "pointer")
             .style("margin", 0)
             .style("border-radius", "5px");
@@ -623,7 +637,7 @@ class PlantLevelMapZoom extends Component {
 
           d3.select(".fuels")
             .insert("div", ".fuel")
-            .style("display", "inline-block")
+            .style("display", "inline-flex")
             .attr("class", "reset no-export")
             .style("opacity", 0.5)
             .style("cursor", "not-allowed")
@@ -707,12 +721,16 @@ class PlantLevelMapZoom extends Component {
           // add data source to map
           this.map.addSource("plants", {
             type: "geojson",
-            data: data
+            data: data,
           });
 
           // add map layer
           this.map.addLayer({
-            id: "plants-" + this.state.map_style + '-' + this.map_layer_load_times.toString(),
+            id:
+              "plants-" +
+              this.state.map_style +
+              "-" +
+              this.map_layer_load_times.toString(),
             type: "circle",
             source: "plants",
             minzoom: this.props.min_zoom,
@@ -799,109 +817,144 @@ class PlantLevelMapZoom extends Component {
           );
 
           // add interactive events: mousemove, mouseleave, click
-          this.map.on("mousemove", "plants-" + this.state.map_style + '-' + this.map_layer_load_times.toString(), (d) => {
-            if (!this.show_plant_info) {
-              this.map.getCanvas().style.cursor = "pointer";
+          this.map.on(
+            "mousemove",
+            "plants-" +
+              this.state.map_style +
+              "-" +
+              this.map_layer_load_times.toString(),
+            (d) => {
+              if (!this.show_plant_info) {
+                this.map.getCanvas().style.cursor = "pointer";
 
-              if (d.features.length > 0) {
+                if (d.features.length > 0) {
+                  if (this.hoveredPlantId) {
+                    this.map.setFeatureState(
+                      { source: "plants", id: this.hoveredPlantId },
+                      { hover: false }
+                    );
+                  }
+                  this.hoveredPlantId = d.features[0].id;
+                  this.map.setFeatureState(
+                    { source: "plants", id: this.hoveredPlantId },
+                    { hover: true }
+                  );
+                }
+
+                while (
+                  Math.abs(
+                    d.lngLat.lng - d.features[0].geometry.coordinates.slice()[0]
+                  ) > 180
+                ) {
+                  d.features[0].geometry.coordinates.slice()[0] +=
+                    d.lngLat.lng > d.features[0].geometry.coordinates.slice()[0]
+                      ? 360
+                      : -360;
+                }
+
+                this.tooltip
+                  .setLngLat(d.features[0].geometry.coordinates.slice())
+                  .setText(d.features[0].properties.name)
+                  .addTo(this.map);
+
+                let table_info = {};
+                Object.keys(d.features[0].properties).forEach((e) => {
+                  table_info[e] =
+                    typeof d.features[0].properties[e] === "number" &&
+                    e !== "ORISPL"
+                      ? this.formatNumber(d.features[0].properties[e])
+                      : d.features[0].properties[e];
+                });
+                this.setState({ table_info: table_info });
+              }
+            }
+          );
+
+          this.map.on(
+            "mouseleave",
+            "plants-" +
+              this.state.map_style +
+              "-" +
+              this.map_layer_load_times.toString(),
+            () => {
+              if (!this.show_plant_info) {
+                this.map.getCanvas().style.cursor = "";
+                this.tooltip.remove();
+
                 if (this.hoveredPlantId) {
                   this.map.setFeatureState(
                     { source: "plants", id: this.hoveredPlantId },
                     { hover: false }
                   );
                 }
-                this.hoveredPlantId = d.features[0].id;
-                this.map.setFeatureState(
-                  { source: "plants", id: this.hoveredPlantId },
-                  { hover: true }
-                );
+                this.hoveredPlantId = null;
               }
-
-              while (Math.abs(d.lngLat.lng - d.features[0].geometry.coordinates.slice()[0]) > 180) {
-                d.features[0].geometry.coordinates.slice()[0] += d.lngLat.lng > d.features[0].geometry.coordinates.slice()[0] ? 360 : -360;
-              }
-
-              this.tooltip
-                .setLngLat(d.features[0].geometry.coordinates.slice())
-                .setText(d.features[0].properties.name)
-                .addTo(this.map);
-
-              let table_info = {};
-              Object.keys(d.features[0].properties).forEach((e) => {
-                table_info[e] =
-                  typeof d.features[0].properties[e] === "number" &&
-                  e !== "ORISPL"
-                    ? this.formatNumber(d.features[0].properties[e])
-                    : d.features[0].properties[e];
-              });
-              this.setState({ table_info: table_info });
             }
-          });
+          );
 
-          this.map.on("mouseleave", "plants-" + this.state.map_style + '-' + this.map_layer_load_times.toString(), () => {
-            if (!this.show_plant_info) {
-              this.map.getCanvas().style.cursor = "";
-              this.tooltip.remove();
+          this.map.on(
+            "click",
+            "plants-" +
+              this.state.map_style +
+              "-" +
+              this.map_layer_load_times.toString(),
+            (d) => {
+              if (d.features[0].id === this.state.selected_plant_id) {
+                this.show_plant_info = false;
+                this.tooltip.remove();
+              } else {
+                this.show_plant_info = true;
 
-              if (this.hoveredPlantId) {
-                this.map.setFeatureState(
-                  { source: "plants", id: this.hoveredPlantId },
-                  { hover: false }
-                );
-              }
-              this.hoveredPlantId = null;
-            }
-          });
-
-          this.map.on("click", "plants-" + this.state.map_style + '-' + this.map_layer_load_times.toString(), (d) => {
-            if (d.features[0].id === this.state.selected_plant_id) {
-              this.show_plant_info = false;
-              this.tooltip.remove();
-            } else {
-              this.show_plant_info = true;
-
-              if (d.features.length > 0) {
-                if (this.hoveredPlantId) {
+                if (d.features.length > 0) {
+                  if (this.hoveredPlantId) {
+                    this.map.setFeatureState(
+                      { source: "plants", id: this.hoveredPlantId },
+                      { hover: false }
+                    );
+                  }
+                  this.hoveredPlantId = d.features[0].id;
                   this.map.setFeatureState(
                     { source: "plants", id: this.hoveredPlantId },
-                    { hover: false }
+                    { hover: true }
                   );
                 }
-                this.hoveredPlantId = d.features[0].id;
-                this.map.setFeatureState(
-                  { source: "plants", id: this.hoveredPlantId },
-                  { hover: true }
-                );
+
+                this.tooltip
+                  .setLngLat(d.features[0].geometry.coordinates.slice())
+                  .setText(d.features[0].properties.name)
+                  .addTo(this.map);
+
+                let table_info = {};
+                Object.keys(d.features[0].properties).forEach((e) => {
+                  table_info[e] =
+                    typeof d.features[0].properties[e] === "number" &&
+                    e !== "ORISPL"
+                      ? this.formatNumber(d.features[0].properties[e])
+                      : d.features[0].properties[e];
+                });
+
+                this.setState({
+                  table_info: table_info,
+                  selected_plant_id: this.hoveredPlantId,
+                });
               }
-
-              this.tooltip
-              .setLngLat(d.features[0].geometry.coordinates.slice())
-              .setText(d.features[0].properties.name)
-              .addTo(this.map);
-
-              let table_info = {};
-              Object.keys(d.features[0].properties).forEach((e) => {
-                table_info[e] =
-                  typeof d.features[0].properties[e] === "number" &&
-                  e !== "ORISPL"
-                    ? this.formatNumber(d.features[0].properties[e])
-                    : d.features[0].properties[e];
-              });
-
-              this.setState({
-                table_info: table_info,
-                selected_plant_id: this.hoveredPlantId,
-              });
             }
-          });
+          );
 
-          this.map.on("zoom", "plants-" + this.state.map_style + '-' + this.map_layer_load_times.toString(), () => {
-            let features = data.features;
-            let factor =
-              d3.max(features.map((d) => d.properties[this.props.field])) /
-              this.field_factor_divided_by;
-            this.updateLegend(features, factor);
-          });
+          this.map.on(
+            "zoom",
+            "plants-" +
+              this.state.map_style +
+              "-" +
+              this.map_layer_load_times.toString(),
+            () => {
+              let features = data.features;
+              let factor =
+                d3.max(features.map((d) => d.properties[this.props.field])) /
+                this.field_factor_divided_by;
+              this.updateLegend(features, factor);
+            }
+          );
         }
       );
     });
@@ -930,7 +983,7 @@ class PlantLevelMapZoom extends Component {
           style={{ width: "100%", height: 100, display: "inline-block" }}
           ref={this.fuels}
         ></div>
-        <div>
+        <div style={{height: 730}}>
           <div
             className="map-container"
             style={{ width: "65%", height: 730, display: "inline-block" }}
@@ -939,7 +992,7 @@ class PlantLevelMapZoom extends Component {
           <div
             style={{
               width: "33%",
-              height: 750,
+              height: 730,
               float: "right",
               display: "inline-block",
             }}

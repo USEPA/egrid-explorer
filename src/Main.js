@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Spinner from "react-bootstrap/Spinner";
 import * as _ from "underscore";
 
 import lookup from "./assets/data/json/eGRID lookup.json";
@@ -18,7 +19,6 @@ class Main extends Component {
       field: init_options["Final field name in eGRID"],
       unit: init_options.Units,
       name: init_options["Full Name"],
-      data: [],
       all_options: this.props.options.filter(
         (d) => d.tier1 === init_options.tier1
       ),
@@ -423,7 +423,12 @@ class Main extends Component {
           <span> for </span>
           <SentenceMiscellaneous value={this.props.year} />.
         </p>
-        <UpdatedVisualization
+        {this.props.plant_data.length === 0 ? (
+          <div className="loading">
+            <Spinner animation="grow" variant="success" />
+          </div>
+        ) : (
+          <UpdatedVisualization
           options = {this.props.options}
           style={{padding: ".8rem 0", borderBottom: "1px solid rgba(0, 0, 0, 0.5)"}}
           choropleth_map_fill={this.props.choropleth_map_fill}
@@ -450,6 +455,9 @@ class Main extends Component {
           nerc_layer={this.props.nerc_layer}
           ggl_layer={this.props.ggl_layer}
         ></UpdatedVisualization>
+        )}
+
+        
       </div>
     );
   }
