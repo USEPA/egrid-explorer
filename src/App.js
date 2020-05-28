@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Spinner from "react-bootstrap/Spinner";
-import Dialog from "./Dialog";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 
@@ -22,6 +21,8 @@ import us from "./assets/data/csv/US.csv";
 
 import Main from "./Main";
 
+import "mapbox-gl/dist/mapbox-gl.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
 
 class App extends Component {
@@ -99,7 +100,7 @@ class App extends Component {
     this.choropleth_map_fill = {
       emission: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"],
       generation: ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"],
-      others: ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"]
+      others: ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"],
     };
     this.plant_fuels = [
       "COAL",
@@ -163,31 +164,32 @@ class App extends Component {
       BIOMASS: "Biomass",
       WIND: "Wind",
       SOLAR: "Solar",
-      GEOTHERMAL: "Geothermal",
+      GEOTHERMAL: "Geo thermal",
       OFSL: "Other Fossil",
       OTHF: "Other Unknown",
       HYPR: "Hydro",
       THPR: "All Non-Hydro Renewables",
-      TNPR: "All Non-Renewables",
+      TNPR: "All Non Renewables",
       CYPR: "All Combustion",
-      CNPR: "All Non-Combustion",
+      CNPR: "All Non Combustion",
     };
+
     this.fuel_color_lookup = {
-      COAL: "rgb(85, 85, 85)",
-      OIL: "rgb(237, 28, 36)",
-      GAS: "rgb(246, 139, 40)",
-      NUCLEAR: "rgb(207, 74, 154)",
-      HYDRO: "rgb(0, 129, 197)",
+      COAL: "rgb(31, 119, 180)",
+      OIL: "rgb(255, 187, 120)",
+      GAS: "rgb(255, 127, 14)",
+      NUCLEAR: "rgb(148, 103, 189)",
+      HYDRO: "rgb(174, 199, 232)",
       BIOMASS: "rgb(44, 160, 44)",
-      WIND: "rgb(13, 177, 75)",
-      SOLAR: "rgb(215, 201, 68)",
+      WIND: "rgb(158, 218, 229)",
+      SOLAR: "rgb(214, 39, 40)",
       GEOTHERMAL: "rgb(255, 152, 150)",
       OFSL: "rgb(140, 86, 75)",
-      OTHF: "rgb(255, 239, 213)",
-      HYPR: "rgb(0, 129, 197)",
-      THPR: "rgb(13, 177, 75)",
-      TNPR: "rgb(255, 187, 120)",
-      CYPR: "rgb(237, 28, 36)",
+      OTHF: "rgb(127, 127, 127)",
+      HYPR: "rgb(174, 199, 232)",
+      THPR: "rgb(255, 187, 120)",
+      TNPR: "rgb(255, 127, 14)",
+      CYPR: "rgb(31, 119, 180)",
       CNPR: "rgb(255, 187, 120)",
     };
     this.wrap_long_labels = function (text, width) {
@@ -230,15 +232,24 @@ class App extends Component {
     this.nerc_layer = topojson.feature(nerc_topo, "NERC");
     this.state_layer = topojson.feature(us_topo, "states");
 
-    this.ggl_layer.features.map((d) => (d.name = d.properties.GGL));
+    this.ggl_layer.features.map((d) => {
+      d.id = null;
+      d.name = d.properties.GGL;
+    });
+    this.subrgn_layer.features.map((d) => {
+      d.id = null;
+      d.name = d.properties.Subregions;
+    });
     this.nerc_layer.features = this.nerc_layer.features
       .filter((d) => d.properties.NERC !== "-" && d.properties.NERC !== "SPP") // no data for "-" and "SPP"
       .map((d) => {
+        d.id = null;
         d.name = d.properties.NERC;
         return d;
       });
-    this.subrgn_layer.features.map((d) => (d.name = d.properties.Subregions));
-    this.state_layer.features = this.state_layer.features.filter(d=>d.id !== 72 && d.id !== 78); // no data for state 72 and state 78
+    this.state_layer.features = this.state_layer.features.filter(
+      (d) => d.id !== 72 && d.id !== 78
+    ); // no data for state 72 and state 78
   }
 
   componentDidMount() {
@@ -267,7 +278,7 @@ class App extends Component {
           d.name = d.PSTATABB;
 
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, ""))) {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
@@ -283,7 +294,7 @@ class App extends Component {
           d.label = d.PNAME;
           d.name = d.PNAME;
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, ""))) {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
@@ -294,11 +305,14 @@ class App extends Component {
           d.label = d.SUBRGN;
           d.name = d.SUBRGN;
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, ""))) {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
           d.id = i;
+        });
+        this.subrgn_layer.features.map(d=>{
+          d.id = subrgn.filter(e=>e.name===d.name).map(e=>e.id)[0];
         });
 
         nerc = nerc.filter((d) => d.NERC !== "NA");
@@ -306,11 +320,14 @@ class App extends Component {
           d.label = d.NERC;
           d.name = d.NERC;
           Object.keys(d).forEach(function (e) {
-            if (!isNaN(+d[e].replace(/,/g, ""))) {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
           d.id = i;
+        });
+        this.nerc_layer.features.map(d=>{
+          d.id = nerc.filter(e=>e.name===d.name).map(e=>e.id)[0];
         });
 
         ggl.map((d, i) => {
@@ -320,10 +337,13 @@ class App extends Component {
           d.unit = "%";
           d.value = +d.percentage;
         });
+        this.ggl_layer.features.map(d=>{
+          d.id = ggl.filter(e=>e.name===d.name).map(e=>e.id)[0];
+        });
 
         us.map((d) => {
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, ""))) {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
@@ -353,7 +373,7 @@ class App extends Component {
 
   render() {
     return (
-      <div className="app">
+      <div>
         {this.state.options.length > 0 &&
         this.state.plant_data.length > 0 &&
         this.state.state_data.length > 0 &&
@@ -361,8 +381,11 @@ class App extends Component {
         this.state.nerc_data.length > 0 &&
         this.state.ggl_data.length > 0 &&
         this.state.us_data.length > 0 ? (
-          <div>
-            <header></header>
+          <div className="app">
+            <header style={{ minHeight: 100 }} className="no-export">
+              <h2>Emissions and Generation Resource Integrated Database</h2>
+              <img id="logo" src={logo} alt="eGrid Logo"></img>
+            </header>
             <Main
               year={this.year}
               conjunction={this.conjunction}
@@ -390,25 +413,9 @@ class App extends Component {
             <Spinner animation="grow" variant="success" />
           </div>
         )}
-        <Dialog
-          show={this.state.show_modal}
-          onHide={() => this.setState({ show_modal: false })}
-        />
       </div>
     );
   }
 }
-/**<header>
-              <h2>Emissions and Generation Resource Integrated Database</h2>
-              <span className="dialog"> (</span>
-              <span
-                className="dialog-text"
-                onClick={() => this.setState({ show_modal: true })}
-              >
-                More Information
-              </span>
-              <span className="dialog">)</span>
-              <img id="logo" src={logo}></img>
-            </header> */
 
 export default App;

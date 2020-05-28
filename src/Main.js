@@ -1,16 +1,19 @@
 import React, { Component } from "react";
+import Spinner from "react-bootstrap/Spinner";
 import * as _ from "underscore";
 
 import lookup from "./assets/data/json/eGRID lookup.json";
 
 import { SentenceDropdown, SentenceMiscellaneous } from "./Sentence";
 import UpdatedVisualization from "./Visualization";
+import Dialog from "./Dialog.js";
 
 class Main extends Component {
   constructor(props) {
     super(props);
     const init_options = this.props.options[0];
     this.state = {
+      show_dialog: false,
       tier1: init_options.tier1,
       tier2: init_options.tier2,
       tier4: init_options.tier4,
@@ -18,7 +21,6 @@ class Main extends Component {
       field: init_options["Final field name in eGRID"],
       unit: init_options.Units,
       name: init_options["Full Name"],
-      data: [],
       all_options: this.props.options.filter(
         (d) => d.tier1 === init_options.tier1
       ),
@@ -32,8 +34,7 @@ class Main extends Component {
         this.props.options
           .filter(
             (d) =>
-              d.tier1 === init_options.tier1 &&
-              d.tier2 === init_options.tier2
+              d.tier1 === init_options.tier1 && d.tier2 === init_options.tier2
           )
           .map((d) => d.tier4)
       ),
@@ -53,6 +54,17 @@ class Main extends Component {
     this.handleChange2 = this.handleChange2.bind(this);
     this.handleChange4 = this.handleChange4.bind(this);
     this.handleChange5 = this.handleChange5.bind(this);
+
+    this.handleCloseDialog = this.handleCloseDialog.bind(this);
+    this.handleOpenDialog = this.handleOpenDialog.bind(this);
+  }
+
+  handleCloseDialog() {
+    this.setState({ show_dialog: false });
+  }
+
+  handleOpenDialog() {
+    this.setState({ show_dialog: true });
   }
 
   handleChange1(event) {
@@ -71,9 +83,7 @@ class Main extends Component {
             : this.state.tier2;
         this.setState({ tier2: t2_val }, () => {
           let t4_avail = this.props.options.filter(
-            (d) =>
-              d.tier1 === val &&
-              d.tier2 === this.state.tier2
+            (d) => d.tier1 === val && d.tier2 === this.state.tier2
           );
           let t4_val =
             t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
@@ -104,10 +114,7 @@ class Main extends Component {
                 ),
                 tier4_available_options: _.uniq(
                   this.state.all_options
-                    .filter(
-                      (d) =>
-                        d.tier2 === this.state.tier2
-                    )
+                    .filter((d) => d.tier2 === this.state.tier2)
                     .map((d) => d.tier4)
                 ),
                 tier5_available_options: _.uniq(
@@ -120,14 +127,16 @@ class Main extends Component {
                     .map((d) => d.tier5)
                 ),
               });
-              this.setState({
-                field: opt["Final field name in eGRID"],
-                unit: opt.Units,
-                name: opt["Full Name"],
-              }, ()=>{
-                console.log(this.state);
-              });
-              
+              this.setState(
+                {
+                  field: opt["Final field name in eGRID"],
+                  unit: opt.Units,
+                  name: opt["Full Name"],
+                },
+                () => {
+                  console.log(this.state);
+                }
+              );
             });
           });
         });
@@ -138,11 +147,8 @@ class Main extends Component {
   handleChange2(event) {
     let val = event.target.value;
     this.setState({ tier2: val, updated_tier: "tier2" }, () => {
-
       let t4_avail = this.props.options.filter(
-        (d) =>
-          d.tier1 === this.state.tier1 &&
-          d.tier2 === val
+        (d) => d.tier1 === this.state.tier1 && d.tier2 === val
       );
       let t4_val =
         t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
@@ -173,29 +179,28 @@ class Main extends Component {
             ),
             tier4_available_options: _.uniq(
               this.state.all_options
-                .filter(
-                  (d) =>
-                    d.tier2 === this.state.tier2
-                )
+                .filter((d) => d.tier2 === this.state.tier2)
                 .map((d) => d.tier4)
             ),
             tier5_available_options: _.uniq(
               this.state.all_options
                 .filter(
                   (d) =>
-                    d.tier2 === this.state.tier2 &&
-                    d.tier4 === this.state.tier4
+                    d.tier2 === this.state.tier2 && d.tier4 === this.state.tier4
                 )
                 .map((d) => d.tier5)
             ),
           });
-          this.setState({
-            field: opt["Final field name in eGRID"],
-            unit: opt.Units,
-            name: opt["Full Name"],
-          }, ()=>{
-            console.log(this.state);
-          });
+          this.setState(
+            {
+              field: opt["Final field name in eGRID"],
+              unit: opt.Units,
+              name: opt["Full Name"],
+            },
+            () => {
+              console.log(this.state);
+            }
+          );
         });
       });
     });
@@ -241,19 +246,21 @@ class Main extends Component {
               this.state.all_options
                 .filter(
                   (d) =>
-                    d.tier2 === this.state.tier2 &&
-                    d.tier4 === this.state.tier4
+                    d.tier2 === this.state.tier2 && d.tier4 === this.state.tier4
                 )
                 .map((d) => d.tier5)
             ),
           });
-          this.setState({
-            field: opt["Final field name in eGRID"],
-            unit: opt.Units,
-            name: opt["Full Name"],
-          }, ()=>{
-            console.log(this.state);
-          });
+          this.setState(
+            {
+              field: opt["Final field name in eGRID"],
+              unit: opt.Units,
+              name: opt["Full Name"],
+            },
+            () => {
+              console.log(this.state);
+            }
+          );
         });
       });
     });
@@ -299,13 +306,16 @@ class Main extends Component {
               this.state.all_options.map((d) => d.tier5)
             ),
           });
-          this.setState({
-            field: opt["Final field name in eGRID"],
-            unit: opt.Units,
-            name: opt["Full Name"],
-          }, ()=>{
-            console.log(this.state);
-          });
+          this.setState(
+            {
+              field: opt["Final field name in eGRID"],
+              unit: opt.Units,
+              name: opt["Full Name"],
+            },
+            () => {
+              console.log(this.state);
+            }
+          );
         });
       });
     });
@@ -318,7 +328,16 @@ class Main extends Component {
       tier5_options = _.uniq(all_options.map((op) => lookup[op.tier5]));
     return (
       <div>
-        <p className="main">
+        <p
+          className="no-export"
+          style={{
+            fontSize: "1em",
+            fontWeight: "bold",
+            marginBottom: "0.5rem",
+            padding: ".8rem 0",
+            borderBottom: "1px solid rgba(0, 0, 0, 0.5)",
+          }}
+        >
           I want to explore
           <SentenceDropdown
             id="tier1"
@@ -333,7 +352,9 @@ class Main extends Component {
           />
           <span> </span>
           <SentenceMiscellaneous
-            value={this.props.conjunction["tier1_" + this.state.tier1].conjunct1}
+            value={
+              this.props.conjunction["tier1_" + this.state.tier1].conjunct1
+            }
           />
           <span> </span>
           {tier2_options.length > 1 ? (
@@ -358,7 +379,9 @@ class Main extends Component {
           )}
           <span> </span>
           <SentenceMiscellaneous
-            value={this.props.conjunction["tier1_" + this.state.tier1].conjunct2}
+            value={
+              this.props.conjunction["tier1_" + this.state.tier1].conjunct2
+            }
           />
           <span> </span>
           {tier4_options.length > 1 ? (
@@ -381,9 +404,10 @@ class Main extends Component {
           ) : (
             <span></span>
           )}
-          <span> </span>
           <SentenceMiscellaneous
-            value={this.props.conjunction["tier1_" + this.state.tier1].conjunct3}
+            value={
+              this.props.conjunction["tier1_" + this.state.tier1].conjunct3
+            }
           />
           <span> </span>
           {tier5_options.length > 1 ? (
@@ -408,37 +432,57 @@ class Main extends Component {
           )}
           <span> </span>
           <SentenceMiscellaneous
-            value={this.props.conjunction["tier1_" + this.state.tier1].conjunct4}
+            value={
+              this.props.conjunction["tier1_" + this.state.tier1].conjunct4
+            }
           />
           <span> for </span>
           <SentenceMiscellaneous value={this.props.year} />.
+          <span> </span>
+          <span style={{fontSize: "0.9em", fontWeight: "normal"}} onClick={this.handleOpenDialog}><a href="#">More Info</a></span>
         </p>
-        <UpdatedVisualization
-          className="main"
-          choropleth_map_fill={this.props.choropleth_map_fill}
-          plant_fuels={this.props.plant_fuels}
-          plant_outlier={this.props.plant_outlier}
-          fuel_label_lookup={this.props.fuel_label_lookup}
-          fuel_color_lookup={this.props.fuel_color_lookup}
-          wrap_long_labels={this.props.wrap_long_labels}
-          field={this.state.field}
-          name={this.state.name}
-          unit={this.state.unit}
-          tier1={this.state.tier1}
-          tier2={this.state.tier2}
-          tier4={this.state.tier4}
-          tier5={this.state.tier5}
-          plant_data={this.props.plant_data}
-          state_data={this.props.state_data}
-          subrgn_data={this.props.subrgn_data}
-          nerc_data={this.props.nerc_data}
-          ggl_data={this.props.ggl_data}
-          us_data={this.props.us_data}
-          state_layer={this.props.state_layer}
-          subrgn_layer={this.props.subrgn_layer}
-          nerc_layer={this.props.nerc_layer}
-          ggl_layer={this.props.ggl_layer}
-        ></UpdatedVisualization>
+        {this.props.plant_data.length === 0 ? (
+          <div className="loading">
+            <Spinner animation="grow" variant="success" />
+          </div>
+        ) : (
+          <div>
+            <UpdatedVisualization
+              options={this.props.options}
+              style={{
+                padding: ".8rem 0",
+                borderBottom: "1px solid rgba(0, 0, 0, 0.5)",
+              }}
+              choropleth_map_fill={this.props.choropleth_map_fill}
+              plant_fuels={this.props.plant_fuels}
+              plant_outlier={this.props.plant_outlier}
+              fuel_label_lookup={this.props.fuel_label_lookup}
+              fuel_color_lookup={this.props.fuel_color_lookup}
+              wrap_long_labels={this.props.wrap_long_labels}
+              field={this.state.field}
+              name={this.state.name}
+              unit={this.state.unit}
+              tier1={this.state.tier1}
+              tier2={this.state.tier2}
+              tier4={this.state.tier4}
+              tier5={this.state.tier5}
+              plant_data={this.props.plant_data}
+              state_data={this.props.state_data}
+              subrgn_data={this.props.subrgn_data}
+              nerc_data={this.props.nerc_data}
+              ggl_data={this.props.ggl_data}
+              us_data={this.props.us_data}
+              state_layer={this.props.state_layer}
+              subrgn_layer={this.props.subrgn_layer}
+              nerc_layer={this.props.nerc_layer}
+              ggl_layer={this.props.ggl_layer}
+            ></UpdatedVisualization>
+            <Dialog
+              show={this.state.show_dialog}
+              onHide={() => this.setState({ show_dialog: false })}
+            />
+          </div>
+        )}
       </div>
     );
   }

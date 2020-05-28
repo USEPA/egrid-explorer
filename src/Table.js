@@ -1,295 +1,381 @@
 import React, { Component } from "react";
-import Table from "react-bootstrap/Table";
 
 class UpdatedTable extends Component {
   render() {
     return (
       <div>
         {this.props.title.startsWith("Resource Mix") ? (
-          <Table striped bordered hover responsive="sm">
+          <table style={{ maxWidth: 400, fontSize: "0.8em", borderRadius: "10px", borderCollapse: "collapse", borderStyle: "hidden", boxShadow: "0 0 0 1px"}}>
             <thead>
-              <tr>
-                <th>Generation by Fuel Type</th>
-                {this.props.region !== "US" && (
-                  <th>
-                    {this.props.region}
-                    {" Resource Mix (%)"}
-                  </th>
-                )}
-                <th>US Resource Mix (%)</th>
+              <tr style={{ lineHeight: 1 }}>
+                <th style={{width: 200, padding: "0.8em", borderTopLeftRadius: "10px"}}>Generation by Fuel Type</th>
+                <th style={{padding: "0.8em", textAlign: "right", }}>US<br/>Resource Mix (%)</th>                
+                <th style={{padding: "0.8em", borderTopRightRadius: "10px", textAlign: "right", height: 95}}>
+                  {this.props.region==="state"?"State":this.props.region}<br/>
+                  {"Resource Mix (%)"}
+                </th>
               </tr>
             </thead>
             {this.props.title === "Resource Mix by all fuel types" && (
               <tbody>
-                {+this.props.table_info.COAL !== 0 && (
-                  <tr className={this.props.type === "COAL" ? "selected" : ""}>
-                    <td>Coal</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.COAL}</td>
-                    )}
-                    <td>{this.props.table_info.US_COAL}</td>
-                  </tr>
-                )}
-                {+this.props.table_info.OIL !== 0 && (
-                  <tr className={this.props.type === "OIL" ? "selected" : ""}>
-                    <td>Oil</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.OIL}</td>
-                    )}
-                    <td>{this.props.table_info.US_OIL}</td>
-                  </tr>
-                )}
-                {+this.props.table_info.GAS !== 0 && (
-                  <tr className={this.props.type === "GAS" ? "selected" : ""}>
-                    <td>Gas</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.GAS}</td>
-                    )}
-                    <td>{this.props.table_info.US_GAS}</td>
-                  </tr>
-                )}
-                {+this.props.table_info.NUCLEAR !== 0 && (
                   <tr
-                    className={this.props.type === "NUCLEAR" ? "selected" : ""}
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "COAL" ? "bold" : "normal",
+                    }}
                   >
-                    <td>Nuclear</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.NUCLEAR}</td>
-                    )}
-                    <td>{this.props.table_info.US_NUCLEAR}</td>
+                    <td style={{ padding: "0.8em" }}>Coal</td>
+                    <td style={{ textAlign: "right", padding: "0.8em"}}>
+                      {this.props.table_info.US_COAL}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.COAL}
+                    </td>
                   </tr>
-                )}
-                {+this.props.table_info.HYDRO !== 0 && (
-                  <tr className={this.props.type === "HYDRO" ? "selected" : ""}>
-                    <td>Hydro</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.HYDRO}</td>
-                    )}
-                    <td>{this.props.table_info.US_HYDRO}</td>
-                  </tr>
-                )}
-
-                {+this.props.table_info.BIOMASS !== 0 && (
                   <tr
-                    className={this.props.type === "BIOMASS" ? "selected" : ""}
+                    style={{
+                      lineHeight: 1,
+                      fontWeight: this.props.type === "OIL" ? "bold" : "normal",
+                    }}
                   >
-                    <td>Biomass</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.BIOMASS}</td>
-                    )}
-                    <td>{this.props.table_info.US_BIOMASS}</td>
+                    <td style={{ padding: "0.8em" }}>Oil</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_OIL}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.OIL}
+                    </td>
                   </tr>
-                )}
-                {+this.props.table_info.WIND !== 0 && (
-                  <tr className={this.props.type === "WIND" ? "selected" : ""}>
-                    <td>Wind</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.WIND}</td>
-                    )}
-                    <td>{this.props.table_info.US_WIND}</td>
-                  </tr>
-                )}
-                {+this.props.table_info.SOLAR !== 0 && (
-                  <tr className={this.props.type === "SOLAR" ? "selected" : ""}>
-                    <td>Solar</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.SOLAR}</td>
-                    )}
-                    <td>{this.props.table_info.US_SOLAR}</td>
-                  </tr>
-                )}
-                {+this.props.table_info.GEOTHERMAL !== 0 && (
                   <tr
-                    className={
-                      this.props.type === "GEOTHERMAL" ? "selected" : ""
-                    }
+                    style={{
+                      lineHeight: 1,
+                      fontWeight: this.props.type === "GAS" ? "bold" : "normal",
+                    }}
                   >
-                    <td>Geothermal</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.GEOTHERMAL}</td>
-                    )}
-                    <td>{this.props.table_info.US_GEOTHERMAL}</td>
+                    <td style={{ padding: "0.8em" }}>Gas</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_GAS}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.GAS}
+                    </td>
                   </tr>
-                )}
-                {+this.props.table_info.OFSL !== 0 && (
-                  <tr className={this.props.type === "OFSL" ? "selected" : ""}>
-                    <td>Other Fossil</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.OFSL}</td>
-                    )}
-                    <td>{this.props.table_info.US_OFSL}</td>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "NUCLEAR" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Nuclear</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_NUCLEAR}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.NUCLEAR}
+                    </td>
                   </tr>
-                )}
-                {+this.props.table_info.OTHF !== 0 && (
-                  <tr className={this.props.type === "OTHF" ? "selected" : ""}>
-                    <td>Other Unknown/Purchased Fuel</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.OTHF}</td>
-                    )}
-                    <td>{this.props.table_info.US_OTHF}</td>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "HYDRO" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Hydro</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_HYDRO}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.HYDRO}
+                    </td>
                   </tr>
-                )}
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "BIOMASS" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Biomass</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_BIOMASS}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.BIOMASS}
+                    </td>
+                  </tr>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "WIND" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Wind</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_WIND}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.WIND}
+                    </td>
+                  </tr>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "SOLAR" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Solar</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_SOLAR}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.SOLAR}
+                    </td>
+                  </tr>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "GEOTHERMAL" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Geothermal</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_GEOTHERMAL}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.GEOTHERMAL}
+                    </td>
+                  </tr>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "OFSL" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Other Fossil</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_OFSL}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.OFSL}
+                    </td>
+                  </tr>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "OTHF" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Other Unknown or Purchased Fuel</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_OTHF}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.OTHF}
+                    </td>
+                  </tr>
               </tbody>
             )}
             {this.props.title ===
               "Resource Mix by renewable vs. non-renewable fuels" && (
               <tbody>
-                {+this.props.table_info.HYDRO !== 0 && (
-                  <tr className={this.props.type === "HYDRO" ? "selected" : ""}>
-                    <td>Hydro</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.HYDRO}</td>
-                    )}
-                    <td>{this.props.table_info.US_HYDRO}</td>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "HYDRO" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Hydro</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_HYDRO}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.HYDRO}
+                    </td>
                   </tr>
-                )}
-                {+this.props.table_info.TNPR !== 0 && (
-                  <tr className={this.props.type === "TNPR" ? "selected" : ""}>
-                    <td>Total Nonrenewables</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.TNPR}</td>
-                    )}
-                    <td>{this.props.table_info.US_TNPR}</td>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "TNPR" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Total Nonrenewables</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_TNPR}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.TNPR}
+                    </td>
                   </tr>
-                )}
-                {+this.props.table_info.THPR !== 0 && (
-                  <tr className={this.props.type === "THPR" ? "selected" : ""}>
-                    <td>Total Nonhydro Renewables</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.THPR}</td>
-                    )}
-                    <td>{this.props.table_info.US_THPR}</td>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "THPR" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Total Nonhydro Renewables</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_THPR}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.THPR}
+                    </td>
                   </tr>
-                )}
               </tbody>
             )}
             {this.props.title ===
               "Resource Mix by combustible vs. non-combustible fuels" && (
               <tbody>
-                {+this.props.table_info.CYPR !== 0 && (
-                  <tr className={this.props.type === "CYPR" ? "selected" : ""}>
-                    <td>Total Combustion</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.CYPR}</td>
-                    )}
-                    <td>{this.props.table_info.US_CYPR}</td>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "CYPR" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Total Combustion</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_CYPR}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.CYPR}
+                    </td>
                   </tr>
-                )}
-                {+this.props.table_info.CNPR !== 0 && (
-                  <tr className={this.props.type === "CNPR" ? "selected" : ""}>
-                    <td>Total Noncumbustion</td>
-                    {this.props.region !== "US" && (
-                      <td>{this.props.table_info.CNPR}</td>
-                    )}
-                    <td>{this.props.table_info.US_CNPR}</td>
+                  <tr
+                    style={{
+                      lineHeight: 1,
+                      fontWeight:
+                        this.props.type === "CNPR" ? "bold" : "normal",
+                    }}
+                  >
+                    <td style={{ padding: "0.8em" }}>Total Noncumbustion</td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.US_CNPR}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                      {this.props.table_info.CNPR}
+                    </td>
                   </tr>
-                )}
               </tbody>
             )}
-          </Table>
+          </table>
         ) : (
-          <Table striped bordered hover responsive="sm">
+          <table style={{fontSize: "0.8em", borderRadius: "10px", borderCollapse: "collapse", borderStyle: "hidden", boxShadow: "0 0 0 1px"}}>
             <thead>
-              <tr>
-                <th>Plant Name</th>
-                <th>{this.props.table_info.PNAME}</th>
+              <tr style={{ lineHeight: 1 }}>
+                <th style={{ borderTopLeftRadius: "10px"}}>Plant Name</th>
+                <th style={{ paddingRight: "0.5em", textAlign: "right", height: 50, borderTopRightRadius: "10px"}}>{this.props.table_info.PNAME}</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Facility ID</td>
-                <td>{this.props.table_info.ORISPL}</td>
+              <tr style={{ lineHeight: 1 }}>
+                <td style={{ padding: "0.5em", width: 315}}>Facility ID</td>
+                <td style={{ paddingRight: "0.5em", width: 105, textAlign: "right"}}>{this.props.table_info.ORISPL}</td>
               </tr>
-              <tr>
-                <td>Plant State</td>
-                <td>{this.props.table_info.PSTATABB}</td>
+              <tr style={{ lineHeight: 1 }}>
+                <td style={{ padding: "0.5em", width: 315 }}>Plant State</td>
+                <td style={{ paddingRight: "0.5em", width: 105, textAlign: "right"}}>{this.props.table_info.PSTATABB}</td>
               </tr>
-              <tr>
-                <td>eGRID Subregion</td>
-                <td>
+              <tr style={{ lineHeight: 1 }}>
+                <td style={{ padding: "0.5em", width: 315 }}>eGRID Subregion</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>
                   <a href="https://www.epa.gov/sites/production/files/styles/large/public/2020-03/2018_egrid_subregions.png">
                     {this.props.table_info.SUBRGN}
                   </a>
                 </td>
               </tr>
-              <tr>
-                <td>Plant Primary Fuel</td>
-                <td>{this.props.table_info.PLPRMFL}</td>
+              <tr style={{ lineHeight: 1 }}>
+                <td style={{ padding: "0.5em", width: 315 }}>Plant Primary Fuel</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLPRMFL}</td>
               </tr>
-              <tr>
-                <td>Nameplate Capacity (MW)</td>
-                <td>{this.props.table_info.NAMEPCAP}</td>
+              <tr style={{ lineHeight: 1 }}>
+                <td style={{ padding: "0.5em", width: 315 }}>Plant Secondary Fuel</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.SECFUEL}</td>
               </tr>
-              <tr>
-                <td>Plant Capacity Factor</td>
-                <td>{this.props.table_info.CAPFAC}</td>
+              <tr style={{ lineHeight: 1 }}>
+                <td style={{ padding: "0.5em", width: 315 }}>Nameplate Capacity (MW)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLNAMEPCAP}</td>
               </tr>
-              <tr>
-                <td>Generation (MWh)</td>
-                <td>{this.props.table_info.PLNGENAN}</td>
+              <tr style={{ lineHeight: 1 }}>
+                <td style={{ padding: "0.5em", width: 315 }}>Plant Capacity Factor</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.CAPFAC}</td>
               </tr>
-              <tr>
-                <td>Heat Input (MMBtu)</td>
-                <td>{this.props.table_info.PLHTIANT}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLNGENAN" ? "bold" : "normal"}}>
+                <td style={{ padding: "0.5em", width: 315 }}>Generation (MWh)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLNGENAN}</td>
               </tr>
-              <tr>
-                <td>NOₓ Annual Emissions (tons)</td>
-                <td>{this.props.table_info.PLNOXAN}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLHTIANT" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>Heat Input (MMBtu)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLHTIANT}</td>
               </tr>
-              <tr>
-                <td>NOₓ Annual Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLNOXRTA}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLNOXAN" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315}}>NOₓ Annual Emissions (tons)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLNOXAN}</td>
               </tr>
-              <tr>
-                <td>NOₓ Ozone Season Emissions (tons)</td>
-                <td>{this.props.table_info.PLNOXOZ}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLNOXRTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em" , width: 315}}>NOₓ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLNOXRTA}</td>
               </tr>
-              <tr>
-                <td>NOₓ Ozone Season Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLNOXRTO}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLNOXOZ" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em" , width: 315 }}>NOₓ Ozone Season Emissions (tons)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLNOXOZ}</td>
               </tr>
-              <tr>
-                <td>SO₂ Annual Emissions (tons)</td>
-                <td>{this.props.table_info.PLSO2AN}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLNOXRTO" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>NOₓ Ozone Season Output Emission Rate (lb/MWh)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLNOXRTO}</td>
               </tr>
-              <tr>
-                <td>SO₂ Annual Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLSO2RTA}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLSO2AN" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>SO₂ Annual Emissions (tons)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLSO2AN}</td>
               </tr>
-              <tr>
-                <td>CO₂ Annual Emissions (tons)</td>
-                <td>{this.props.table_info.PLCO2AN}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLSO2RTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>SO₂ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLSO2RTA}</td>
               </tr>
-              <tr>
-                <td>CO₂ Annual Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLCO2RTA}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLCO2AN" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>CO₂ Annual Emissions (tons)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLCO2AN}</td>
               </tr>
-              <tr>
-                <td>CH₄ Annual Emissions (lbs)</td>
-                <td>{this.props.table_info.PLCH4AN}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLCO2RTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>CO₂ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLCO2RTA}</td>
               </tr>
-              <tr>
-                <td>CH₄ Annual Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLCH4RTA}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLCH4AN" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>CH₄ Annual Emissions (lbs)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLCH4AN}</td>
               </tr>
-              <tr>
-                <td>N₂O Annual Emissions (lbs)</td>
-                <td>{this.props.table_info.PLN2OAN}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLCH4RTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>CH₄ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLCH4RTA}</td>
               </tr>
-              <tr>
-                <td>N₂O Annual Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLN2ORTA}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLN2OAN" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>N₂O Annual Emissions (lbs)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLN2OAN}</td>
               </tr>
-              <tr>
-                <td>CO₂ equivalent Annual Emissions (tons)</td>
-                <td>{this.props.table_info.PLCO2EQA}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLN2ORTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>N₂O Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLN2ORTA}</td>
               </tr>
-              <tr>
-                <td>CO₂ equivalent Output Emission Rate (lb/MWh)</td>
-                <td>{this.props.table_info.PLC2ERTA}</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLCO2EQA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>CO₂ equivalent Annual Emissions (tons)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLCO2EQA}</td>
+              </tr>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLC2ERTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.5em", width: 315 }}>CO₂ equivalent Output Emission Rate (lb/MWh)</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLC2ERTA}</td>
               </tr>
             </tbody>
-          </Table>
+          </table>
         )}
       </div>
     );

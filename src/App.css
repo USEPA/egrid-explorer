@@ -1,21 +1,18 @@
-/* Main */
 .app {
+  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-size: 18px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
+  padding: 10px;
 }
 
-.main {
-  padding: .8rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
-}
-
-header {
+.app header {
   min-height: 80px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.5);
 }
 
-h2 {
+.app h2 {
   display: inline-block;
   font-family: Merriweather, Georgia, Cambria, "Times New Roman", Times, serif;
   max-width: 85%;
@@ -23,157 +20,101 @@ h2 {
   margin: 0;
 }
 
-p {
+.app p {
   display: block;
   font-weight: bold;
   font-size: 1em;
   margin-bottom: 0.5rem; 
 }
 
-.loading div{
-  display: block;
-  margin: 0 auto;
-  margin-top: 20%;
-}
-
-#logo {
+.app #logo {
   width: 14%;
   float: right;
 }
 
-/* Buttons */
-.btn{
-  font-size: 0.8em !important;
-  font-weight: bold !important;
-  padding: 5px !important;
+.app table, .app th, .app td {
+  border: 1px solid black;
 }
 
-.btn-primary {
-  color: #fff !important;
-  background-color: #ddd !important;
-  border-color: #000 !important;
+.app th {
+  background-color: #f1f1f1;
+  font-weight: 700;
 }
 
-.btn-primary:hover{
-  color: #000 !important;
-  background-color: #ddd !important;
-  transition: color 0.5s;
+.loading div{
+  width: 50px;
+  height: 50px;
+  display: block;
+  margin: 0 auto;
+  margin-top: 25%;
 }
 
-.btn-primary.active:hover{
-  cursor: auto;
+/* mapbox */
+.app .mapboxgl-ctrl-group button {
+  width: 29px !important;
+  height: 29px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color: transparent !important;
 }
 
-.btn-primary.active {
-  color: #000 !important;
-  background-color: #fff !important;
-}
-
-.btn-secondary{
-  color: #000 !important;
-  background-color: #eee !important;
-}
-
-.btn-secondary:hover {
-  background-color: #ddd !important;
-}
-
-/* More Information */
-.dialog, .dialog-text{
-  vertical-align: sub;
-}
-
-.dialog-text {
-  text-decoration: underline;
-}
-
-.dialog-text:hover {
-  cursor: pointer;
-  color: rgb(49, 130, 189);
-}
-
-/* Sentence Structure */
-select {
-  font-size: 1em;
+.app .mapboxgl-popup-content {
+  font-size: 1.2em;
   font-weight: bold;
+}
 
-  border: none !important;
-  border-bottom: 1px dashed #000 !important;
-  -webkit-appearance: none;
+.app .mapboxgl-popup-close-button {
+  color: #000 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.app .map-zoomable-legend-title, .map-static-legend-title {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+@media print {
+  .app .no-export, .app .no-export svg, .app .mapboxgl-ctrl{
+    display: none;
+  }
+
+  .app .fuel.selected circle {
+    stroke: #000;
+    stroke-width: 2px;
+  }
+
+  .app .fuel.selected text {
+    font-weight: "bold";
+    font-size: 1.2em;
+  }
+
+  .app #map-zoomable .fuel {
+    width: 90px;
+    height: 10px;
+  }
+
+  .app #resource-mix-chart .fuel {
+    width: 71px;
+    height: 10px;
+  }
+
+  .app #resource-mix-micromap {
+    clear:right;
+    width:100%;
+  }
+
+  .app #resource-mix-table {
+    margin-left: 5px;
+  }
+
+  .app #vertical-barchart {
+    margin-top: 40px;
+  }
   
-  padding-left: 5px;
-  padding-right: 17px;
-  margin-right: 6px;
-
-  background-image: url('./assets/img/dropdown_arrow.png');
-  background-repeat: no-repeat;
-  background-size: 14px 14px;
-  background-position: 100% 90%;
-}
-
-select:focus {
-  outline: none !important;
-}
-
-/* Export */
-.export-div {
-  margin-bottom: 1rem;
-}
-
-/* Print */
-@media print{
-  #map_container{
-    left: 25px;
-  }
-
-  #sentence{
-    display: none;
-    border: initial;
-  }
-
-  header{
-    border: initial;
-  }
-
-  #export{
-    display: none;
-  }
-
-  #viz{
-    border: initial;
-  }
-
-  #sort{
-    display: none;
-  }
-
-  #map_zoomable{
-    display: none;
-  }
-
-  #map_static{
-    position: fixed;
-    left: -165px;
-    transform: scale(0.8, 0.8);
-  }
-
-  #barchart_container{
-    position: fixed;
-    left: 440px;
-    transform: scale(0.9, 0.9);
-  }
-
-  #resource_mix_container{
-    position: fixed;
-    left: -200px;
-    transform: scale(0.9,0.9);
-  }
-
-  .reset{
-    display: none;
-  }
-
-  .toggle{
-    display: none;
+  .app table {
+    border-style: unset;
+    border: 1px solid black;
+    display: block;
   }
 }

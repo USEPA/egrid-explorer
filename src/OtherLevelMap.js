@@ -8,7 +8,13 @@ class OtherLevelMap extends Component {
     this.tooltip = React.createRef();
     this.background = React.createRef();
     this.map = React.createRef();
+    this.paths = React.createRef();
     this.labels = React.createRef();
+    this.state = {
+      width: this.props.width,
+      height: this.props.height,
+      scale: this.props.scale,
+    };
   }
 
   formatNumber(d) {
@@ -25,17 +31,17 @@ class OtherLevelMap extends Component {
     const layer = this.props.layer,
       label_width =
         this.props.layer_type === "grid gross loss rates"
-          ? 120
+          ? 115
           : this.props.layer_type === "state"
           ? 20
           : 40,
       label_height =
-        this.props.layer_type !== "grid gross loss rates" ? 14 : 22;
+        this.props.layer_type !== "grid gross loss rates" ? 14 : 20;
 
-    const projection = d3_composite
+    let projection = d3_composite
       .geoAlbersUsaTerritories()
-      .scale(this.props.scale)
-      .translate([this.props.width / 2, this.props.height / 2.5]);
+      .scale(this.state.scale)
+      .translate([this.state.width / 2, this.state.height / 2.5]);
     const path = d3.geoPath().projection(projection);
     const map_fill = this.props.map_fill;
 
@@ -45,6 +51,39 @@ class OtherLevelMap extends Component {
         if (this.props.data.filter((e) => e.name === d.name)[0]) {
           let prop = this.props.data.filter((e) => e.name === d.name)[0];
           prop.centroid = path.centroid(d);
+          
+          // special cases of centroid to edit
+          switch (d.name) {
+            case "AKMS":
+              prop.centroid[1] = prop.centroid[1] - 25;
+              break;
+            case "NYLI":
+              prop.centroid[0] = prop.centroid[0] + 20;
+              break;
+            case "NYCW":
+              prop.centroid[0] = prop.centroid[0] - 10;
+              break;
+            case "DELAWARE":
+              prop.centroid[0] = prop.centroid[0] + 15;
+              break;
+            case "RHODE ISLAND":
+              prop.centroid[0] = prop.centroid[0] + 10;
+              break;
+            case "CONNECTICUT":
+              prop.centroid[1] = prop.centroid[1] + 5;
+              break;
+            case "MASSACHUSETTS":
+              prop.centroid[0] = prop.centroid[0] + 5;
+              prop.centroid[1] = prop.centroid[1] - 15;
+              break;
+            case "NEW HAMPSHIRE":
+              prop.centroid[0] = prop.centroid[0] + 10;
+              prop.centroid[1] = prop.centroid[1] - 10;
+              break;
+            default:
+              break;
+          }
+
           d.properties = prop;
         } else {
           d.properties = {id: null, name: null, label: null, value: null, centroid:[null, null]};
@@ -64,8 +103,18 @@ class OtherLevelMap extends Component {
     );
 
     // add layers
-    d3.select(this.map.current).selectAll("path").remove();
     d3.select(this.map.current)
+    .on("mouseenter", ()=>{
+      d3.select(this.tooltip.current)
+      .style("display", null);
+    })
+    .on("mouseleave", ()=>{
+      d3.select(this.tooltip.current)
+      .style("display", "none");
+    });
+
+    d3.select(this.paths.current).selectAll("path").remove();
+    d3.select(this.paths.current)
       .selectAll("path")
       .data(layer.features)
       .enter()
@@ -86,20 +135,21 @@ class OtherLevelMap extends Component {
         .style("opacity", 1);
       })
       .on('mousemove', d=>{
-        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + d.properties.value + " " + d.properties.unit + "</b>.</span>";
+        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + this.formatNumber(d.properties.value) + " " + d.properties.unit + "</b>.</span>";
         d3.select(this.tooltip.current)
         .html(html)
         .style("position", "absolute")
-        .style("top", d3.event.pageY + 30 + "px")
-        .style("left", d3.event.pageX - 150 + "px")
+        .style("top", d3.event.pageY + 15 + "px")
+        .style("left", d3.event.pageX + 15 + "px")
         .style("opacity", 1);
 
-        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true);
-        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true);
-        d3.selectAll('path.region_'+d.properties.id).classed('selected', true);
-        d3.selectAll('.mouseover_target rect').classed('deemphasized', true);
-        d3.selectAll('.mouseover_target text').classed('deemphasized', true);
-        d3.selectAll('path.mouseover_target').classed('deemphasized', true);
+        d3.selectAll('.mouseover_target rect').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+        d3.selectAll('.mouseover_target text').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+        d3.selectAll('path.mouseover_target').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+
+        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true).style("stroke", "#000").style("stroke-width", 1).style("opacity", 1);
+        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true).style("font-weight", "bold").style("opacity", 1);
+        d3.selectAll('path.region_'+d.properties.id).classed('selected', true).style("stroke-width", 1).style("opacity", 1);
       })
       .on('mouseout', d=>{
         d3.select(this.tooltip.current)
@@ -107,8 +157,11 @@ class OtherLevelMap extends Component {
         .duration(500)
         .style("opacity", 0);
 
-        d3.selectAll('.deemphasized').classed('deemphasized', false);
-        d3.selectAll('.selected').classed('selected', false);
+        d3.selectAll('.deemphasized').classed('deemphasized', false).style("opacity", 1).style("transition", "opacity 0.5s");
+
+        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true).style("stroke", "none");
+        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true).style("font-weight", "normal");
+        d3.selectAll('path.region_'+d.properties.id).classed('selected', true).style("stroke-width", 0.5);
       });
 
     // add labels
@@ -138,7 +191,7 @@ class OtherLevelMap extends Component {
       .attr("y", (d) => d.properties.centroid[1] + label_height * 0.8)
       .style("text-anchor", "middle")
       .style("font-size", (d) =>
-        this.props.layer_type !== "grid gross loss rates" ? "0.7em" : "1em"
+        this.props.layer_type !== "grid gross loss rates" ? "0.7em" : "0.8em"
       )
       .style("font-weight", "bold")
       .text((d) =>
@@ -152,20 +205,22 @@ class OtherLevelMap extends Component {
         .style("opacity", 1);
       })
       .on('mousemove', d=>{
-        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + d.properties.value + " " + d.properties.unit + "</b>.</span>";
+        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + this.formatNumber(d.properties.value) + " " + d.properties.unit + "</b>.</span>";
         d3.select(this.tooltip.current)
         .html(html)
         .style("position", "absolute")
-        .style("top", d3.event.pageY + 30 + "px")
-        .style("left", d3.event.pageX - 150 + "px")
+        .style("top", d3.event.pageY + 15 +  "px")
+        .style("left", d3.event.pageX + 15 + "px")
         .style("opacity", 1);
 
-        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true);
-        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true);
-        d3.selectAll('path.region_'+d.properties.id).classed('selected', true);
-        d3.selectAll('.mouseover_target rect').classed('deemphasized', true);
-        d3.selectAll('.mouseover_target text').classed('deemphasized', true);
-        d3.selectAll('path.mouseover_target').classed('deemphasized', true);
+        d3.selectAll('.mouseover_target rect').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+        d3.selectAll('.mouseover_target text').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+        d3.selectAll('path.mouseover_target').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+
+        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true).style("stroke", "#000").style("stroke-width", 1).style("opacity", 1);
+        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true).style("font-weight", "bold").style("opacity", 1);
+        d3.selectAll('path.region_'+d.properties.id).classed('selected', true).style("stroke-width", 1).style("opacity", 1);
+
       })
       .on('mouseout', d=>{
         d3.select(this.tooltip.current)
@@ -173,8 +228,11 @@ class OtherLevelMap extends Component {
         .duration(500)
         .style("opacity", 0);
 
-        d3.selectAll('.deemphasized').classed('deemphasized', false);
-        d3.selectAll('.selected').classed('selected', false);
+        d3.selectAll('.deemphasized').classed('deemphasized', false).style("opacity", 1).style("transition", "opacity 0.5s");
+
+        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', false).style("stroke", "none");
+        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', false).style("font-weight", "normal");
+        d3.selectAll('path.region_'+d.properties.id).classed('selected', false).style("stroke-width", 0.5);
       });
 
     // add background (grid gross loss rates)
@@ -194,14 +252,54 @@ class OtherLevelMap extends Component {
 
   componentDidMount() {
     this.initView();
+    this.resize();
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.field !== prevProps.field) {
       this.initView();
     }
+
+    if (this.props.window_width !== prevProps.window_width) {
+      this.resize();
+    }
   }
 
+  resize() {
+    if (this.props.layer_type === "grid gross loss rates"){
+      if (this.props.window_width/2 < 700) {
+        this.setState({
+          width: this.props.window_width/2,
+          scale: this.props.window_width/1.6
+        }, ()=>{
+          this.initView();
+        });
+      } else {
+        this.setState({
+          width: 700,
+          scale: 875
+        }, ()=>{
+          this.initView();
+        });
+      }
+    } else {
+      if (this.props.window_width/2 < 600) {
+        this.setState({
+          width: this.props.window_width/2,
+          scale: this.props.window_width/1.6
+        }, ()=>{
+          this.initView();
+        });
+      } else {
+        this.setState({
+          width: 600,
+          scale: 750
+        }, ()=>{
+          this.initView();
+        });
+      }
+    }
+  }
   render() {
     let title = (
       <div>
@@ -220,12 +318,12 @@ class OtherLevelMap extends Component {
     );
 
     return (
-      <div>
+      <div style={{width: this.state.width, height: this.state.height, margin: "0 auto"}}>
         {title}
-        <svg width={this.props.width} height={this.props.height}>
+        <svg ref={this.map} style={{display:"block", margin: "0 auto"}} width={this.state.width} height={this.state.height}>
           <g ref={this.background} />
-          <g ref={this.map} />
-          <g ref={this.labels} />
+          <g ref={this.paths} />
+          {this.state.width >= 350 && <g ref={this.labels} />}
         </svg>
         <div
           ref={this.tooltip}

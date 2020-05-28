@@ -1,17 +1,18 @@
 import React, { Component } from "react";
-import ToggleButtonGroup from "react-bootstrap/ToggleButtonGroup";
-import ToggleButton from "react-bootstrap/ToggleButton";
 
 import * as d3 from "d3";
 class OtherLevelBarchart extends Component {
   constructor(props) {
     super(props);
     this.barchart = React.createRef();
+    this.bars = React.createRef();
     this.axis_x = React.createRef();
     this.axis_y = React.createRef();
     this.axis_x_title = React.createRef();
     this.tooltip = React.createRef();
     this.state = {
+      width: this.props.width,
+      height: this.props.height,
       sort_by: "alphabet",
     };
   }
@@ -76,16 +77,16 @@ class OtherLevelBarchart extends Component {
     // scale
     let marginTop = 40,
       marginBottom = 0,
-      marginRight = 60,
-      marginLeft = this.props.layer_type === "state" ? 130 : 60;
+      marginRight = 70,
+      marginLeft = this.props.layer_type === "state" ? 155 : 60;
     let barFillScale = d3.scaleThreshold().range(this.props.map_fill),
       barXScale = d3
         .scaleLinear()
-        .range([0, this.props.width - marginLeft - marginRight])
-        .domain(d3.extent(this.props.data, (e) => e.value)),
+        .range([0, this.state.width - marginLeft - marginRight])
+        .domain([0, d3.max(this.props.data, (e) => e.value)]),
       barYScale = d3
         .scaleBand()
-        .range([0, this.props.height - marginTop - marginBottom])
+        .range([0, this.state.height - marginTop - marginBottom])
         .domain(this.props.data.map((d) => d.name))
         .paddingInner(0.1)
         .paddingOuter(0.2);
@@ -95,20 +96,26 @@ class OtherLevelBarchart extends Component {
     barFillScale.domain(
       d3
         .range(this.props.map_fill.length - 1)
-        .map((d) => d3.quantile(domainArr, (d + 1) / this.props.map_fill.length))
+        .map((d) =>
+          d3.quantile(domainArr, (d + 1) / this.props.map_fill.length)
+        )
     );
 
     // bars
-    d3.select(this.barchart.current).selectAll("g").remove();
+    d3.select(this.bars.current).selectAll("g").remove();
     let bars = d3
-      .select(this.barchart.current)
+      .select(this.bars.current)
       .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
       .append("g")
       .selectAll("g")
       .data(this.props.data)
       .enter()
       .append("g")
-      .attr("class", d=>"bars mouseover_target barchart_mouseover_target" + " region_" + d.id)
+      .attr(
+        "class",
+        (d) =>
+          "bars mouseover_target barchart_mouseover_target" + " region_" + d.id
+      )
       .attr("transform", (d) => "translate(0," + barYScale(d.name) + ")");
 
     bars
@@ -127,23 +134,27 @@ class OtherLevelBarchart extends Component {
       .attr("dx", 5)
       .attr("dy", barYScale.bandwidth() / 2 + 5)
       .text((d) => this.formatLabel(d.value))
+      .style("font-size", "0.8em")
       .style("fill", "#000")
       .style("stroke", "none");
 
     // axis
+    let axis_x = this.state.width/2<160?(this.state.width/2<100?d3.axisTop(barXScale).ticks(1).tickFormat(this.formatXaxis):d3.axisTop(barXScale).ticks(3).tickFormat(this.formatXaxis)):d3.axisTop(barXScale).ticks(5).tickFormat(this.formatXaxis);
     d3.select(this.axis_x.current).selectAll("g").remove();
     d3.select(this.axis_x.current)
       .attr("class", "axis_x")
       .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
-      .call(d3.axisTop(barXScale).ticks(5).tickFormat(this.formatXaxis))
+      .call(axis_x)
       .selectAll("text")
-      .attr("transform", "rotate(-30)");
+      .attr("transform", "rotate(-30)")
+      .style("text-anchor", "start")
+      .style("font-size", "1.2em");
 
     d3.select(this.axis_x_title.current)
       .attr(
         "transform",
         "translate(" +
-          (this.props.width - marginRight + 5) +
+          (this.state.width - marginRight + 5) +
           "," +
           marginTop +
           ")"
@@ -151,7 +162,8 @@ class OtherLevelBarchart extends Component {
       .style("fill", "#000")
       .style("text-anchor", "start")
       .style("stroke", "none")
-      .style("font-size", "0.75em")
+      .style("font-size", "0.8em")
+      .style("font-weight", "bold")
       .text(this.props.unit);
 
     d3.select(this.axis_y.current).selectAll("g").remove();
@@ -159,59 +171,159 @@ class OtherLevelBarchart extends Component {
       .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
       .attr("class", "axis_y")
       .call(d3.axisLeft(barYScale))
-      .selectAll('.tick')
-      .attr('class', d=>'tick mouseover_target barchart_mouseover_target region_'+ this.props.data.filter(e=>e.name===d).map(e=>e.id)[0]);
-    
-    d3.selectAll('.barchart_mouseover_target')
-    .on('mouseover', d=>{
-      d3.select(this.tooltip.current)
-      .transition()
-      .duration(100)
-      .style("opacity", 1);
-    })
-    .on('mousemove', d=>{
-      let html, id;
-      if (typeof(d)==="object") {
-        id = d.id;
-        html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.name + "</b><br>is <b>" + d.value + " " + d.unit + "</b>.</span>";
-      } else if (typeof(d)==="string") {
-        id = this.props.data.filter(e=>e.name===d).map(e=>e.id)[0];
-        html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d + "</b><br>is <b>" + this.props.data.filter(e=>e.name===d).map(e=>e.value)[0] + " " + this.props.data.filter(e=>e.name===d).map(e=>e.unit)[0] + "</b>.</span>";
-      }
-      
-      d3.select(this.tooltip.current)
-      .html(html)
-      .style("position", "absolute")
-      .style("top", d3.event.pageY - 30 + "px")
-      .style("left", d3.event.pageX + 30 + "px")
-      .style("opacity", 1);
+      .selectAll(".tick")
+      .attr(
+        "class",
+        (d) =>
+          "tick mouseover_target barchart_mouseover_target region_" +
+          this.props.data.filter((e) => e.name === d).map((e) => e.id)[0]
+      )
+      .selectAll("text")
+      .style("font-size", "1.2em");
 
-      d3.selectAll('.region_'+id+' rect').classed('selected', true);
-      d3.selectAll('.region_'+id+' text').classed('selected', true);
-      d3.selectAll('path.region_'+id).classed('selected', true);
-        d3.selectAll('.mouseover_target rect').classed('deemphasized', true);
-        d3.selectAll('.mouseover_target text').classed('deemphasized', true);
-        d3.selectAll('path.mouseover_target').classed('deemphasized', true);
-    })
-    .on('mouseout', d=>{
-      d3.select(this.tooltip.current)
-      .transition()
-      .duration(500)
-      .style("opacity", 0);
+    d3.select(this.barchart.current)
+      .on("mouseenter", ()=>{
+        d3.select(this.tooltip.current)
+        .style("display", null);
+      })
+      .on("mouseleave", ()=>{
+        d3.select(this.tooltip.current)
+        .style("display", "none");
+      });
 
-      d3.selectAll('.deemphasized').classed('deemphasized', false);
-      d3.selectAll('.selected').classed('selected', false);
-    });
+    d3.selectAll(".barchart_mouseover_target")
+      .on("mouseover", (d) => {
+        d3.select(this.tooltip.current)
+          .transition()
+          .duration(100)
+          .style("opacity", 1);
+      })
+      .on("mousemove", (d) => {
+        let html, id;
+        if (typeof d === "object") {
+          id = d.id;
+          html =
+            "<span>The <b>" +
+            this.props.title.slice(0, 1).toLowerCase() +
+            this.props.title.slice(1).split(" (")[0] +
+            "</b><br>for <b>" +
+            d.name +
+            "</b><br>is <b>" +
+            this.formatNumber(d.value) +
+            " " +
+            d.unit +
+            "</b>.</span>";
+        } else if (typeof d === "string") {
+          id = this.props.data.filter((e) => e.name === d).map((e) => e.id)[0];
+          html =
+            "<span>The <b>" +
+            this.props.title.slice(0, 1).toLowerCase() +
+            this.props.title.slice(1).split(" (")[0] +
+            "</b><br>for <b>" +
+            d +
+            "</b><br>is <b>" +
+            this.props.data.filter((e) => e.name === d).map((e) => this.formatNumber(e.value))[0] +
+            " " +
+            this.props.data.filter((e) => e.name === d).map((e) => e.unit)[0] +
+            "</b>.</span>";
+        }
+
+
+        d3.select(this.tooltip.current)
+          .html(html)
+          .style("position", "absolute")
+          .style("top", d3.event.pageY + 15 + "px")
+          .style("left", d3.event.pageX + 15 + "px")
+          .style("opacity", 1);
+
+        d3.selectAll(".mouseover_target rect")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
+        d3.selectAll(".mouseover_target text")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
+        d3.selectAll("path.mouseover_target")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
+
+        d3.selectAll(".region_" + id + " rect")
+          .classed("selected", true)
+          .style("stroke", "#000")
+          .style("stroke-width", 1)
+          .style("opacity", 1);
+        d3.selectAll(".region_" + id + " text")
+          .classed("selected", true)
+          .style("font-weight", "bold")
+          .style("opacity", 1);
+        d3.selectAll("path.region_" + id)
+          .classed("selected", true)
+          .style("stroke-width", 1)
+          .style("opacity", 1);
+      })
+      .on("mouseout", (d) => {
+        let id;
+        if (typeof d === "object") {
+          id = d.id;
+        } else if (typeof d === "string") {
+          id = this.props.data.filter((e) => e.name === d).map((e) => e.id)[0];
+        }
+        d3.select(this.tooltip.current)
+          .transition()
+          .duration(500)
+          .style("opacity", 0);
+
+        d3.selectAll(".deemphasized")
+          .classed("deemphasized", false)
+          .style("opacity", 1)
+          .style("transition", "opacity 0.5s");
+
+        d3.selectAll(".region_" + id + " rect")
+          .classed("selected", false)
+          .style("stroke", "none");
+        d3.selectAll(".region_" + id + " text")
+          .classed("selected", false)
+          .style("font-weight", "normal");
+        d3.selectAll("path.region_" + id)
+          .classed("selected", false)
+          .style("stroke-width", 0.5);
+      });
 
     this.updateView(by);
   }
 
   updateView(by) {
+    // update sort buttons 
+    let input_n = d3.select(".sort-buttons").selectAll("input").nodes();
+    let selected_input =
+      by === "alphabet"
+        ? input_n.filter((e) => e.defaultValue === "Sort by Alphabet")[0]
+        : input_n.filter((e) => e.defaultValue === "Sort by Amount")[0];
+    let non_selected_input =
+      by === "alphabet"
+        ? input_n.filter((e) => e.defaultValue === "Sort by Amount")[0]
+        : input_n.filter((e) => e.defaultValue === "Sort by Alphabet")[0];
+
+    d3.select(selected_input)
+      .style("font-weight", "bold")
+      .style("border", "2px solid black")
+      .style("background-color", "#0071bc")
+      .style("color", "#fff");
+
+    d3.select(non_selected_input)
+      .style("font-weight", "normal")
+      .style("border", "none")
+      .style("background-color", "#ddd")
+      .style("color", "#000");
+
+    // update chart
     let marginTop = 40,
       marginBottom = 0;
     let barYScale = d3
       .scaleBand()
-      .range([0, this.props.height - marginTop - marginBottom])
+      .range([0, this.state.height - marginTop - marginBottom])
       .domain(
         this.props.data
           .sort((a, b) =>
@@ -224,16 +336,23 @@ class OtherLevelBarchart extends Component {
       .paddingInner(0.1)
       .paddingOuter(0.2);
 
-    d3.select(this.barchart.current)
+    // update barchart
+    d3.select(this.bars.current)
       .selectAll(".bars")
       .transition()
+      .duration(100)
       .attr("transform", (d) => "translate(0," + barYScale(d.name) + ")");
 
-    d3.select(this.axis_y.current).call(d3.axisLeft(barYScale));
+    // update y axis
+    d3.select(this.axis_y.current)
+      .transition()
+      .duration(100)
+      .call(d3.axisLeft(barYScale));
   }
 
   componentDidMount() {
     this.initView(this.state.sort_by);
+    this.resize();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -244,44 +363,95 @@ class OtherLevelBarchart extends Component {
         this.updateView(this.state.sort_by);
       }
     }
+
+    if (this.props.window_width !== prevProps.window_width) {
+      this.resize();
+    }
   }
+
+  resize() {
+    if (this.props.window_width/3.5 < 350) {
+      this.setState({
+        width: this.props.window_width/3.5
+      }, ()=>{
+        this.initView(this.state.sort_by);
+      });
+    } else {
+      this.setState({
+        width: 350
+      }, ()=>{
+        this.initView(this.state.sort_by);
+      });
+    }
+  }
+
   render() {
     return (
-      <div>
-        <ToggleButtonGroup
-          type="radio"
-          name="options"
-          defaultValue={this.state.sort_by}
-          onChange={(val) => this.setState({ sort_by: val })}
-        >
-          <ToggleButton value={"alphabet"}>Sort Alphabetically</ToggleButton>
-          <ToggleButton value={"amount"}>Sort by Amount</ToggleButton>
-        </ToggleButtonGroup>
-        <p
-        style={{
-          fontSize: "1em",
-          fontWeight: "bold",
-          fill: "#000",
-          className: "title",
-          textAnchor: "middle",
-          padding: "10px"
-        }}
-      >
-        {"US: " +
-          this.formatNumber(this.props.us_data[0][this.props.field]) +
-          "(" +
-          this.props.unit +
-          ")"}
-      </p>
-        <svg width={this.props.width} height={this.props.height}>
-          <g className={"axis"}>
-            <g ref={this.axis_x}></g>
-            <text ref={this.axis_x_title}></text>
-            <g ref={this.axis_y}></g>
-          </g>
+      <div style={{width: this.state.width, height: this.state.height}}>
+        <div className="sort-buttons no-export" style={{marginBottom: "5px"}}>
+          <input
+            style={{
+              width: "50%",
+              fontSize: this.state.width/2<160?"0.7em":"1em",
+              padding: "5px",
+              borderTopLeftRadius: "4px",
+              borderBottomLeftRadius: "4px",
+              borderTopRightRadius: 0,
+              borderBottomRightRadius: 0,
+            }}
+            type="button"
+            value={this.state.width/2<100?"Alphabet":"Sort by Alphabet"}
+            onClick={(e) => this.setState({ sort_by: "alphabet" })}
+          />
+          <input
+            style={{
+              width: "50%",
+              fontSize: this.state.width/2<160?"0.7em":"1em",
+              padding: "5px",
+              marginLeft: 0,
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: 0,
+              borderTopRightRadius: "4px",
+              borderBottomRightRadius: "4px",
+            }}
+            type="button"
+            value={this.state.width/2<100?"Amount":"Sort by Amount"}
+            onClick={(e) => this.setState({ sort_by: "amount" })}
+          />
+        </div>
+        <div id="vertical-barchart">
+          <p
+            style={{
+              fontSize: this.state.width/2<100?"0.8em":"1em",
+              fontWeight: "bold",
+              fill: "#000",
+              className: "title",
+              textAnchor: "middle",
+              margin: 0,
+              padding: 0,
+            }}
+          >
+            {"US: " +
+              this.formatNumber(this.props.us_data[0][this.props.field]) +
+              "(" +
+              this.props.unit +
+              ")"}
+          </p>
+          <svg
+            ref={this.barchart}
+            style={{ display: "block", margin: "0 auto" }}
+            width={this.state.width}
+            height={this.state.height}
+          >
+            <g className={"axis"}>
+              <g ref={this.axis_x}></g>
+              <text ref={this.axis_x_title}></text>
+              <g ref={this.axis_y}></g>
+            </g>
 
-          <g ref={this.barchart}></g>
-        </svg>
+            <g ref={this.bars}></g>
+          </svg>
+        </div>
         <div
           ref={this.tooltip}
           style={{
