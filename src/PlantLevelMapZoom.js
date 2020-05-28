@@ -249,7 +249,6 @@ class PlantLevelMapZoom extends Component {
     const data = {
       type: "FeatureCollection",
       features: this.props.plant_data.features
-        .filter((d) => d.properties[this.props.field] > 0)
         .filter(
           (d) => this.state.selected_fuel.indexOf(d.properties.FUEL) !== -1
         )
@@ -320,7 +319,6 @@ class PlantLevelMapZoom extends Component {
     const data = {
       type: "FeatureCollection",
       features: this.props.plant_data.features
-        .filter((d) => d.properties[this.props.field] > 0)
         .map((d) => {
           if (
             d.properties[this.props.field] >=
@@ -704,7 +702,6 @@ class PlantLevelMapZoom extends Component {
           const data = {
             type: "FeatureCollection",
             features: this.props.plant_data.features
-              .filter((d) => d.properties[this.props.field] > 0)
               .map((d) => {
                 if (
                   d.properties[this.props.field] >=
@@ -863,7 +860,7 @@ class PlantLevelMapZoom extends Component {
                     typeof d.features[0].properties[e] === "number" &&
                     e !== "ORISPL"
                       ? this.formatNumber(d.features[0].properties[e])
-                      : d.features[0].properties[e];
+                      : (d.features[0].properties[e]===""?"-":d.features[0].properties[e]);
                 });
                 this.setState({ table_info: table_info });
               }
@@ -930,7 +927,7 @@ class PlantLevelMapZoom extends Component {
                     typeof d.features[0].properties[e] === "number" &&
                     e !== "ORISPL"
                       ? this.formatNumber(d.features[0].properties[e])
-                      : d.features[0].properties[e];
+                      : (d.features[0].properties[e]===""?"-":d.features[0].properties[e]);
                 });
 
                 this.setState({
@@ -983,16 +980,16 @@ class PlantLevelMapZoom extends Component {
           style={{ width: "100%", height: 100, display: "inline-block" }}
           ref={this.fuels}
         ></div>
-        <div style={{height: 730}}>
+        <div style={{height: 780}}>
           <div
             className="map-container"
-            style={{ width: "65%", height: 730, display: "inline-block" }}
+            style={{ width: "65%", height: 780, display: "inline-block" }}
             ref={(node) => (this.container = node)}
           />
           <div
             style={{
               width: "33%",
-              height: 730,
+              height: 780,
               float: "right",
               display: "inline-block",
             }}

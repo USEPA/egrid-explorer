@@ -83,7 +83,7 @@ class OtherLevelBarchart extends Component {
       barXScale = d3
         .scaleLinear()
         .range([0, this.state.width - marginLeft - marginRight])
-        .domain(d3.extent(this.props.data, (e) => e.value)),
+        .domain([0, d3.max(this.props.data, (e) => e.value)]),
       barYScale = d3
         .scaleBand()
         .range([0, this.state.height - marginTop - marginBottom])
@@ -295,7 +295,7 @@ class OtherLevelBarchart extends Component {
   }
 
   updateView(by) {
-    // update sort buttons
+    // update sort buttons 
     let input_n = d3.select(".sort-buttons").selectAll("input").nodes();
     let selected_input =
       by === "alphabet"

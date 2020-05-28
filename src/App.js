@@ -278,7 +278,7 @@ class App extends Component {
           d.name = d.PSTATABB;
 
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, ""))) {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
@@ -294,7 +294,7 @@ class App extends Component {
           d.label = d.PNAME;
           d.name = d.PNAME;
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, ""))) {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
@@ -305,7 +305,7 @@ class App extends Component {
           d.label = d.SUBRGN;
           d.name = d.SUBRGN;
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, ""))) {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
@@ -320,7 +320,7 @@ class App extends Component {
           d.label = d.NERC;
           d.name = d.NERC;
           Object.keys(d).forEach(function (e) {
-            if (!isNaN(+d[e].replace(/,/g, ""))) {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
@@ -343,7 +343,7 @@ class App extends Component {
 
         us.map((d) => {
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, ""))) {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
