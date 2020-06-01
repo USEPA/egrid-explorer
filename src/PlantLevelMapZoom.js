@@ -593,10 +593,10 @@ class PlantLevelMapZoom extends Component {
           // add fuel filter
           let w = d3.select(this.fuels.current).node().clientWidth,
             h = d3.select(this.fuels.current).node().clientHeight;
-          let nbox = this.props.fuels.length + 2;
-          let boxlen = w / nbox > 100 ? 100 : Math.max(w / nbox, 75);
+          let nbox = this.props.fuels.length + 1;
+          let boxlen = w / nbox > 100 ? 100 : Math.max(w / nbox, 90);
           let boxlen_filter = boxlen,
-          boxlen_reset = boxlen * 1.5;
+          boxlen_reset = boxlen;
 
           d3.selectAll(".fuels-selection").selectAll("div").remove();
           let fuels = d3
@@ -646,13 +646,13 @@ class PlantLevelMapZoom extends Component {
             .attr("height", h)
             .append("text")
             .attr("x", 0)
-            .attr("y", 0)
+            .attr("y", 35)
             .attr("dx", 0)
             .attr("dy", 0)
             .text(this.filter_text)
             .style("text-anchor", "start")
             .style("font-weight", "bold")
-            .style("font-size", "1.2em")
+            .style("font-size", "1.1em")
             .call(this.props.wrap_long_labels, boxlen_reset);
 
           d3.selectAll(".fuel")
