@@ -75,18 +75,14 @@ class OtherLevelBarchart extends Component {
 
   initView(by) {
     // scale
-    let marginTop = 40,
-      marginBottom = 0,
-      marginRight = 70,
-      marginLeft = this.props.layer_type === "state" ? 155 : 60;
     let barFillScale = d3.scaleThreshold().range(this.props.map_fill),
       barXScale = d3
         .scaleLinear()
-        .range([0, this.state.width - marginLeft - marginRight])
+        .range([0, this.state.width - this.props.margin_left - this.props.margin_right])
         .domain([0, d3.max(this.props.data, (e) => e.value)]),
       barYScale = d3
         .scaleBand()
-        .range([0, this.state.height - marginTop - marginBottom])
+        .range([0, this.state.height - this.props.margin_top - this.props.margin_bottom])
         .domain(this.props.data.map((d) => d.name))
         .paddingInner(0.1)
         .paddingOuter(0.2);
@@ -105,7 +101,7 @@ class OtherLevelBarchart extends Component {
     d3.select(this.bars.current).selectAll("g").remove();
     let bars = d3
       .select(this.bars.current)
-      .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
+      .attr("transform", "translate(" + this.props.margin_left + "," + this.props.margin_top + ")")
       .append("g")
       .selectAll("g")
       .data(this.props.data)
@@ -143,7 +139,7 @@ class OtherLevelBarchart extends Component {
     d3.select(this.axis_x.current).selectAll("g").remove();
     d3.select(this.axis_x.current)
       .attr("class", "axis_x")
-      .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
+      .attr("transform", "translate(" + this.props.margin_left + "," + this.props.margin_top + ")")
       .call(axis_x)
       .selectAll("text")
       .attr("transform", "rotate(-30)")
@@ -154,9 +150,9 @@ class OtherLevelBarchart extends Component {
       .attr(
         "transform",
         "translate(" +
-          (this.state.width - marginRight + 5) +
+          (this.state.width - this.props.margin_right + 5) +
           "," +
-          marginTop +
+          this.props.margin_top +
           ")"
       )
       .style("fill", "#000")
@@ -168,7 +164,7 @@ class OtherLevelBarchart extends Component {
 
     d3.select(this.axis_y.current).selectAll("g").remove();
     d3.select(this.axis_y.current)
-      .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
+      .attr("transform", "translate(" + this.props.margin_left + "," + this.props.margin_top + ")")
       .attr("class", "axis_y")
       .call(d3.axisLeft(barYScale))
       .selectAll(".tick")
@@ -319,11 +315,9 @@ class OtherLevelBarchart extends Component {
       .style("color", "#000");
 
     // update chart
-    let marginTop = 40,
-      marginBottom = 0;
     let barYScale = d3
       .scaleBand()
-      .range([0, this.state.height - marginTop - marginBottom])
+      .range([0, this.state.height - this.props.margin_top - this.props.margin_bottom])
       .domain(
         this.props.data
           .sort((a, b) =>
@@ -370,9 +364,9 @@ class OtherLevelBarchart extends Component {
   }
 
   resize() {
-    if (this.props.window_width/3.5 < 350) {
+    if (this.props.window_width < this.props.ipad_width) {
       this.setState({
-        width: this.props.window_width/3.5
+        width: this.props.window_width*0.8
       }, ()=>{
         this.initView(this.state.sort_by);
       });

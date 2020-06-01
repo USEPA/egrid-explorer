@@ -16,6 +16,8 @@ class ResourceMixChart extends Component {
     this.axis_x = React.createRef();
     this.micromap = React.createRef();
     this.state = {
+      width: this.props.width,
+      height: this.props.barchart_height,
       sort_fuel: null,
       mouseover_fuel: null,
       clicked_on_bar: false,
@@ -24,6 +26,16 @@ class ResourceMixChart extends Component {
     };
     this.sort_text = "Click to Rearrange";
     this.sort_reset_text = "Click to Rearrange";
+
+    this.micromap_width_pct = 0.13;
+    this.fuels_filter_pct = 0.87;
+    this.barchart_pct = 0.7;
+    this.barchart_table_pct = 0.3;
+  }
+
+  componentDidMount() {
+    this.initView();
+    this.resize();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -48,15 +60,38 @@ class ResourceMixChart extends Component {
         this.updateView(null);
       }
     }
+
+    if (this.props.window_width !== prevProps.window_width) {
+      this.resize();
+    }
+  }
+
+  resize() {
+    if (this.props.window_width > 1280) {
+      this.setState(
+        {
+          width: 1280,
+        },
+        () => {
+          this.updateView(this.state.sort_fuel);
+        }
+      );
+    } else {
+      this.setState(
+        {
+          width: this.props.window_width,
+        },
+        () => {
+          this.updateView(this.state.sort_fuel);
+        }
+      );
+    }
   }
 
   initView() {
     this.setState({ clicked_on_bar: null }, () => {
-      let marginRight = 10,
-        marginTop = 20,
-        marginLeft = this.props.layer_type === "state" ? 155 : 60;
       let w = d3.select(this.barchart_wrapper.current).node().clientWidth,
-        h = d3.select(this.barchart_wrapper.current).node().clientHeight;
+        h = this.props.barchart_height;
 
       let fuel_names = this.props.fuels,
         avail_fuels = [],
@@ -97,23 +132,23 @@ class ResourceMixChart extends Component {
       let barXScale = d3
         .scaleLinear()
         .domain([0, 100])
-        .range([0, w - marginLeft - marginRight]);
+        .range([0, w - this.props.margin_left - this.props.margin_right]);
       let barYScale = d3
         .scaleBand()
         .domain(name)
-        .range([0, h - marginTop])
+        .range([0, h - this.props.margin_top])
         .paddingInner(0.1)
         .paddingOuter(0.2);
 
       // micromap
       d3.select(this.micromap.current).selectAll("path").remove();
       let w_micro = d3.select(this.micromap.current).node().clientWidth,
-        h_micro = d3.select(this.micromap.current).node().clientHeight;
-      const projection = d3_composite
+        h_micro = this.props.filter_height;
+      let projection = d3_composite
         .geoAlbersUsaTerritories()
-        .scale(h_micro * 2)
+        .scale(Math.min(w_micro / 0.85, h_micro * 2))
         .translate([w_micro / 2, h_micro / 2]);
-      const path = d3.geoPath().projection(projection);
+      let path = d3.geoPath().projection(projection);
       d3.select(this.micromap.current)
         .selectAll("path")
         .data(this.props.layer.features)
@@ -128,7 +163,14 @@ class ResourceMixChart extends Component {
       // barchart
       d3.select(this.barchart.current).selectAll("g").remove();
       d3.select(this.barchart.current)
-        .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
+        .attr(
+          "transform",
+          "translate(" +
+            this.props.margin_left +
+            "," +
+            this.props.margin_top +
+            ")"
+        )
         .append("g")
         .selectAll("rect")
         .data(data)
@@ -274,7 +316,14 @@ class ResourceMixChart extends Component {
       // axis
       d3.select(this.axis_y.current).selectAll("g").remove();
       d3.select(this.axis_y.current)
-        .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
+        .attr(
+          "transform",
+          "translate(" +
+            this.props.margin_left +
+            "," +
+            this.props.margin_top +
+            ")"
+        )
         .call(d3.axisLeft(barYScale))
         .selectAll(".tick")
         .attr(
@@ -415,7 +464,14 @@ class ResourceMixChart extends Component {
 
       d3.select(this.axis_x.current).selectAll("g").remove();
       d3.select(this.axis_x.current)
-        .attr("transform", "translate(" + marginLeft + "," + marginTop + ")")
+        .attr(
+          "transform",
+          "translate(" +
+            this.props.margin_left +
+            "," +
+            this.props.margin_top +
+            ")"
+        )
         .call(d3.axisTop(barXScale))
         .selectAll("text")
         .attr("transform", "rotate(-30)")
@@ -424,9 +480,11 @@ class ResourceMixChart extends Component {
 
       // filter
       let w_legend = d3.select(this.fuels.current).node().clientWidth,
-        h_legend = d3.select(this.fuels.current).node().clientHeight;
-      let nbox = fuel_names.length + 1;
-      let boxlen = w_legend / nbox > 100 ? 100 : w_legend / nbox;
+        h_legend = this.props.filter_height;
+      let nbox = fuel_names.length + 2;
+      let boxlen = w_legend / nbox > 100 ? 100 : Math.max(w_legend / nbox, 75);
+      let boxlen_filter = boxlen,
+        boxlen_reset = boxlen * 1.5;
 
       d3.select(this.fuels.current).selectAll("div").remove();
       let fuels = d3
@@ -446,35 +504,35 @@ class ResourceMixChart extends Component {
 
       let fuels_svg = fuels
         .append("svg")
-        .attr("width", boxlen)
+        .attr("width", boxlen_filter)
         .attr("height", h_legend);
 
       fuels_svg
         .append("circle")
-        .attr("r", Math.min(boxlen, h_legend * 0.5) / 4)
+        .attr("r", Math.min(boxlen_filter, h_legend * 0.5) / 4)
         .attr("fill", (d) => this.props.fuel_color_lookup[d])
-        .attr("cx", boxlen / 2)
-        .attr("cy", Math.min(boxlen, h_legend * 0.5) / 2);
+        .attr("cx", boxlen_filter / 2)
+        .attr("cy", Math.min(boxlen_filter, h_legend * 0.5) / 2);
 
       fuels_svg
         .append("text")
-        .attr("x", boxlen / 2)
-        .attr("y", Math.min(boxlen, h_legend * 0.5) * 1.2)
+        .attr("x", boxlen_filter / 2)
+        .attr("y", Math.min(boxlen_filter, h_legend * 0.5) * 1.2)
         .attr("dx", 0)
         .attr("dy", 0)
         .text((d) => this.props.fuel_label_lookup[d])
         .style("text-anchor", "middle")
-        .call(this.props.wrap_long_labels, boxlen);
+        .call(this.props.wrap_long_labels, boxlen_filter);
 
       let reset = d3
         .select(".fuels")
         .insert("div", ".fuel")
-        .style("display","inline-flex")
+        .style("display", "inline-flex")
         .attr("class", "reset")
         .style("opacity", 0.5)
         .style("cursor", "not-allowed")
         .append("svg")
-        .attr("width", boxlen)
+        .attr("width", boxlen_reset)
         .attr("height", h_legend)
         .on("click", (d) => {
           this.setState({ sort_fuel: null });
@@ -482,7 +540,7 @@ class ResourceMixChart extends Component {
 
       reset
         .append("text")
-        .attr("x", boxlen / 2)
+        .attr("x", boxlen_reset / 2)
         .attr("y", h_legend / 2)
         .attr("dx", 0)
         .attr("dy", 0)
@@ -490,13 +548,13 @@ class ResourceMixChart extends Component {
         .style("text-anchor", "middle")
         .style("font-size", "0.9em")
         .style("font-weight", "bold")
-        .call(this.props.wrap_long_labels, boxlen);
+        .call(this.props.wrap_long_labels, boxlen_reset);
 
       reset
         .append("svg:image")
-        .attr("x", boxlen / 4)
+        .attr("x", boxlen_reset / 4)
         .attr("y", h_legend / 16)
-        .attr("width", boxlen/2)
+        .attr("width", boxlen_reset / 2)
         .attr("height", h_legend / 4)
         .attr("xlink:href", "sort_icon.png")
         .style("font-size", "20px")
@@ -551,29 +609,83 @@ class ResourceMixChart extends Component {
   }
 
   updateView(fuel) {
-    let marginRight = 10,
-      marginTop = 20,
-      marginLeft = this.props.layer_type === "state" ? 155 : 60;
     let w = d3.select(this.barchart_wrapper.current).node().clientWidth,
-      h = d3.select(this.barchart_wrapper.current).node().clientHeight;
+      h = this.props.barchart_height;
 
-    d3.select(this.fuels.current)
-      .selectAll(".fuel")
+    // filter
+    let fuel_names = this.props.fuels;
+
+    let w_legend = d3.select(this.fuels.current).node().clientWidth,
+      h_legend = this.props.filter_height;
+    let nbox = fuel_names.length + 2;
+    let boxlen = w_legend / nbox > 100 ? 100 : Math.max(w_legend / nbox, 75);
+    let boxlen_filter = boxlen,
+      boxlen_reset = boxlen * 1.5;
+
+    let fuels = d3.select(this.fuels.current).selectAll(".fuel");
+    fuels
       .classed("selected", false)
       .style("background", "none")
       .filter((e) => e === fuel)
       .classed("selected", true)
       .style("background", "#ddd");
 
+    let fuel_svg = fuels
+      .select("svg")
+      .attr("width", boxlen_filter)
+      .attr("height", h_legend);
+    fuel_svg
+      .select("circle")
+      .attr("r", Math.min(boxlen_filter, h_legend * 0.5) / 4)
+      .attr("cx", boxlen_filter / 2)
+      .attr("cy", Math.min(boxlen_filter, h_legend * 0.5) / 2);
+
+    fuel_svg
+      .select("text")
+      .attr("x", boxlen_filter / 2)
+      .attr("y", Math.min(boxlen_filter, h_legend * 0.5) * 1.2)
+      .attr("dx", 0)
+      .attr("dy", 0)
+      .text((d) => this.props.fuel_label_lookup[d])
+      .style("text-anchor", "middle")
+      .call(this.props.wrap_long_labels, boxlen_filter);
+
+    let reset_svg = d3.select(this.fuels.current)
+      .select(".reset")
+      .attr("width", boxlen_reset)
+      .attr("height", h_legend);
+
+    reset_svg
+      .select("image")
+      .attr("x", boxlen_reset / 4)
+      .attr("y", h_legend / 16)
+      .attr("width", boxlen_reset / 2)
+      .attr("height", h_legend / 4);
+
+    // micromap
+    let w_micro = d3.select(this.micromap.current).node().clientWidth,
+      h_micro = this.props.filter_height;
+    let projection = d3_composite
+      .geoAlbersUsaTerritories()
+      .scale(Math.min(w_micro / 0.85, h_micro * 2))
+      .translate([w_micro / 2, h_micro / 2]);
+    let path = d3.geoPath().projection(projection);
+    d3.select(this.micromap.current).selectAll("path").attr("d", path);
+
     if (fuel === null) {
       d3.select(this.fuels.current)
-      .select(".reset")
-      .on("mouseover", null)
-      .on("mouseout", null)
-      .style("opacity", 0.5)
-      .style("cursor", "not-allowed");
-
-      const fuel_names = this.props.fuels;
+        .select(".reset")
+        .on("mouseover", null)
+        .on("mouseout", null)
+        .style("opacity", 0.5)
+        .style("cursor", "not-allowed")
+        .select("text")
+        .text(this.sort_text)
+        .attr("x", boxlen_reset / 2)
+        .attr("y", h_legend / 2)
+        .attr("dx", 0)
+        .attr("dy", 0)
+        .call(this.props.wrap_long_labels, boxlen_reset);
 
       let data = [];
       _.flatten([this.props.us_data, this.props.data]).forEach((d) => {
@@ -596,11 +708,11 @@ class ResourceMixChart extends Component {
       let barXScale = d3
         .scaleLinear()
         .domain([0, 100])
-        .range([0, w - marginLeft - marginRight]);
+        .range([0, w - this.props.margin_left - this.props.margin_right]);
       let barYScale = d3
         .scaleBand()
         .domain(name)
-        .range([0, h - marginTop])
+        .range([0, h - this.props.margin_top])
         .paddingInner(0.1)
         .paddingOuter(0.2);
 
@@ -610,36 +722,36 @@ class ResourceMixChart extends Component {
         .duration(100)
         .call(d3.axisLeft(barYScale));
 
+      d3.select(this.axis_x.current).call(d3.axisTop(barXScale));
+
       // barchart
       d3.select(this.barchart.current)
         .selectAll("rect")
         .attr("x", (d) => barXScale(d.cumsum))
+        .attr("width", (d) => barXScale(d.value))
         .transition()
         .duration(400)
         .attr("y", (d) => barYScale(d.name));
     } else {
       d3.select(this.fuels.current)
-      .select(".reset")
-      .style("opacity", 1)
-      .style("cursor", "pointer")
-      .on("mouseover", () => {
-        d3.select(".reset").style("opacity", 0.7);
-      })
-      .on("mouseout", () => {
-        d3.select(".reset").style("opacity", 1);
-      })
-      .select("text")
-      .text(this.sort_reset_text)
-      .call(
-        this.props.wrap_long_labels,
-        Math.min(
-          d3.select(this.fuels.current).node().clientWidth /
-            (this.props.fuels.length + 1),
-          100
-        )
-      );
+        .select(".reset")
+        .style("opacity", 1)
+        .style("cursor", "pointer")
+        .on("mouseover", () => {
+          d3.select(".reset").style("opacity", 0.7);
+        })
+        .on("mouseout", () => {
+          d3.select(".reset").style("opacity", 1);
+        })
+        .select("text")
+        .text(this.sort_reset_text)
+        .attr("x", boxlen_reset / 2)
+        .attr("y", h_legend / 2)
+        .attr("dx", 0)
+        .attr("dy", 0)
+        .call(this.props.wrap_long_labels, boxlen_reset);
 
-      const fuel_names = _.flatten([
+      fuel_names = _.flatten([
         [_.invert(this.props.fuel_name_lookup)[fuel]],
         this.props.fuels.filter(
           (d) => d !== _.invert(this.props.fuel_name_lookup)[fuel]
@@ -671,12 +783,12 @@ class ResourceMixChart extends Component {
       let barXScale = d3
         .scaleLinear()
         .domain([0, 100])
-        .range([0, w - marginLeft - marginRight]);
+        .range([0, w - this.props.margin_left - this.props.margin_right]);
 
       let barYScale = d3
         .scaleBand()
         .domain(name)
-        .range([0, h - marginTop])
+        .range([0, h - this.props.margin_top])
         .paddingInner(0.1)
         .paddingOuter(0.2);
 
@@ -684,6 +796,8 @@ class ResourceMixChart extends Component {
         .transition()
         .duration(100)
         .call(d3.axisLeft(barYScale));
+
+      d3.select(this.axis_x.current).call(d3.axisTop(barXScale));
 
       d3.select(this.barchart.current)
         .selectAll("rect")
@@ -693,6 +807,7 @@ class ResourceMixChart extends Component {
             .map((e) => e.cumsum)[0];
         })
         .attr("x", (d) => barXScale(d.cumsum))
+        .attr("width", (d) => barXScale(d.value))
         .transition()
         .duration(350)
         .attr("y", (d) => barYScale(d.name));
@@ -718,20 +833,43 @@ class ResourceMixChart extends Component {
       <div id="resource-mix-chart" ref={this.wrapper}>
         {title}
         <div>
-        <svg
-            style={{ width: "15%", height: 100, display: "inline-block", verticalAlign: "top"}}
+          <svg
+            style={{
+              width:
+                this.state.width < this.props.ipad_width
+                  ? this.state.width * 0.8
+                  : this.state.width * 0.95 * this.micromap_width_pct,
+              height: this.props.filter_height,
+              display: "inline-block",
+              verticalAlign: "top",
+            }}
             ref={this.micromap}
             id="resource-mix-micromap"
           ></svg>
           <div
             className="fuels-selection"
-            style={{ width: "83%", height: 100, display: "inline-block", verticalAlign: "top" }}
+            style={{
+              width:
+                this.state.width < this.props.ipad_width
+                  ? this.state.width * 0.8
+                  : this.state.width * 0.95 * this.fuels_filter_pct,
+              display: "inline-block",
+              verticalAlign: "top",
+            }}
             ref={this.fuels}
           ></div>
         </div>
         <div>
           <svg
-            style={{ width: "67%", height: 600, display: "inline-block", verticalAlign: "bottom"}}
+            style={{
+              width:
+                this.state.width < this.props.ipad_width
+                  ? this.state.width * 0.8
+                  : this.state.width * 0.95 - this.props.table_width,
+              height: this.props.barchart_height,
+              display: "inline-block",
+              verticalAlign: "bottom",
+            }}
             ref={this.barchart_wrapper}
           >
             <g ref={this.barchart}></g>
@@ -741,10 +879,18 @@ class ResourceMixChart extends Component {
           <div
             id="resource-mix-table"
             style={{
-              width: "30%",
-              height: 580,
-              display: "inline-block", 
-              verticalAlign: "bottom"
+              width:
+                this.state.width < this.props.ipad_width
+                  ? this.state.width * 0.8
+                  : this.props.table_width,
+              height: this.props.barchart_height - this.props.margin_top,
+              marginTop:
+                this.state.width < this.props.ipad_width
+                  ? this.props.margin_top
+                  : 0,
+              marginLeft: 0,
+              display: "inline-block",
+              verticalAlign: "bottom",
             }}
           >
             <UpdatedTable

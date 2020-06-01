@@ -343,12 +343,13 @@ class Visualization extends Component {
           window_width={this.state.window_width}
           window_height={this.state.window_height}
           width={
-            this.init_window_width / 2 < 700 ? this.init_window_width / 2 : 700
+            this.init_window_width < 768 ? this.init_window_width*0.8 : 700
           }
+          ipad_width={768}
           height={600}
           scale={
-            this.init_window_width / 2 < 700
-              ? this.init_window_width / 1.6
+            this.init_window_width  < 768
+              ? this.init_window_width
               : 875
           }
           layer={this.props.ggl_layer}
@@ -366,8 +367,16 @@ class Visualization extends Component {
           data={this.state.resource_mix_data}
           window_width={this.state.window_width}
           window_height={this.state.window_height}
-          width={600}
-          height={600}
+          width={
+            this.init_window_width > 1280? 1280: this.init_window_width
+          }
+          ipad_width={768}
+          table_width={385}
+          barchart_height={600}
+          filter_height={100}
+          margin_top={20}
+          margin_right={10}
+          margin_left={region==="state"?155:60}
           layer={this.state.layer}
           us_data={this.state.us_data}
           unit={this.props.unit}
@@ -390,7 +399,7 @@ class Visualization extends Component {
               <Spinner animation="grow" variant="success" />
             </div>
           ) : (
-            <div style={{ height: 700, textAlign: "center" }}>
+            <div style={{ textAlign: "center" }}>
               <div style={{ display: "inline-block", verticalAlign: "top" }}>
                 <OtherLevelMap
                   title={this.state.name}
@@ -398,20 +407,21 @@ class Visualization extends Component {
                   window_width={this.state.window_width}
                   window_height={this.state.window_height}
                   width={
-                    this.init_window_width / 2 < 600
-                      ? this.init_window_width / 2
+                    this.init_window_width < 768
+                      ? this.init_window_width*0.8
                       : 600
                   }
+                  ipad_width={768}
                   height={600}
+                  scale={
+                    this.init_window_width < 768
+                      ? this.init_window_width
+                      : 750
+                  }
                   layer={this.state.layer}
                   us_data={this.state.us_data}
                   unit={this.state.unit}
                   field={this.state.field}
-                  scale={
-                    this.init_window_width / 2 < 600
-                      ? this.init_window_width / 1.6
-                      : 750
-                  }
                   layer_type={region}
                   map_fill={this.state.map_fill}
                 />
@@ -419,10 +429,11 @@ class Visualization extends Component {
                   window_width={this.state.window_width}
                   window_height={this.state.window_height}
                   width={
-                    this.init_window_width / 2 < 600
-                      ? this.init_window_width / 2
+                    this.init_window_width < 768
+                      ? this.init_window_width*0.8
                       : 600
                   }
+                  ipad_width={768}
                   height={50}
                   data={this.state.data}
                   field={this.state.field}
@@ -437,11 +448,15 @@ class Visualization extends Component {
                   window_width={this.state.window_width}
                   window_height={this.state.window_height}
                   width={
-                    this.init_window_width / 3.5 < 350
-                      ? this.init_window_width / 3.5
+                    this.init_window_width < 768
+                      ? this.init_window_width*0.8
                       : 350
                   }
                   height={600}
+                  margin_top={40}
+                  margin_bottom={0}
+                  margin_right={70}
+                  margin_left={region==="state"?155:60}
                   field={this.state.field}
                   us_data={this.state.us_data}
                   layer_type={region}

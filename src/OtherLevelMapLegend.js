@@ -42,10 +42,10 @@ class OtherLevelMapLegend extends Component {
   }
 
   resize(){
-    if (this.props.window_width / 2 < 600) {
+    if (this.props.window_width < this.props.ipad_width) {
       this.setState(
         {
-          width: this.props.window_width / 2,
+          width: this.props.window_width*0.8,
         },
         () => {
           this.initView();
@@ -110,8 +110,7 @@ class OtherLevelMapLegend extends Component {
     d3.select(this.legend_title.current)
       .append("span")
       .html(this.props.unit)
-      .style("font-weight", "bold")
-      .style("display", ()=>this.state.width<350?"none":null);
+      .style("font-weight", "bold");
   }
 
   render() {

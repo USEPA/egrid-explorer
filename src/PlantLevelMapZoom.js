@@ -593,8 +593,10 @@ class PlantLevelMapZoom extends Component {
           // add fuel filter
           let w = d3.select(this.fuels.current).node().clientWidth,
             h = d3.select(this.fuels.current).node().clientHeight;
-          let nbox = this.props.fuels.length + 1;
-          let boxlen = w / nbox;
+          let nbox = this.props.fuels.length + 2;
+          let boxlen = w / nbox > 100 ? 100 : Math.max(w / nbox, 75);
+          let boxlen_filter = boxlen,
+          boxlen_reset = boxlen * 1.5;
 
           d3.selectAll(".fuels-selection").selectAll("div").remove();
           let fuels = d3
@@ -613,25 +615,25 @@ class PlantLevelMapZoom extends Component {
 
           let fuels_svg = fuels
             .append("svg")
-            .attr("width", boxlen)
+            .attr("width", boxlen_filter)
             .attr("height", h);
 
           fuels_svg
             .append("circle")
-            .attr("r", Math.min(boxlen, h * 0.5) / 4)
+            .attr("r", Math.min(boxlen_filter, h * 0.5) / 4)
             .attr("fill", (d) => this.props.fuel_color_lookup[d])
-            .attr("cx", boxlen / 2)
-            .attr("cy", Math.min(boxlen, h * 0.5) / 2);
+            .attr("cx", boxlen_filter / 2)
+            .attr("cy", Math.min(boxlen_filter, h * 0.5) / 2);
 
           fuels_svg
             .append("text")
-            .attr("x", boxlen / 2)
-            .attr("y", Math.min(boxlen, h * 0.5) * 1.5)
+            .attr("x", boxlen_filter / 2)
+            .attr("y", Math.min(boxlen_filter, h * 0.5) * 1.5)
             .attr("dx", 0)
             .attr("dy", 0)
             .text((d) => this.props.fuel_label_lookup[d])
             .style("text-anchor", "middle")
-            .call(this.props.wrap_long_labels, boxlen);
+            .call(this.props.wrap_long_labels, boxlen_filter);
 
           d3.select(".fuels")
             .insert("div", ".fuel")
@@ -640,18 +642,18 @@ class PlantLevelMapZoom extends Component {
             .style("opacity", 0.5)
             .style("cursor", "not-allowed")
             .append("svg")
-            .attr("width", boxlen)
+            .attr("width", boxlen_reset)
             .attr("height", h)
             .append("text")
             .attr("x", 0)
-            .attr("y", Math.min(boxlen, h * 0.5) / 2)
+            .attr("y", 0)
             .attr("dx", 0)
             .attr("dy", 0)
             .text(this.filter_text)
             .style("text-anchor", "start")
             .style("font-weight", "bold")
             .style("font-size", "1.2em")
-            .call(this.props.wrap_long_labels, boxlen);
+            .call(this.props.wrap_long_labels, boxlen_reset);
 
           d3.selectAll(".fuel")
             .on("click", (d) => {

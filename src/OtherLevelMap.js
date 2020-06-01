@@ -31,7 +31,7 @@ class OtherLevelMap extends Component {
     const layer = this.props.layer,
       label_width =
         this.props.layer_type === "grid gross loss rates"
-          ? 115
+          ? 103
           : this.props.layer_type === "state"
           ? 20
           : 40,
@@ -42,7 +42,7 @@ class OtherLevelMap extends Component {
       .geoAlbersUsaTerritories()
       .scale(this.state.scale)
       .translate([this.state.width / 2, this.state.height / 2.5]);
-    const path = d3.geoPath().projection(projection);
+    let path = d3.geoPath().projection(projection);
     const map_fill = this.props.map_fill;
 
     // add centroid to layer
@@ -267,32 +267,36 @@ class OtherLevelMap extends Component {
 
   resize() {
     if (this.props.layer_type === "grid gross loss rates"){
-      if (this.props.window_width/2 < 700) {
+      if (this.props.window_width < this.props.ipad_width) {
         this.setState({
-          width: this.props.window_width/2,
-          scale: this.props.window_width/1.6
+          width: this.props.window_width*0.8,
+          height: 450,
+          scale: this.props.window_width,
         }, ()=>{
           this.initView();
         });
       } else {
         this.setState({
           width: 700,
+          height: 600,
           scale: 875
         }, ()=>{
           this.initView();
         });
       }
     } else {
-      if (this.props.window_width/2 < 600) {
+      if (this.props.window_width < this.props.ipad_width) {
         this.setState({
-          width: this.props.window_width/2,
-          scale: this.props.window_width/1.6
+          width: this.props.window_width*0.8,
+          height: 450,
+          scale: this.props.window_width,
         }, ()=>{
           this.initView();
         });
       } else {
         this.setState({
           width: 600,
+          height: 600,
           scale: 750
         }, ()=>{
           this.initView();
@@ -300,6 +304,7 @@ class OtherLevelMap extends Component {
       }
     }
   }
+  
   render() {
     let title = (
       <div>
@@ -323,7 +328,7 @@ class OtherLevelMap extends Component {
         <svg ref={this.map} style={{display:"block", margin: "0 auto"}} width={this.state.width} height={this.state.height}>
           <g ref={this.background} />
           <g ref={this.paths} />
-          {this.state.width >= 350 && <g ref={this.labels} />}
+          <g ref={this.labels} />
         </svg>
         <div
           ref={this.tooltip}

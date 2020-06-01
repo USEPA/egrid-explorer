@@ -8,7 +8,7 @@ class UpdatedTable extends Component {
           <table style={{ maxWidth: 400, fontSize: "0.8em", borderRadius: "10px", borderCollapse: "collapse", borderStyle: "hidden", boxShadow: "0 0 0 1px"}}>
             <thead>
               <tr style={{ lineHeight: 1 }}>
-                <th style={{width: 200, padding: "0.8em", borderTopLeftRadius: "10px"}}>Generation by Fuel Type</th>
+                <th style={{padding: "0.8em", borderTopLeftRadius: "10px"}}>Generation by Fuel Type</th>
                 <th style={{padding: "0.8em", textAlign: "right", }}>US<br/>Resource Mix (%)</th>                
                 <th style={{padding: "0.8em", borderTopRightRadius: "10px", textAlign: "right", height: 95}}>
                   {this.props.region==="state"?"State":this.props.region}<br/>
