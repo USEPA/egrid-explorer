@@ -289,8 +289,7 @@ class PlantLevelMapZoom extends Component {
       .text(this.filter_reset_text)
       .call(
         this.props.wrap_long_labels,
-        d3.select(this.fuels.current).node().clientWidth /
-          (this.props.fuels.length + 1)
+        88
       );
 
     d3.selectAll(".fuels-selection")
@@ -345,8 +344,7 @@ class PlantLevelMapZoom extends Component {
       .text(this.filter_text)
       .call(
         this.props.wrap_long_labels,
-        d3.select(this.fuels.current).node().clientWidth /
-          (this.props.fuels.length + 1)
+        88
       );
     d3.selectAll(".selected")
       .classed("selected", false)
@@ -439,7 +437,7 @@ class PlantLevelMapZoom extends Component {
   }
 
   componentDidMount() {
-    let init_zoom = this.props.init_zoom,
+    let init_zoom = this.props.window_width < 768 ? this.props.min_zoom + 0.1 : this.props.init_zoom,
       init_center = this.props.init_center;
 
     // set up map
@@ -593,10 +591,10 @@ class PlantLevelMapZoom extends Component {
           // add fuel filter
           let w = d3.select(this.fuels.current).node().clientWidth,
             h = d3.select(this.fuels.current).node().clientHeight;
-          let nbox = this.props.fuels.length + 1;
+          let nbox = this.props.fuels.length + 2;
           let boxlen = w / nbox > 100 ? 100 : Math.max(w / nbox, 90);
           let boxlen_filter = boxlen,
-          boxlen_reset = boxlen;
+          boxlen_reset = boxlen * 1.5;
 
           d3.selectAll(".fuels-selection").selectAll("div").remove();
           let fuels = d3
@@ -645,15 +643,15 @@ class PlantLevelMapZoom extends Component {
             .attr("width", boxlen_reset)
             .attr("height", h)
             .append("text")
-            .attr("x", 0)
-            .attr("y", 35)
+            .attr("x", boxlen_reset / 2)
+            .attr("y", h/3)
             .attr("dx", 0)
             .attr("dy", 0)
             .text(this.filter_text)
-            .style("text-anchor", "start")
+            .style("text-anchor", "middle")
             .style("font-weight", "bold")
             .style("font-size", "1.1em")
-            .call(this.props.wrap_long_labels, boxlen_reset);
+            .call(this.props.wrap_long_labels, 88);
 
           d3.selectAll(".fuel")
             .on("click", (d) => {
@@ -982,17 +980,18 @@ class PlantLevelMapZoom extends Component {
           style={{ width: "100%", height: 100, display: "inline-block" }}
           ref={this.fuels}
         ></div>
-        <div style={{height: 780}}>
+        <div style={{display: "block", width: "100%", height: 925}}>
           <div
             className="map-container"
-            style={{ width: "65%", height: 780, display: "inline-block" }}
+            style={{ width: this.props.window_width < 1024 ? "100%" : "63%", height: this.props.window_width < 1024 ? 700 : 840, display: "inline-block" }}
             ref={(node) => (this.container = node)}
           />
           <div
             style={{
-              width: "33%",
-              height: 780,
-              float: "right",
+              width: this.props.window_width < 1024 ? "100%" : "35%",
+              height: 850,
+              marginTop: 5,
+              marginLeft: 5,
               display: "inline-block",
             }}
           >

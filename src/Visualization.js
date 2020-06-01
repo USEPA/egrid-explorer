@@ -194,7 +194,19 @@ class Visualization extends Component {
         background_layer: background_layer,
       },
       () => {
-        // update export table
+        // update export
+        d3.selectAll(".export-vis").on("click", ()=>{
+          window.print();
+        });
+        d3.selectAll("#export-static").on("click", ()=>{
+          let zoomable_status = d3.select("#map-zoomable").style("display");
+          let static_status = d3.select("#map-static").style("display");
+          d3.select("#map-zoomable").style("display", "none");
+          d3.select("#map-static").style("display", null);
+          window.print();
+          d3.select("#map-zoomable").style("display", zoomable_status);
+          d3.select("#map-static").style("display", static_status);
+        });
         d3.select("#export-table").on("click", () => {
           let export_table,
             csv = "data:text/csv;charset=utf-8,";
@@ -508,26 +520,6 @@ class Visualization extends Component {
 }
 
 class UpdatedVisualization extends Component {
-  constructor(props) {
-    super(props);
-    this.exportStaticMap = this.exportStaticMap.bind(this);
-    this.exportVis = this.exportVis.bind(this);
-  }
-
-  exportStaticMap() {
-    let zoomable_status = d3.select("#map-zoomable").style("display");
-    let static_status = d3.select("#map-static").style("display");
-    d3.select("#map-zoomable").style("display", "none");
-    d3.select("#map-static").style("display", null);
-    window.print();
-    d3.select("#map-zoomable").style("display", zoomable_status);
-    d3.select("#map-static").style("display", static_status);
-  }
-
-  exportVis() {
-    window.print();
-  }
-
   render() {
     return (
       <div>
@@ -548,8 +540,8 @@ class UpdatedVisualization extends Component {
                 borderRadius: "4px",
               }}
               type="button"
+              class="export-vis"
               value="Export Visualization"
-              onClick={this.exportVis}
             />
           )}
           {lookup[this.props.tier5] === "Plant" && (
@@ -559,8 +551,8 @@ class UpdatedVisualization extends Component {
                 borderRadius: "4px",
               }}
               type="button"
+              class="export-vis"
               value="Export Zoomable Map"
-              onClick={this.exportVis}
             />
           )}
           {lookup[this.props.tier5] === "Plant" && " "}
@@ -571,8 +563,8 @@ class UpdatedVisualization extends Component {
                 borderRadius: "4px",
               }}
               type="button"
+              id="export-static"
               value="Export Static Map"
-              onClick={this.exportStaticMap}
             />
           )}
         </div>

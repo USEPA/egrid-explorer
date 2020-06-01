@@ -268,7 +268,7 @@ class ResourceMixChart extends Component {
 
             d3.selectAll(".paths").style("fill", "none");
             d3.selectAll(".tick text").style("font-weight", "normal");
-            d3.selectAll("path.region_" + d.id).style("fill", "#ddd");
+            d3.selectAll("path.region_" + d.id).style("fill", "#aaa");
             d3.selectAll(".region_" + d.id + " text").style(
               "font-weight",
               "bold"
@@ -352,7 +352,7 @@ class ResourceMixChart extends Component {
                 }
               });
 
-            d3.selectAll("path.region_" + id).style("fill", "#ddd");
+            d3.selectAll("path.region_" + id).style("fill", "#aaa");
             d3.selectAll(".region_" + id + " text").style(
               "font-weight",
               "bold"
@@ -423,7 +423,7 @@ class ResourceMixChart extends Component {
 
             d3.selectAll(".paths").style("fill", "none");
             d3.selectAll(".tick text").style("font-weight", "normal");
-            d3.selectAll("path.region_" + id).style("fill", "#ddd");
+            d3.selectAll("path.region_" + id).style("fill", "#aaa");
             d3.selectAll(".region_" + id + " text").style(
               "font-weight",
               "bold"
@@ -483,7 +483,7 @@ class ResourceMixChart extends Component {
         h_legend = this.props.filter_height;
       let nbox = fuel_names.length + 2;
       let boxlen = w_legend / nbox > 100 ? 100 : Math.max(w_legend / nbox, 75);
-      let boxlen_filter = boxlen,
+      let boxlen_filter = boxlen * 1,
         boxlen_reset = boxlen * 1.5;
 
       d3.select(this.fuels.current).selectAll("div").remove();
@@ -522,7 +522,7 @@ class ResourceMixChart extends Component {
         .attr("dy", 0)
         .text((d) => this.props.fuel_label_lookup[d])
         .style("text-anchor", "middle")
-        .call(this.props.wrap_long_labels, boxlen_filter);
+        .call(this.props.wrap_long_labels, boxlen_filter*0.9);
 
       let reset = d3
         .select(".fuels")
@@ -838,7 +838,7 @@ class ResourceMixChart extends Component {
               width:
                 this.state.width < this.props.ipad_width
                   ? this.state.width * 0.8
-                  : this.state.width * 0.95 * this.micromap_width_pct,
+                  : this.state.width * 0.9 * this.micromap_width_pct,
               height: this.props.filter_height,
               display: "inline-block",
               verticalAlign: "top",
@@ -852,7 +852,7 @@ class ResourceMixChart extends Component {
               width:
                 this.state.width < this.props.ipad_width
                   ? this.state.width * 0.8
-                  : this.state.width * 0.95 * this.fuels_filter_pct,
+                  : this.state.width * 0.9 * this.fuels_filter_pct,
               display: "inline-block",
               verticalAlign: "top",
             }}
@@ -865,7 +865,7 @@ class ResourceMixChart extends Component {
               width:
                 this.state.width < this.props.ipad_width
                   ? this.state.width * 0.8
-                  : this.state.width * 0.95 - this.props.table_width,
+                  : this.state.width * 0.85 - this.props.table_width,
               height: this.props.barchart_height,
               display: "inline-block",
               verticalAlign: "bottom",
@@ -887,7 +887,7 @@ class ResourceMixChart extends Component {
               marginTop:
                 this.state.width < this.props.ipad_width
                   ? this.props.margin_top
-                  : 0,
+                  : 5,
               marginLeft: 0,
               display: "inline-block",
               verticalAlign: "bottom",

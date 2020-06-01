@@ -47,6 +47,10 @@
   padding: 0 !important;
 }
 
+.app fuel {
+  padding: 0 1px 5px 1px;
+}
+
 .loading div{
   width: 50px;
   height: 50px;
@@ -102,20 +106,6 @@
     height: 10px;
   }
 
-  .app #resource-mix-chart .fuel {
-    width: 71px;
-    height: 10px;
-  }
-
-  .app #resource-mix-micromap {
-    clear:right;
-    width:100%;
-  }
-
-  .app #resource-mix-table {
-    margin-left: 5px;
-  }
-
   .app #vertical-barchart {
     margin-top: 40px;
   }
@@ -123,6 +113,11 @@
   .app table {
     border-style: unset;
     border: 1px solid black;
+    display: block;
+  }
+
+  .app .map-container {
+    width: 800px;
     display: block;
   }
 }

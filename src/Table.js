@@ -5,7 +5,7 @@ class UpdatedTable extends Component {
     return (
       <div>
         {this.props.title.startsWith("Resource Mix") ? (
-          <table style={{ maxWidth: 400, fontSize: "0.8em", borderRadius: "10px", borderCollapse: "collapse", borderStyle: "hidden", boxShadow: "0 0 0 1px"}}>
+          <table style={{ maxWidth: 400, fontSize: "0.8em", borderRadius: "10px", borderCollapse: "separate", borderStyle: "hidden", boxShadow: "0 0 0 1px", margin: "0 auto"}}>
             <thead>
               <tr style={{ lineHeight: 1 }}>
                 <th style={{padding: "0.8em", borderTopLeftRadius: "10px"}}>Generation by Fuel Type</th>
@@ -173,11 +173,11 @@ class UpdatedTable extends Component {
                         this.props.type === "OTHF" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.8em" }}>Other Unknown or Purchased Fuel</td>
+                    <td style={{ padding: "0.8em", borderBottomLeftRadius: "10px"}}>Other Unknown or Purchased Fuel</td>
                     <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_OTHF}
                     </td>
-                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em", borderBottomRightRadius: "10px"}}>
                       {this.props.table_info.OTHF}
                     </td>
                   </tr>
@@ -208,11 +208,11 @@ class UpdatedTable extends Component {
                         this.props.type === "TNPR" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.8em" }}>Total Nonrenewables</td>
+                    <td style={{ padding: "0.8em"}}>Total Nonrenewables</td>
                     <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_TNPR}
                     </td>
-                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em"}}>
                       {this.props.table_info.TNPR}
                     </td>
                   </tr>
@@ -223,11 +223,11 @@ class UpdatedTable extends Component {
                         this.props.type === "THPR" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.8em" }}>Total Nonhydro Renewables</td>
+                    <td style={{ padding: "0.8em", borderBottomLeftRadius: "10px" }}>Total Nonhydro Renewables</td>
                     <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_THPR}
                     </td>
-                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em" , borderBottomRightRadius: "10px" }}>
                       {this.props.table_info.THPR}
                     </td>
                   </tr>
@@ -243,11 +243,11 @@ class UpdatedTable extends Component {
                         this.props.type === "CYPR" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.8em" }}>Total Combustion</td>
+                    <td style={{ padding: "0.8em"}}>Total Combustion</td>
                     <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_CYPR}
                     </td>
-                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em"}}>
                       {this.props.table_info.CYPR}
                     </td>
                   </tr>
@@ -258,11 +258,11 @@ class UpdatedTable extends Component {
                         this.props.type === "CNPR" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.8em" }}>Total Noncumbustion</td>
+                    <td style={{ padding: "0.8em", borderBottomLeftRadius: "10px" }}>Total Noncumbustion</td>
                     <td style={{ textAlign: "right", padding: "0.8em" }}>
                       {this.props.table_info.US_CNPR}
                     </td>
-                    <td style={{ textAlign: "right", padding: "0.8em" }}>
+                    <td style={{ textAlign: "right", padding: "0.8em", borderBottomRightRadius: "10px" }}>
                       {this.props.table_info.CNPR}
                     </td>
                   </tr>
@@ -270,7 +270,7 @@ class UpdatedTable extends Component {
             )}
           </table>
         ) : (
-          <table style={{fontSize: "0.8em", borderRadius: "10px", borderCollapse: "collapse", borderStyle: "hidden", boxShadow: "0 0 0 1px"}}>
+          <table style={{fontSize: "0.8em", borderRadius: "10px", borderCollapse: "separate", borderStyle: "hidden", boxShadow: "0 0 0 1px", margin: "0 auto"}}>
             <thead>
               <tr style={{ lineHeight: 1 }}>
                 <th style={{ borderTopLeftRadius: "10px"}}>Plant Name</th>
@@ -370,9 +370,9 @@ class UpdatedTable extends Component {
                 <td style={{ padding: "0.5em", width: 315 }}>CO₂ equivalent Annual Emissions (tons)</td>
                 <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLCO2EQA}</td>
               </tr>
-              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLC2ERTA" ? "bold" : "normal" }}>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLC2ERTA" ? "bold" : "normal" , borderBottomLeftRadius: "10px"}}>
                 <td style={{ padding: "0.5em", width: 315 }}>CO₂ equivalent Output Emission Rate (lb/MWh)</td>
-                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLC2ERTA}</td>
+                <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105, borderBottomRightRadius: "10px"}}>{this.props.table_info.PLC2ERTA}</td>
               </tr>
             </tbody>
           </table>
