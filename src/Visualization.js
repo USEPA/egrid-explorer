@@ -12,8 +12,6 @@ import PlantLevelMapZoom from "./PlantLevelMapZoom";
 import PlantLevelMapStatic from "./PlantLevelMapStatic";
 import ResourceMixChart from "./ResourceMixChart";
 
-import "./Visualization.css";
-
 class Visualization extends Component {
   constructor(props) {
     super(props);

@@ -135,7 +135,7 @@ class OtherLevelMap extends Component {
         .style("opacity", 1);
       })
       .on('mousemove', d=>{
-        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + this.formatNumber(d.properties.value) + " " + d.properties.unit + "</b>.</span>";
+        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + this.formatNumber(d.properties.value) + (d.properties.unit==="%"?"%":(" " + d.properties.unit)) + "</b>.</span>";
         d3.select(this.tooltip.current)
         .html(html)
         .style("position", "absolute")
@@ -205,7 +205,7 @@ class OtherLevelMap extends Component {
         .style("opacity", 1);
       })
       .on('mousemove', d=>{
-        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + this.formatNumber(d.properties.value) + " " + d.properties.unit + "</b>.</span>";
+        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + this.formatNumber(d.properties.value) + (d.properties.unit==="%"?"%":(" " + d.properties.unit)) + "</b>.</span>";
         d3.select(this.tooltip.current)
         .html(html)
         .style("position", "absolute")
