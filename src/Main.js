@@ -13,6 +13,7 @@ class Main extends Component {
     super(props);
     const init_options = this.props.options[0];
     this.state = {
+      dropdown_changing: false,
       show_dialog: false,
       tier1: init_options.tier1,
       tier2: init_options.tier2,
@@ -71,6 +72,7 @@ class Main extends Component {
     let val = event.target.value;
     this.setState(
       {
+        dropdown_changing: true,
         tier1: val,
         all_options: this.props.options.filter((d) => d.tier1 === val),
         updated_tier: "tier1",
@@ -132,6 +134,7 @@ class Main extends Component {
                   field: opt["Final field name in eGRID"],
                   unit: opt.Units,
                   name: opt["Full Name"],
+                  dropdown_changing: false,
                 },
                 () => {
                   console.log(this.state);
@@ -146,179 +149,193 @@ class Main extends Component {
 
   handleChange2(event) {
     let val = event.target.value;
-    this.setState({ tier2: val, updated_tier: "tier2" }, () => {
-      let t4_avail = this.props.options.filter(
-        (d) => d.tier1 === this.state.tier1 && d.tier2 === val
-      );
-      let t4_val =
-        t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
-          ? _.uniq(t4_avail.map((d) => d.tier4))[0]
-          : this.state.tier4;
-      this.setState({ tier4: t4_val }, () => {
-        let t5_avail = this.props.options.filter(
-          (d) =>
-            d.tier1 === this.state.tier1 &&
-            d.tier2 === val &&
-            d.tier4 === this.state.tier4
-        );
-        let t5_val =
-          t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
-            ? _.uniq(t5_avail.map((d) => d.tier5))[0]
-            : this.state.tier5;
-        this.setState({ tier5: t5_val }, () => {
-          let opt = this.state.all_options.filter(
-            (d) =>
-              d.tier1 === this.state.tier1 &&
-              d.tier2 === this.state.tier2 &&
-              d.tier4 === this.state.tier4 &&
-              d.tier5 === this.state.tier5
-          )[0];
-          this.setState({
-            tier2_available_options: _.uniq(
-              this.state.all_options.map((d) => d.tier2)
-            ),
-            tier4_available_options: _.uniq(
-              this.state.all_options
-                .filter((d) => d.tier2 === this.state.tier2)
-                .map((d) => d.tier4)
-            ),
-            tier5_available_options: _.uniq(
-              this.state.all_options
-                .filter(
-                  (d) =>
-                    d.tier2 === this.state.tier2 && d.tier4 === this.state.tier4
-                )
-                .map((d) => d.tier5)
-            ),
-          });
-          this.setState(
-            {
-              field: opt["Final field name in eGRID"],
-              unit: opt.Units,
-              name: opt["Full Name"],
-            },
-            () => {
-              console.log(this.state);
-            }
-          );
-        });
-      });
-    });
-  }
-
-  handleChange4(event) {
-    let val = event.target.value;
-    this.setState({ tier4: val, updated_tier: "tier4" }, () => {
-      let t2_avail = this.props.options.filter(
-        (d) => d.tier1 === this.state.tier1 && d.tier4 === val
-      );
-      let t2_val =
-        t2_avail.map((d) => d.tier2).indexOf(this.state.tier2) === -1
-          ? _.uniq(t2_avail.map((d) => d.tier2))[0]
-          : this.state.tier2;
-      this.setState({ tier2: t2_val }, () => {
-        let t5_avail = this.props.options.filter(
-          (d) =>
-            d.tier1 === this.state.tier1 &&
-            d.tier2 === this.state.tier2 &&
-            d.tier4 === val
-        );
-        let t5_val =
-          t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
-            ? _.uniq(t5_avail.map((d) => d.tier5))[0]
-            : this.state.tier5;
-        this.setState({ tier5: t5_val }, () => {
-          let opt = this.state.all_options.filter(
-            (d) =>
-              d.tier1 === this.state.tier1 &&
-              d.tier2 === this.state.tier2 &&
-              d.tier4 === this.state.tier4 &&
-              d.tier5 === this.state.tier5
-          )[0];
-          this.setState({
-            tier2_available_options: _.uniq(
-              this.state.all_options.map((d) => d.tier2)
-            ),
-            tier4_available_options: _.uniq(
-              this.state.all_options.map((d) => d.tier4)
-            ),
-            tier5_available_options: _.uniq(
-              this.state.all_options
-                .filter(
-                  (d) =>
-                    d.tier2 === this.state.tier2 && d.tier4 === this.state.tier4
-                )
-                .map((d) => d.tier5)
-            ),
-          });
-          this.setState(
-            {
-              field: opt["Final field name in eGRID"],
-              unit: opt.Units,
-              name: opt["Full Name"],
-            },
-            () => {
-              console.log(this.state);
-            }
-          );
-        });
-      });
-    });
-  }
-
-  handleChange5(event) {
-    let val = event.target.value;
-    this.setState({ tier5: val, updated_tier: "tier5" }, () => {
-      let t2_avail = this.props.options.filter(
-        (d) => d.tier1 === this.state.tier1 && d.tier5 === val
-      );
-      let t2_val =
-        t2_avail.map((d) => d.tier2).indexOf(this.state.tier2) === -1
-          ? _.uniq(t2_avail.map((d) => d.tier2))[0]
-          : this.state.tier2;
-      this.setState({ tier2: t2_val }, () => {
+    this.setState(
+      { tier2: val, updated_tier: "tier2", dropdown_changing: true },
+      () => {
         let t4_avail = this.props.options.filter(
-          (d) =>
-            d.tier1 === this.state.tier1 &&
-            d.tier2 === this.state.tier2 &&
-            d.tier5 === val
+          (d) => d.tier1 === this.state.tier1 && d.tier2 === val
         );
         let t4_val =
           t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
             ? _.uniq(t4_avail.map((d) => d.tier4))[0]
             : this.state.tier4;
         this.setState({ tier4: t4_val }, () => {
-          let opt = this.state.all_options.filter(
+          let t5_avail = this.props.options.filter(
+            (d) =>
+              d.tier1 === this.state.tier1 &&
+              d.tier2 === val &&
+              d.tier4 === this.state.tier4
+          );
+          let t5_val =
+            t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
+              ? _.uniq(t5_avail.map((d) => d.tier5))[0]
+              : this.state.tier5;
+          this.setState({ tier5: t5_val }, () => {
+            let opt = this.state.all_options.filter(
+              (d) =>
+                d.tier1 === this.state.tier1 &&
+                d.tier2 === this.state.tier2 &&
+                d.tier4 === this.state.tier4 &&
+                d.tier5 === this.state.tier5
+            )[0];
+            this.setState({
+              tier2_available_options: _.uniq(
+                this.state.all_options.map((d) => d.tier2)
+              ),
+              tier4_available_options: _.uniq(
+                this.state.all_options
+                  .filter((d) => d.tier2 === this.state.tier2)
+                  .map((d) => d.tier4)
+              ),
+              tier5_available_options: _.uniq(
+                this.state.all_options
+                  .filter(
+                    (d) =>
+                      d.tier2 === this.state.tier2 &&
+                      d.tier4 === this.state.tier4
+                  )
+                  .map((d) => d.tier5)
+              ),
+            });
+            this.setState(
+              {
+                field: opt["Final field name in eGRID"],
+                unit: opt.Units,
+                name: opt["Full Name"],
+                dropdown_changing: false,
+              },
+              () => {
+                console.log(this.state);
+              }
+            );
+          });
+        });
+      }
+    );
+  }
+
+  handleChange4(event) {
+    let val = event.target.value;
+    this.setState(
+      { tier4: val, updated_tier: "tier4", dropdown_changing: true },
+      () => {
+        let t2_avail = this.props.options.filter(
+          (d) => d.tier1 === this.state.tier1 && d.tier4 === val
+        );
+        let t2_val =
+          t2_avail.map((d) => d.tier2).indexOf(this.state.tier2) === -1
+            ? _.uniq(t2_avail.map((d) => d.tier2))[0]
+            : this.state.tier2;
+        this.setState({ tier2: t2_val }, () => {
+          let t5_avail = this.props.options.filter(
             (d) =>
               d.tier1 === this.state.tier1 &&
               d.tier2 === this.state.tier2 &&
-              d.tier4 === this.state.tier4 &&
-              d.tier5 === this.state.tier5
-          )[0];
-          this.setState({
-            tier2_available_options: _.uniq(
-              this.state.all_options.map((d) => d.tier2)
-            ),
-            tier4_available_options: _.uniq(
-              this.state.all_options.map((d) => d.tier4)
-            ),
-            tier5_available_options: _.uniq(
-              this.state.all_options.map((d) => d.tier5)
-            ),
-          });
-          this.setState(
-            {
-              field: opt["Final field name in eGRID"],
-              unit: opt.Units,
-              name: opt["Full Name"],
-            },
-            () => {
-              console.log(this.state);
-            }
+              d.tier4 === val
           );
+          let t5_val =
+            t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
+              ? _.uniq(t5_avail.map((d) => d.tier5))[0]
+              : this.state.tier5;
+          this.setState({ tier5: t5_val }, () => {
+            let opt = this.state.all_options.filter(
+              (d) =>
+                d.tier1 === this.state.tier1 &&
+                d.tier2 === this.state.tier2 &&
+                d.tier4 === this.state.tier4 &&
+                d.tier5 === this.state.tier5
+            )[0];
+            this.setState({
+              tier2_available_options: _.uniq(
+                this.state.all_options.map((d) => d.tier2)
+              ),
+              tier4_available_options: _.uniq(
+                this.state.all_options.map((d) => d.tier4)
+              ),
+              tier5_available_options: _.uniq(
+                this.state.all_options
+                  .filter(
+                    (d) =>
+                      d.tier2 === this.state.tier2 &&
+                      d.tier4 === this.state.tier4
+                  )
+                  .map((d) => d.tier5)
+              ),
+            });
+            this.setState(
+              {
+                field: opt["Final field name in eGRID"],
+                unit: opt.Units,
+                name: opt["Full Name"],
+                dropdown_changing: false,
+              },
+              () => {
+                console.log(this.state);
+              }
+            );
+          });
         });
-      });
-    });
+      }
+    );
+  }
+
+  handleChange5(event) {
+    let val = event.target.value;
+    this.setState(
+      { tier5: val, updated_tier: "tier5", dropdown_changing: true },
+      () => {
+        let t2_avail = this.props.options.filter(
+          (d) => d.tier1 === this.state.tier1 && d.tier5 === val
+        );
+        let t2_val =
+          t2_avail.map((d) => d.tier2).indexOf(this.state.tier2) === -1
+            ? _.uniq(t2_avail.map((d) => d.tier2))[0]
+            : this.state.tier2;
+        this.setState({ tier2: t2_val }, () => {
+          let t4_avail = this.props.options.filter(
+            (d) =>
+              d.tier1 === this.state.tier1 &&
+              d.tier2 === this.state.tier2 &&
+              d.tier5 === val
+          );
+          let t4_val =
+            t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
+              ? _.uniq(t4_avail.map((d) => d.tier4))[0]
+              : this.state.tier4;
+          this.setState({ tier4: t4_val }, () => {
+            let opt = this.state.all_options.filter(
+              (d) =>
+                d.tier1 === this.state.tier1 &&
+                d.tier2 === this.state.tier2 &&
+                d.tier4 === this.state.tier4 &&
+                d.tier5 === this.state.tier5
+            )[0];
+            this.setState({
+              tier2_available_options: _.uniq(
+                this.state.all_options.map((d) => d.tier2)
+              ),
+              tier4_available_options: _.uniq(
+                this.state.all_options.map((d) => d.tier4)
+              ),
+              tier5_available_options: _.uniq(
+                this.state.all_options.map((d) => d.tier5)
+              ),
+            });
+            this.setState(
+              {
+                field: opt["Final field name in eGRID"],
+                unit: opt.Units,
+                name: opt["Full Name"],
+                dropdown_changing: false,
+              },
+              () => {
+                console.log(this.state);
+              }
+            );
+          });
+        });
+      }
+    );
   }
 
   render() {
@@ -339,6 +356,7 @@ class Main extends Component {
           }}
         >
           I want to explore
+          <span> </span>
           <SentenceDropdown
             id="tier1"
             change={this.handleChange1}
@@ -404,6 +422,7 @@ class Main extends Component {
           ) : (
             <span></span>
           )}
+          <span> </span>
           <SentenceMiscellaneous
             value={
               this.props.conjunction["tier1_" + this.state.tier1].conjunct3
@@ -437,11 +456,15 @@ class Main extends Component {
             }
           />
           <span> for </span>
-          <SentenceMiscellaneous value={this.props.year} />.
-          <span> </span>
-          <span style={{fontSize: "0.9em", fontWeight: "normal"}} onClick={this.handleOpenDialog}><a href="#">More Info</a></span>
+          <SentenceMiscellaneous value={this.props.year} />.<span> </span>
+          <span
+            style={{ fontSize: "0.9em", fontWeight: "normal" }}
+            onClick={this.handleOpenDialog}
+          >
+            <a href="#">More Info</a>
+          </span>
         </p>
-        {this.props.plant_data.length === 0 ? (
+        {this.props.plant_data.length === 0 || this.state.dropdown_changing ? (
           <div className="loading">
             <Spinner animation="grow" variant="success" />
           </div>

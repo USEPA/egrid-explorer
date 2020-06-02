@@ -540,7 +540,7 @@ class UpdatedVisualization extends Component {
                 borderRadius: "4px",
               }}
               type="button"
-              class="export-vis"
+              className="export-vis"
               value="Export Visualization"
             />
           )}
@@ -551,7 +551,7 @@ class UpdatedVisualization extends Component {
                 borderRadius: "4px",
               }}
               type="button"
-              class="export-vis"
+              className="export-vis"
               value="Export Zoomable Map"
             />
           )}

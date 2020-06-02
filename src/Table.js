@@ -302,8 +302,8 @@ class UpdatedTable extends Component {
                 <td style={{ padding: "0.5em", width: 315 }}>Plant Secondary Fuel</td>
                 <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.SECFUEL}</td>
               </tr>
-              <tr style={{ lineHeight: 1 }}>
-                <td style={{ padding: "0.5em", width: 315 }}>Nameplate Capacity (MW)</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLNAMEPCAP" ? "bold": "normal"}}>
+                <td style={{ padding: "0.5em", width: 315,}}>Nameplate Capacity (MW)</td>
                 <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLNAMEPCAP}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
@@ -370,8 +370,8 @@ class UpdatedTable extends Component {
                 <td style={{ padding: "0.5em", width: 315 }}>CO₂ equivalent Annual Emissions (tons)</td>
                 <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105 }}>{this.props.table_info.PLCO2EQA}</td>
               </tr>
-              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLC2ERTA" ? "bold" : "normal" , borderBottomLeftRadius: "10px"}}>
-                <td style={{ padding: "0.5em", width: 315 }}>CO₂ equivalent Output Emission Rate (lb/MWh)</td>
+              <tr style={{ lineHeight: 1, fontWeight: this.props.field==="PLC2ERTA" ? "bold" : "normal"}}>
+                <td style={{ padding: "0.5em", width: 315, borderBottomLeftRadius: "10px" }}>CO₂ equivalent Output Emission Rate (lb/MWh)</td>
                 <td style={{ paddingRight: "0.5em", textAlign: "right", width: 105, borderBottomRightRadius: "10px"}}>{this.props.table_info.PLC2ERTA}</td>
               </tr>
             </tbody>

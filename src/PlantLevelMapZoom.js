@@ -192,6 +192,7 @@ class PlantLevelMapZoom extends Component {
       .data(features)
       .enter()
       .append("circle")
+      .filter(d=>projection(d.geometry.coordinates)!==null)
       .attr("cx", (d) => projection(d.geometry.coordinates)[0])
       .attr("cy", (d) => projection(d.geometry.coordinates)[1])
       .attr("r", (d) => scale(d.properties[this.props.field]))
@@ -983,16 +984,17 @@ class PlantLevelMapZoom extends Component {
         <div style={{display: "block", width: "100%", height: 925}}>
           <div
             className="map-container"
-            style={{ width: this.props.window_width < 1024 ? "100%" : "63%", height: this.props.window_width < 1024 ? 700 : 840, display: "inline-block" }}
+            style={{ width: this.props.window_width < 1024 ? "100%" : "63%", height: this.props.window_width < 1024 ? 700 : 840, display: "inline-block", verticalAlign: "top",}}
             ref={(node) => (this.container = node)}
           />
           <div
             style={{
               width: this.props.window_width < 1024 ? "100%" : "35%",
               height: 850,
-              marginTop: 5,
+              marginTop: this.props.window_width < 1024 ? 5 : 0,
               marginLeft: 5,
               display: "inline-block",
+              verticalAlign: "top",
             }}
           >
             <UpdatedTable
