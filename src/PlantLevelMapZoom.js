@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import * as d3_composite from "d3-composite-projections";
 
 import UpdatedTable from "./Table";
+import { isCompositeComponent } from "react-dom/test-utils";
 
 mapboxgl.accessToken =
   "pk.eyJ1Ijoia2F0aWVsb25nIiwiYSI6ImNpenpudmY1dzAxZmYzM2tmY2tobDN1MXoifQ._aoE2Zj7vx3dUlZw-gBCrg";
@@ -21,12 +22,11 @@ class PlantLevelMapZoom extends Component {
     };
 
     this.map_layer_load_times = 0;
-    this.field_factor_divided_by = 8;
-    this.max_radius = 72;
-    this.max_radius_before_remove = 24;
+    this.field_factor_divided_by = 12;
+    this.max_radius = 24;
     this.zoom_factor = this.max_radius / this.field_factor_divided_by;
     this.legend_len = 6;
-    this.legend_percentile = [0.1, 0.5, 0.8, 0.95, 0.98, 1];
+    this.legend_percentile = [0, 0.25, 0.5, 0.75, 0.95, 1];
 
     this.filter_text = "Filter by Primary Fuel";
     this.filter_reset_text = "Show All Fuels";
@@ -45,6 +45,14 @@ class PlantLevelMapZoom extends Component {
         table_info[e] = "-";
       });
       this.setState({ table_info: table_info, selected_plant_id: null });
+
+      if (this.hoveredPlantId) {
+        this.map.setFeatureState(
+          { source: "plants", id: this.hoveredPlantId },
+          { hover: false }
+        );
+      }
+      this.hoveredPlantId = null;
     });
   }
 
@@ -81,7 +89,7 @@ class PlantLevelMapZoom extends Component {
     }
   }
 
-  updateLegend(features, factor) {
+  updateLegend(features, layer_features, factor) {
     let field_values, radius_values, scale;
 
     // set up scale
@@ -112,47 +120,45 @@ class PlantLevelMapZoom extends Component {
     d3.select(".map-zoomable-legend").selectAll("g").remove();
     d3.select(".map-zoomable-legend-title").html(this.props.unit);
 
-    let legend_values =
-      field_values.length > 1
-        ? this.legend_percentile.map((d) => d3.quantile(field_values, d))
-        : field_values;
+    // get features from visible layer
+    let r_values = layer_features.map((d) => scale(d.properties[this.props.field])).sort((a, b) => a - b);
 
-    legend_values = legend_values.filter(
-      (d) => scale(d) <= this.max_radius_before_remove
-    );
+    let legend_values = r_values.filter(d=>d>2).length > this.legend_percentile.length ? this.legend_percentile.map((d) =>
+      d3.quantile(r_values.filter(d=>d>2), d)
+    ) : r_values.filter(d=>d>2);
 
     let legend_cells = d3
-      .select(".map-zoomable-legend")
-      .append("g")
-      .attr("width", w)
-      .attr("height", h)
-      .selectAll("g")
-      .data(legend_values)
-      .enter()
-      .append("g")
-      .attr("transform", (d, i) => "translate(" + i * boxlen + "," + 5 + ")");
+    .select(".map-zoomable-legend")
+    .append("g")
+    .attr("width", w)
+    .attr("height", h)
+    .selectAll("g")
+    .data(legend_values)
+    .enter()
+    .append("g")
+    .attr("transform", (d, i) => "translate(" + i * boxlen + "," + 5 + ")");
 
-    legend_cells
-      .append("circle")
-      .style("fill", "#ddd")
-      .style("stroke", "black")
-      .attr("r", (d) => scale(d))
-      .attr("cx", boxlen / 2)
-      .attr("cy", Math.min(boxlen, h * 0.5) / 2);
+  legend_cells
+    .append("circle")
+    .style("fill", "#ddd")
+    .style("stroke", "black")
+    .attr("r", (d) => d)
+    .attr("cx", boxlen / 2)
+    .attr("cy", Math.min(boxlen, h * 0.5) / 2);
 
-    legend_cells
-      .append("text")
-      .attr("x", boxlen / 2)
-      .attr(
-        "y",
-        Math.min(boxlen, h * 0.5) / 2 +
-          scale(legend_values[legend_values.length - 1]) +
-          20
-      )
-      .attr("dx", 0)
-      .attr("dy", 0)
-      .text((d) => this.formatLegend(d))
-      .style("text-anchor", "middle");
+  legend_cells
+    .append("text")
+    .attr("x", boxlen / 2)
+    .attr(
+      "y",
+      Math.min(boxlen, h * 0.5) / 2 +
+        legend_values[legend_values.length - 1] +
+        20
+    )
+    .attr("dx", 0)
+    .attr("dy", 0)
+    .text((d) => this.formatLegend(scale.invert(d)))
+    .style("text-anchor", "middle");
   }
 
   updateStaticMap(features, factor) {
@@ -192,7 +198,7 @@ class PlantLevelMapZoom extends Component {
       .data(features)
       .enter()
       .append("circle")
-      .filter(d=>projection(d.geometry.coordinates)!==null)
+      .filter((d) => projection(d.geometry.coordinates) !== null)
       .attr("cx", (d) => projection(d.geometry.coordinates)[0])
       .attr("cy", (d) => projection(d.geometry.coordinates)[1])
       .attr("r", (d) => scale(d.properties[this.props.field]))
@@ -266,8 +272,26 @@ class PlantLevelMapZoom extends Component {
         }),
     };
 
+    // update map data
     this.map.getSource("plants").setData(data);
     this.setRadius(data.features);
+
+    // update legend
+    let factor = d3.max(data.features.map((d) => d.properties[this.props.field])) / this.field_factor_divided_by;
+
+    // update source data event
+    this.map.on("sourcedata", d=>{
+      this.updateLegend(data.features, this.map.queryRenderedFeatures({
+        layers: [
+          "plants-" +
+            this.state.map_style +
+            "-" +
+            this.map_layer_load_times.toString(),
+        ],
+      }), factor);
+    });
+
+    // update fuel filter
     d3.selectAll(".selected")
       .classed("selected", false)
       .style("background", "none");
@@ -281,59 +305,58 @@ class PlantLevelMapZoom extends Component {
       .on("mouseout", () => {
         d3.select(".reset").style("opacity", 1);
       })
-      .on("click", (d) => {
+      .on("click", () => {
         this.setState({ selected_fuel: [] });
       });
 
     d3.selectAll(".fuels-selection")
       .select(".reset text")
       .text(this.filter_reset_text)
-      .call(
-        this.props.wrap_long_labels,
-        88
-      );
+      .call(this.props.wrap_long_labels, 88);
 
     d3.selectAll(".fuels-selection")
       .selectAll(".fuel")
       .filter((d) => this.state.selected_fuel.indexOf(d) !== -1)
       .classed("selected", true)
       .style("background", "#ddd");
-
-    this.map.on(
-      "zoom",
-      "plants-" +
-        this.state.map_style +
-        "-" +
-        this.map_layer_load_times.toString(),
-      () => {
-        let features = data.features;
-        let factor =
-          d3.max(features.map((d) => d.properties[this.props.field])) /
-          this.field_factor_divided_by;
-        this.updateLegend(features, factor);
-      }
-    );
   }
 
   updateMapWithNOFuelFilter() {
     const data = {
       type: "FeatureCollection",
-      features: this.props.plant_data.features
-        .map((d) => {
-          if (
-            d.properties[this.props.field] >=
-            this.props.plant_outlier[this.props.field]
-          ) {
-            d.properties[this.props.field] = this.props.plant_outlier[
-              this.props.field
-            ];
-          }
-          return d;
-        }),
+      features: this.props.plant_data.features.map((d) => {
+        if (
+          d.properties[this.props.field] >=
+          this.props.plant_outlier[this.props.field]
+        ) {
+          d.properties[this.props.field] = this.props.plant_outlier[
+            this.props.field
+          ];
+        }
+        return d;
+      }),
     };
+
+    // update map data
     this.map.getSource("plants").setData(data);
     this.setRadius(data.features);
 
+    // update legend
+    let factor = d3.max(data.features.map((d) => d.properties[this.props.field])) / this.field_factor_divided_by;
+
+    // update source data event
+    this.map.on("sourcedata", d=>{
+      this.updateLegend(data.features, this.map.queryRenderedFeatures({
+        layers: [
+          "plants-" +
+            this.state.map_style +
+            "-" +
+            this.map_layer_load_times.toString(),
+        ],
+      }), factor);
+    });
+
+    // update fuel filter
     d3.selectAll(".fuels-selection")
       .select(".reset")
       .on("mouseover", null)
@@ -343,28 +366,10 @@ class PlantLevelMapZoom extends Component {
     d3.selectAll(".fuels-selection")
       .select(".reset text")
       .text(this.filter_text)
-      .call(
-        this.props.wrap_long_labels,
-        88
-      );
+      .call(this.props.wrap_long_labels, 88);
     d3.selectAll(".selected")
       .classed("selected", false)
       .style("background", "none");
-
-    this.map.on(
-      "zoom",
-      "plants-" +
-        this.state.map_style +
-        "-" +
-        this.map_layer_load_times.toString(),
-      () => {
-        let features = data.features;
-        let factor =
-          d3.max(features.map((d) => d.properties[this.props.field])) /
-          this.field_factor_divided_by;
-        this.updateLegend(features, factor);
-      }
-    );
   }
 
   setRadius(features) {
@@ -389,7 +394,6 @@ class PlantLevelMapZoom extends Component {
       ]
     );
 
-    this.updateLegend(features, factor);
     this.updateStaticMap(features, factor);
   }
 
@@ -438,7 +442,10 @@ class PlantLevelMapZoom extends Component {
   }
 
   componentDidMount() {
-    let init_zoom = this.props.window_width < 768 ? this.props.min_zoom + 0.1 : this.props.init_zoom,
+    let init_zoom =
+        this.props.window_width < 768
+          ? this.props.min_zoom + 0.1
+          : this.props.init_zoom,
       init_center = this.props.init_center;
 
     // set up map
@@ -577,7 +584,7 @@ class PlantLevelMapZoom extends Component {
     this.map.addControl(new Legend(), "bottom-right");
 
     // init map
-    d3.select('#light-v10').property("checked", "checked").dispatch("click");
+    d3.select("#light-v10").property("checked", "checked").dispatch("click");
 
     // init map on style loaded
     this.map.on("style.load", (d) => {
@@ -595,7 +602,7 @@ class PlantLevelMapZoom extends Component {
           let nbox = this.props.fuels.length + 2;
           let boxlen = w / nbox > 100 ? 100 : Math.max(w / nbox, 90);
           let boxlen_filter = boxlen,
-          boxlen_reset = boxlen * 1.5;
+            boxlen_reset = boxlen * 1.5;
 
           d3.selectAll(".fuels-selection").selectAll("div").remove();
           let fuels = d3
@@ -645,7 +652,7 @@ class PlantLevelMapZoom extends Component {
             .attr("height", h)
             .append("text")
             .attr("x", boxlen_reset / 2)
-            .attr("y", h/3)
+            .attr("y", h / 3)
             .attr("dx", 0)
             .attr("dy", 0)
             .text(this.filter_text)
@@ -702,18 +709,17 @@ class PlantLevelMapZoom extends Component {
           // add initial map data
           const data = {
             type: "FeatureCollection",
-            features: this.props.plant_data.features
-              .map((d) => {
-                if (
-                  d.properties[this.props.field] >=
-                  this.props.plant_outlier[this.props.field]
-                ) {
-                  d.properties[this.props.field] = this.props.plant_outlier[
-                    this.props.field
-                  ];
-                }
-                return d;
-              }),
+            features: this.props.plant_data.features.map((d) => {
+              if (
+                d.properties[this.props.field] >=
+                this.props.plant_outlier[this.props.field]
+              ) {
+                d.properties[this.props.field] = this.props.plant_outlier[
+                  this.props.field
+                ];
+              }
+              return d;
+            }),
           };
 
           // add data source to map
@@ -801,13 +807,6 @@ class PlantLevelMapZoom extends Component {
           // set radius of circles
           this.setRadius(data.features);
 
-          // re-style layer depending on if any fuel is selected
-          if (this.state.selected_fuel.length !== 0) {
-            this.updateMapWithFuelFilter();
-          } else if (this.state.selected_fuel.length === 0) {
-            this.updateMapWithNOFuelFilter();
-          }
-
           // set selected plant
           this.map.setFeatureState(
             { source: "plants", id: this.state.selected_plant_id },
@@ -861,7 +860,9 @@ class PlantLevelMapZoom extends Component {
                     typeof d.features[0].properties[e] === "number" &&
                     e !== "ORISPL"
                       ? this.formatNumber(d.features[0].properties[e])
-                      : (d.features[0].properties[e]===""?"-":d.features[0].properties[e]);
+                      : d.features[0].properties[e] === ""
+                      ? "-"
+                      : d.features[0].properties[e];
                 });
                 this.setState({ table_info: table_info });
               }
@@ -928,7 +929,9 @@ class PlantLevelMapZoom extends Component {
                     typeof d.features[0].properties[e] === "number" &&
                     e !== "ORISPL"
                       ? this.formatNumber(d.features[0].properties[e])
-                      : (d.features[0].properties[e]===""?"-":d.features[0].properties[e]);
+                      : d.features[0].properties[e] === ""
+                      ? "-"
+                      : d.features[0].properties[e];
                 });
 
                 this.setState({
@@ -939,20 +942,12 @@ class PlantLevelMapZoom extends Component {
             }
           );
 
-          this.map.on(
-            "zoom",
-            "plants-" +
-              this.state.map_style +
-              "-" +
-              this.map_layer_load_times.toString(),
-            () => {
-              let features = data.features;
-              let factor =
-                d3.max(features.map((d) => d.properties[this.props.field])) /
-                this.field_factor_divided_by;
-              this.updateLegend(features, factor);
-            }
-          );
+          // set data for map layer, set legend, update zoom event for layer
+          if (this.state.selected_fuel.length !== 0) {
+            this.updateMapWithFuelFilter();
+          } else if (this.state.selected_fuel.length === 0) {
+            this.updateMapWithNOFuelFilter();
+          }
         }
       );
     });
@@ -974,23 +969,30 @@ class PlantLevelMapZoom extends Component {
     );
 
     return (
-      <div id="map-zoomable" style={{ width: "100%", margin: "0 auto" }}>
+      <div
+        id="map-zoomable"
+        style={{ width: "100%", height: "100%", margin: "0 auto" }}
+      >
         {title}
         <div
           className="fuels-selection"
           style={{ width: "100%", height: 100, display: "inline-block" }}
           ref={this.fuels}
         ></div>
-        <div style={{display: "block", width: "100%", height: 925}}>
+        <div style={{ display: "block", width: "100%" }}>
           <div
             className="map-container"
-            style={{ width: this.props.window_width < 1024 ? "100%" : "63%", height: this.props.window_width < 1024 ? 700 : 840, display: "inline-block", verticalAlign: "top",}}
+            style={{
+              width: this.props.window_width < 1024 ? "100%" : "62%",
+              height: this.props.window_width < 1024 ? 640 : 800,
+              display: "inline-block",
+              verticalAlign: "top",
+            }}
             ref={(node) => (this.container = node)}
           />
           <div
             style={{
-              width: this.props.window_width < 1024 ? "100%" : "35%",
-              height: 850,
+              width: this.props.window_width < 1024 ? "100%" : "37%",
               marginTop: this.props.window_width < 1024 ? 5 : 0,
               marginLeft: 5,
               display: "inline-block",

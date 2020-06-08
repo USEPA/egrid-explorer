@@ -11,6 +11,7 @@ import OtherLevelBarchart from "./OtherLevelBarchart";
 import PlantLevelMapZoom from "./PlantLevelMapZoom";
 import PlantLevelMapStatic from "./PlantLevelMapStatic";
 import ResourceMixChart from "./ResourceMixChart";
+import Dialog from "./Dialog.js";
 
 class Visualization extends Component {
   constructor(props) {
@@ -462,7 +463,7 @@ class Visualization extends Component {
                       ? this.init_window_width*0.8
                       : 350
                   }
-                  height={600}
+                  height={580}
                   margin_top={40}
                   margin_bottom={0}
                   margin_right={70}
@@ -492,8 +493,8 @@ class Visualization extends Component {
                 window_width={this.state.window_width}
                 window_height={this.state.window_height}
                 fuels={this.state.fuels}
-                init_center={[-97.922211, 42.381266]}
-                init_zoom={3}
+                init_center={[-96.922211, 38.381266]}
+                init_zoom={3.3}
                 min_zoom={2}
                 max_zoom={15}
                 circle_opacity={0.8}
@@ -520,54 +521,37 @@ class Visualization extends Component {
 }
 
 class UpdatedVisualization extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      window_width: window.innerWidth,
+      show_dialog: false
+    };
+
+    this.handleOpenDialog = this.handleOpenDialog.bind(this);
+    this.glossary_text = "";
+    this.glossary_title = "Glossary";
+  }
+
+  handleCloseDialog() {
+    this.setState({ show_dialog: false });
+  }
+
+  handleOpenDialog() {
+    this.setState({ show_dialog: true });
+  }
+
+  componentDidMount() {
+    window.addEventListener("resize", () => {
+      this.setState({
+        window_width: window.innerWidth,
+      });
+    });
+  }
+
   render() {
     return (
       <div>
-        <div style={{ marginBottom: "1rem" }} className="no-export">
-          <input
-            style={{
-              padding: "5px",
-              borderRadius: "4px",
-            }}
-            type="button"
-            id="export-table"
-            value="Export Table"
-          />{" "}
-          {lookup[this.props.tier5] !== "Plant" && (
-            <input
-              style={{
-                padding: "5px",
-                borderRadius: "4px",
-              }}
-              type="button"
-              className="export-vis"
-              value="Export Visualization"
-            />
-          )}
-          {lookup[this.props.tier5] === "Plant" && (
-            <input
-              style={{
-                padding: "5px",
-                borderRadius: "4px",
-              }}
-              type="button"
-              className="export-vis"
-              value="Export Zoomable Map"
-            />
-          )}
-          {lookup[this.props.tier5] === "Plant" && " "}
-          {lookup[this.props.tier5] === "Plant" && (
-            <input
-              style={{
-                padding: "5px",
-                borderRadius: "4px",
-              }}
-              type="button"
-              id="export-static"
-              value="Export Static Map"
-            />
-          )}
-        </div>
         <Visualization
           style={{ textAlign: "center" }}
           options={this.props.options}
@@ -595,6 +579,70 @@ class UpdatedVisualization extends Component {
           nerc_layer={this.props.nerc_layer}
           ggl_layer={this.props.ggl_layer}
         />
+        <div style={{ marginTop: "1rem", marginLeft: "0.5rem", textAlign: this.state.window_width < 1024? "center":"left"}} className="no-export">
+          <input
+            style={{
+              margin: "5px 0",
+              padding: "5px",
+              borderRadius: "4px",
+            }}
+            type="button"
+            id="export-table"
+            value="Export Table"
+          />{" "}
+          {lookup[this.props.tier5] !== "Plant" && (
+            <input
+              style={{
+                margin: "5px 0",
+                padding: "5px",
+                borderRadius: "4px",
+              }}
+              type="button"
+              className="export-vis"
+              value="Export Visualization"
+            />
+          )}
+          {lookup[this.props.tier5] === "Plant" && (
+            <input
+              style={{
+                margin: "5px 0",
+                padding: "5px",
+                borderRadius: "4px",
+              }}
+              type="button"
+              className="export-vis"
+              value="Export Zoomable Map"
+            />
+          )}
+          {lookup[this.props.tier5] === "Plant" && " "}
+          {lookup[this.props.tier5] === "Plant" && (
+            <input
+              style={{
+                margin: "5px 0",
+                padding: "5px",
+                borderRadius: "4px",
+              }}
+              type="button"
+              id="export-static"
+              value="Export Static Map"
+            />
+          )}{" "}<input
+            style={{
+              margin: "5px 0",
+              padding: "5px",
+              borderRadius: "4px",
+            }}
+            type="button"
+            value="Glossary"
+            onClick={this.handleOpenDialog}
+          />
+        </div>
+        <Dialog
+              show={this.state.show_dialog}
+              text={this.glossary_text}
+              title={this.glossary_title}
+              onHide={() => this.setState({ show_dialog: false })}
+            />
       </div>
     );
   }

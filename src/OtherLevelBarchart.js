@@ -381,8 +381,8 @@ class OtherLevelBarchart extends Component {
 
   render() {
     return (
-      <div style={{width: this.state.width, height: this.state.height}}>
-        <div className="sort-buttons no-export" style={{marginBottom: "5px"}}>
+      <div style={{width: this.state.width, height: "100%"}}>
+        <div className="sort-buttons no-export" style={{height: 40, marginBottom: "5px"}}>
           <input
             style={{
               width: "50%",
@@ -418,6 +418,7 @@ class OtherLevelBarchart extends Component {
             style={{
               fontSize: this.state.width/2<100?"0.8em":"1em",
               fontWeight: "bold",
+              height: 27,
               fill: "#000",
               className: "title",
               textAnchor: "middle",

@@ -12,17 +12,12 @@ function Dialog(props) {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Use Instruction
+          {props.title}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <p>
-          Use the drop down arrows to query the data you would like to view. You
-          can change the main data displayed (emission rates, generation, etc.),
-          the pollutant type (CO2, NOx, etc.), the fuel type (coal, gas, etc.),
-          and the geographic representation (state, eGRID subregion, plant,
-          etc.), where applicable. Note that non-baseload emission rates and
-          non-baseload generation are not available at the plant level.
+          {props.text}
         </p>
       </Modal.Body>
       <Modal.Footer>
