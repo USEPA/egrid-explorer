@@ -6,7 +6,6 @@ import lookup from "./assets/data/json/eGRID lookup.json";
 
 import { SentenceDropdown, SentenceMiscellaneous } from "./Sentence";
 import UpdatedVisualization from "./Visualization";
-import Dialog from "./Dialog.js";
 
 class Main extends Component {
   constructor(props) {
@@ -14,7 +13,6 @@ class Main extends Component {
     const init_options = this.props.options[0];
     this.state = {
       dropdown_changing: false,
-      show_dialog: false,
       tier1: init_options.tier1,
       tier2: init_options.tier2,
       tier4: init_options.tier4,
@@ -51,24 +49,10 @@ class Main extends Component {
       ),
     };
 
-    this.more_info_text = "Use the drop down arrows to query the data you would like to view. You can change the main data displayed (emission rates, generation, etc.), the pollutant type (CO2, NOx, etc.), the fuel type (coal, gas, etc.), and the geographic representation (state, eGRID subregion, plant, etc.), where applicable. Note that non-baseload emission rates and non-baseload generation are not available at the plant level.";
-    this.more_info_title = "Use Instruction";
-
     this.handleChange1 = this.handleChange1.bind(this);
     this.handleChange2 = this.handleChange2.bind(this);
     this.handleChange4 = this.handleChange4.bind(this);
     this.handleChange5 = this.handleChange5.bind(this);
-
-    this.handleCloseDialog = this.handleCloseDialog.bind(this);
-    this.handleOpenDialog = this.handleOpenDialog.bind(this);
-  }
-
-  handleCloseDialog() {
-    this.setState({ show_dialog: false });
-  }
-
-  handleOpenDialog() {
-    this.setState({ show_dialog: true });
   }
 
   handleChange1(event) {
@@ -460,18 +444,6 @@ class Main extends Component {
           />
           <span> for </span>
           <SentenceMiscellaneous value={this.props.year} />.<span> </span>
-          <input
-            style={{
-              fontSize: "0.9em", 
-              fontWeight: "normal",
-              margin: "0",
-              padding: "0 5px",
-              borderRadius: "4px",
-            }}
-            type="button"
-            value="More Info"
-            onClick={this.handleOpenDialog}
-          />
         </p>
         {this.props.plant_data.length === 0 || this.state.dropdown_changing ? (
           <div className="loading">
@@ -510,13 +482,6 @@ class Main extends Component {
               nerc_layer={this.props.nerc_layer}
               ggl_layer={this.props.ggl_layer}
             ></UpdatedVisualization>
-            <Dialog
-              is_table="false"
-              title={this.more_info_title}
-              text={this.more_info_text}
-              show={this.state.show_dialog}
-              onHide={() => this.setState({ show_dialog: false })}
-            />
           </div>
         )}
       </div>

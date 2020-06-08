@@ -22,9 +22,10 @@ import ggl from "./assets/data/csv/GGL.csv";
 import us from "./assets/data/csv/US.csv";
 
 import Main from "./Main";
+import Dialog from "./Dialog.js";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 
 class App extends Component {
@@ -41,6 +42,10 @@ class App extends Component {
       ggl_data: [],
       us_data: [],
     };
+
+    this.more_info_text =
+      "Use the drop down arrows to query the data you would like to view. You can change the main data displayed (emission rates, generation, etc.), the pollutant type (CO2, NOx, etc.), the fuel type (coal, gas, etc.), and the geographic representation (state, eGRID subregion, plant, etc.), where applicable. Note that non-baseload emission rates and non-baseload generation are not available at the plant level.";
+    this.more_info_title = "Use Instruction";
 
     this.year = 2018;
     this.conjunction = {
@@ -253,6 +258,9 @@ class App extends Component {
     this.state_layer.features = this.state_layer.features.filter(
       (d) => d.id !== 72 && d.id !== 78
     ); // no data for state 72 and state 78
+
+    this.handleCloseDialog = this.handleCloseDialog.bind(this);
+    this.handleOpenDialog = this.handleOpenDialog.bind(this);
   }
 
   componentDidMount() {
@@ -271,7 +279,17 @@ class App extends Component {
       d3.csv(ggl),
       d3.csv(us),
     ]).then(
-      ([options, glossary, subrgn, state, state_fullname, nerc, plant, ggl, us]) => {
+      ([
+        options,
+        glossary,
+        subrgn,
+        state,
+        state_fullname,
+        nerc,
+        plant,
+        ggl,
+        us,
+      ]) => {
         // process data
         state.map((d) => {
           d.label = d.PSTATABB;
@@ -282,7 +300,7 @@ class App extends Component {
           d.name = d.PSTATABB;
 
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e] !== "") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
@@ -298,7 +316,7 @@ class App extends Component {
           d.label = d.PNAME;
           d.name = d.PNAME;
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e] !== "") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
@@ -309,14 +327,14 @@ class App extends Component {
           d.label = d.SUBRGN;
           d.name = d.SUBRGN;
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e] !== "") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
           d.id = i;
         });
-        this.subrgn_layer.features.map(d=>{
-          d.id = subrgn.filter(e=>e.name===d.name).map(e=>e.id)[0];
+        this.subrgn_layer.features.map((d) => {
+          d.id = subrgn.filter((e) => e.name === d.name).map((e) => e.id)[0];
         });
 
         nerc = nerc.filter((d) => d.NERC !== "NA");
@@ -324,14 +342,14 @@ class App extends Component {
           d.label = d.NERC;
           d.name = d.NERC;
           Object.keys(d).forEach(function (e) {
-            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e] !== "") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
           d.id = i;
         });
-        this.nerc_layer.features.map(d=>{
-          d.id = nerc.filter(e=>e.name===d.name).map(e=>e.id)[0];
+        this.nerc_layer.features.map((d) => {
+          d.id = nerc.filter((e) => e.name === d.name).map((e) => e.id)[0];
         });
 
         ggl.map((d, i) => {
@@ -341,13 +359,13 @@ class App extends Component {
           d.unit = "%";
           d.value = +d.percentage;
         });
-        this.ggl_layer.features.map(d=>{
-          d.id = ggl.filter(e=>e.name===d.name).map(e=>e.id)[0];
+        this.ggl_layer.features.map((d) => {
+          d.id = ggl.filter((e) => e.name === d.name).map((e) => e.id)[0];
         });
 
         us.map((d) => {
           Object.keys(d).forEach((e) => {
-            if (!isNaN(+d[e].replace(/,/g, "")) && d[e]!=="") {
+            if (!isNaN(+d[e].replace(/,/g, "")) && d[e] !== "") {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
@@ -376,6 +394,14 @@ class App extends Component {
     );
   }
 
+  handleCloseDialog() {
+    this.setState({ show_modal: false });
+  }
+
+  handleOpenDialog() {
+    this.setState({ show_modal: true });
+  }
+
   render() {
     return (
       <div>
@@ -389,7 +415,22 @@ class App extends Component {
           <div className="app">
             <header style={{ minHeight: 100 }} className="no-export">
               <h2>Emissions and Generation Resource Integrated Database</h2>
-              <img id="logo" src={logo} alt="eGrid Logo"></img>
+              <div style={{display:"inline-block",float:"right",width:"22%"}}>
+                <input
+                  style={{
+                    fontSize: "0.9em",
+                    fontWeight: "normal",
+                    margin: "5px 0",
+                    padding: "0 5px",
+                    borderRadius: "4px",
+                    verticalAlign: "bottom"
+                  }}
+                  type="button"
+                  value="More Info"
+                  onClick={this.handleOpenDialog}
+                />
+                <img id="logo" src={logo} alt="eGrid Logo"></img>
+              </div>
             </header>
             <Main
               year={this.year}
@@ -419,6 +460,13 @@ class App extends Component {
             <Spinner animation="grow" variant="success" />
           </div>
         )}
+        <Dialog
+          is_table="false"
+          title={this.more_info_title}
+          text={this.more_info_text}
+          show={this.state.show_modal}
+          onHide={() => this.setState({ show_modal: false })}
+        />
       </div>
     );
   }

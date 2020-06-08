@@ -15,7 +15,7 @@
 .app h2 {
   display: inline-block;
   font-family: Merriweather, Georgia, Cambria, "Times New Roman", Times, serif;
-  max-width: 85%;
+  max-width: 77%;
   vertical-align: middle;
   margin: 0;
 }
@@ -28,8 +28,8 @@
 }
 
 .app #logo {
-  width: 14%;
-  float: right;
+  width: 60%;
+  vertical-align: "bottom";
 }
 
 .app table, .app th, .app td, .modal-body table, .modal-body th, .modal-body td {
