@@ -337,7 +337,6 @@ class Main extends Component {
           style={{
             fontSize: "1em",
             fontWeight: "bold",
-            marginBottom: "0.5rem",
             padding: ".8rem 0",
             borderBottom: "1px solid rgba(0, 0, 0, 0.5)",
           }}

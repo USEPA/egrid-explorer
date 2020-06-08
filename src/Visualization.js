@@ -508,7 +508,7 @@ class Visualization extends Component {
           );
       }
     }
-    return <div style={{ textAlign: "center" }}>{vis}</div>;
+    return <div style={{ textAlign: "center"}}>{vis}</div>;
   }
 }
 
@@ -546,7 +546,7 @@ class UpdatedVisualization extends Component {
     return (
       <div>
         <Visualization
-          style={{ textAlign: "center" }}
+          style={{ textAlign: "center"}}
           options={this.props.options}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}
@@ -574,7 +574,7 @@ class UpdatedVisualization extends Component {
         />
         <div
           style={{
-            marginTop: "1rem",
+            marginTop: "0.5rem",
             marginLeft: "0.5rem",
             textAlign: this.state.window_width < 1024 ? "center" : "left",
           }}
