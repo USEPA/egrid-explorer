@@ -196,10 +196,10 @@ class Visualization extends Component {
       },
       () => {
         // update export
-        d3.selectAll(".export-vis").on("click", ()=>{
+        d3.selectAll(".export-vis").on("click", () => {
           window.print();
         });
-        d3.selectAll("#export-static").on("click", ()=>{
+        d3.selectAll("#export-static").on("click", () => {
           let zoomable_status = d3.select("#map-zoomable").style("display");
           let static_status = d3.select("#map-static").style("display");
           d3.select("#map-zoomable").style("display", "none");
@@ -354,15 +354,11 @@ class Visualization extends Component {
           window_width={this.state.window_width}
           window_height={this.state.window_height}
           width={
-            this.init_window_width < 768 ? this.init_window_width*0.8 : 700
+            this.init_window_width < 768 ? this.init_window_width * 0.8 : 700
           }
           ipad_width={768}
           height={600}
-          scale={
-            this.init_window_width  < 768
-              ? this.init_window_width
-              : 875
-          }
+          scale={this.init_window_width < 768 ? this.init_window_width : 875}
           layer={this.props.ggl_layer}
           us_data={this.state.us_data}
           background_layer={this.props.state_layer}
@@ -378,16 +374,14 @@ class Visualization extends Component {
           data={this.state.resource_mix_data}
           window_width={this.state.window_width}
           window_height={this.state.window_height}
-          width={
-            this.init_window_width > 1280? 1280: this.init_window_width
-          }
+          width={this.init_window_width > 1280 ? 1280 : this.init_window_width}
           ipad_width={768}
           table_width={385}
           barchart_height={600}
           filter_height={100}
           margin_top={20}
           margin_right={10}
-          margin_left={region==="state"?155:60}
+          margin_left={region === "state" ? 155 : 60}
           layer={this.state.layer}
           us_data={this.state.us_data}
           unit={this.props.unit}
@@ -419,15 +413,13 @@ class Visualization extends Component {
                   window_height={this.state.window_height}
                   width={
                     this.init_window_width < 768
-                      ? this.init_window_width*0.8
+                      ? this.init_window_width * 0.8
                       : 600
                   }
                   ipad_width={768}
                   height={600}
                   scale={
-                    this.init_window_width < 768
-                      ? this.init_window_width
-                      : 750
+                    this.init_window_width < 768 ? this.init_window_width : 750
                   }
                   layer={this.state.layer}
                   us_data={this.state.us_data}
@@ -441,7 +433,7 @@ class Visualization extends Component {
                   window_height={this.state.window_height}
                   width={
                     this.init_window_width < 768
-                      ? this.init_window_width*0.8
+                      ? this.init_window_width * 0.8
                       : 600
                   }
                   ipad_width={768}
@@ -460,14 +452,14 @@ class Visualization extends Component {
                   window_height={this.state.window_height}
                   width={
                     this.init_window_width < 768
-                      ? this.init_window_width*0.8
+                      ? this.init_window_width * 0.8
                       : 350
                   }
                   height={580}
                   margin_top={40}
                   margin_bottom={0}
                   margin_right={70}
-                  margin_left={region==="state"?155:60}
+                  margin_left={region === "state" ? 155 : 60}
                   field={this.state.field}
                   us_data={this.state.us_data}
                   layer_type={region}
@@ -521,15 +513,16 @@ class Visualization extends Component {
 }
 
 class UpdatedVisualization extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
       window_width: window.innerWidth,
-      show_dialog: false
+      show_dialog: false,
     };
 
     this.handleOpenDialog = this.handleOpenDialog.bind(this);
-    this.glossary_text = "";
+    this.glossary_table_header = Object.keys(this.props.glossary[0]);
+    this.glossary_table_rows = this.props.glossary.map(d=>Object.values(d));
     this.glossary_title = "Glossary";
   }
 
@@ -579,7 +572,14 @@ class UpdatedVisualization extends Component {
           nerc_layer={this.props.nerc_layer}
           ggl_layer={this.props.ggl_layer}
         />
-        <div style={{ marginTop: "1rem", marginLeft: "0.5rem", textAlign: this.state.window_width < 1024? "center":"left"}} className="no-export">
+        <div
+          style={{
+            marginTop: "1rem",
+            marginLeft: "0.5rem",
+            textAlign: this.state.window_width < 1024 ? "center" : "left",
+          }}
+          className="no-export"
+        >
           <input
             style={{
               margin: "5px 0",
@@ -626,7 +626,8 @@ class UpdatedVisualization extends Component {
               id="export-static"
               value="Export Static Map"
             />
-          )}{" "}<input
+          )}{" "}
+          <input
             style={{
               margin: "5px 0",
               padding: "5px",
@@ -638,11 +639,13 @@ class UpdatedVisualization extends Component {
           />
         </div>
         <Dialog
-              show={this.state.show_dialog}
-              text={this.glossary_text}
-              title={this.glossary_title}
-              onHide={() => this.setState({ show_dialog: false })}
-            />
+          is_table="true"
+          title={this.glossary_title}
+          table_header={this.glossary_table_header}
+          table_rows={this.glossary_table_rows}
+          show={this.state.show_dialog}
+          onHide={() => this.setState({ show_dialog: false })}
+        />
       </div>
     );
   }

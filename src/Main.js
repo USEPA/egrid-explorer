@@ -481,6 +481,7 @@ class Main extends Component {
           <div>
             <UpdatedVisualization
               options={this.props.options}
+              glossary={this.props.glossary}
               style={{
                 padding: ".8rem 0",
                 borderBottom: "1px solid rgba(0, 0, 0, 0.5)",
@@ -510,9 +511,10 @@ class Main extends Component {
               ggl_layer={this.props.ggl_layer}
             ></UpdatedVisualization>
             <Dialog
-              show={this.state.show_dialog}
+              is_table="false"
               title={this.more_info_title}
               text={this.more_info_text}
+              show={this.state.show_dialog}
               onHide={() => this.setState({ show_dialog: false })}
             />
           </div>

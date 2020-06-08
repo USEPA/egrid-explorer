@@ -11,6 +11,8 @@ import ggl_topo from "./assets/data/json/GGL.json";
 import us_topo from "./assets/data/json/US.json";
 
 import data from "./assets/data/csv/eGRID all-level sentence structure.csv";
+import glossary from "./assets/data/csv/eGRID glossary.csv";
+
 import subrgn from "./assets/data/csv/subregion.csv";
 import nerc from "./assets/data/csv/NERC.csv";
 import state from "./assets/data/csv/state.csv";
@@ -31,6 +33,7 @@ class App extends Component {
     this.state = {
       show_modal: false,
       options: [],
+      glossary: [],
       plant_data: [],
       state_data: [],
       subrgn_data: [],
@@ -259,6 +262,7 @@ class App extends Component {
   prepData() {
     Promise.all([
       d3.csv(data),
+      d3.csv(glossary),
       d3.csv(subrgn),
       d3.csv(state),
       d3.csv(statefullname),
@@ -267,7 +271,7 @@ class App extends Component {
       d3.csv(ggl),
       d3.csv(us),
     ]).then(
-      ([options, subrgn, state, state_fullname, nerc, plant, ggl, us]) => {
+      ([options, glossary, subrgn, state, state_fullname, nerc, plant, ggl, us]) => {
         // process data
         state.map((d) => {
           d.label = d.PSTATABB;
@@ -360,6 +364,7 @@ class App extends Component {
 
         this.setState({
           options: options.filter((e) => e.tier5 !== "52"),
+          glossary: glossary,
           state_data: state,
           plant_data: plant,
           subrgn_data: subrgn,
@@ -396,6 +401,7 @@ class App extends Component {
               fuel_color_lookup={this.fuel_color_lookup}
               wrap_long_labels={this.wrap_long_labels}
               options={this.state.options}
+              glossary={this.state.glossary}
               plant_data={this.state.plant_data}
               state_data={this.state.state_data}
               subrgn_data={this.state.subrgn_data}
