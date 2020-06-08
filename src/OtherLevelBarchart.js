@@ -130,7 +130,7 @@ class OtherLevelBarchart extends Component {
       .attr("dx", 5)
       .attr("dy", barYScale.bandwidth() / 2 + 5)
       .text((d) => this.formatLabel(d.value))
-      .style("font-size", "0.8em")
+      .style("font-size", this.props.layer_type==="state"?"0.65em":(this.props.layer_type==="NERC region"?"1em":"0.8em"))
       .style("fill", "#000")
       .style("stroke", "none");
 

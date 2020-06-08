@@ -4,7 +4,6 @@ import * as d3 from "d3";
 import * as d3_composite from "d3-composite-projections";
 
 import UpdatedTable from "./Table";
-import { isCompositeComponent } from "react-dom/test-utils";
 
 mapboxgl.accessToken =
   "pk.eyJ1Ijoia2F0aWVsb25nIiwiYSI6ImNpenpudmY1dzAxZmYzM2tmY2tobDN1MXoifQ._aoE2Zj7vx3dUlZw-gBCrg";
