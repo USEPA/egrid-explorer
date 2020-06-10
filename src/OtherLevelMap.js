@@ -46,50 +46,55 @@ class OtherLevelMap extends Component {
     const map_fill = this.props.map_fill;
 
     // add centroid to layer
-    layer.features = layer.features
-      .map((d) => {
-        if (this.props.data.filter((e) => e.name === d.name)[0]) {
-          let prop = this.props.data.filter((e) => e.name === d.name)[0];
-          prop.centroid = path.centroid(d);
-          
-          // special cases of centroid to edit
-          switch (d.name) {
-            case "AKMS":
-              prop.centroid[1] = prop.centroid[1] - 25;
-              break;
-            case "NYLI":
-              prop.centroid[0] = prop.centroid[0] + 20;
-              break;
-            case "NYCW":
-              prop.centroid[0] = prop.centroid[0] - 10;
-              break;
-            case "DELAWARE":
-              prop.centroid[0] = prop.centroid[0] + 15;
-              break;
-            case "RHODE ISLAND":
-              prop.centroid[0] = prop.centroid[0] + 10;
-              break;
-            case "CONNECTICUT":
-              prop.centroid[1] = prop.centroid[1] + 5;
-              break;
-            case "MASSACHUSETTS":
-              prop.centroid[0] = prop.centroid[0] + 5;
-              prop.centroid[1] = prop.centroid[1] - 15;
-              break;
-            case "NEW HAMPSHIRE":
-              prop.centroid[0] = prop.centroid[0] + 10;
-              prop.centroid[1] = prop.centroid[1] - 10;
-              break;
-            default:
-              break;
-          }
+    layer.features = layer.features.map((d) => {
+      if (this.props.data.filter((e) => e.name === d.name)[0]) {
+        let prop = this.props.data.filter((e) => e.name === d.name)[0];
+        prop.centroid = path.centroid(d);
 
-          d.properties = prop;
-        } else {
-          d.properties = {id: null, name: null, label: null, value: null, centroid:[null, null]};
+        // special cases of centroid to edit
+        switch (d.name) {
+          case "AKMS":
+            prop.centroid[1] = prop.centroid[1] - 25;
+            break;
+          case "NYLI":
+            prop.centroid[0] = prop.centroid[0] + 20;
+            break;
+          case "NYCW":
+            prop.centroid[0] = prop.centroid[0] - 10;
+            break;
+          case "DELAWARE":
+            prop.centroid[0] = prop.centroid[0] + 15;
+            break;
+          case "RHODE ISLAND":
+            prop.centroid[0] = prop.centroid[0] + 10;
+            break;
+          case "CONNECTICUT":
+            prop.centroid[1] = prop.centroid[1] + 5;
+            break;
+          case "MASSACHUSETTS":
+            prop.centroid[0] = prop.centroid[0] + 5;
+            prop.centroid[1] = prop.centroid[1] - 15;
+            break;
+          case "NEW HAMPSHIRE":
+            prop.centroid[0] = prop.centroid[0] + 10;
+            prop.centroid[1] = prop.centroid[1] - 10;
+            break;
+          default:
+            break;
         }
-        return d;
-      });
+
+        d.properties = prop;
+      } else {
+        d.properties = {
+          id: null,
+          name: null,
+          label: null,
+          value: null,
+          centroid: [null, null],
+        };
+      }
+      return d;
+    });
 
     // add fill scale
     let fill_scale = d3.scaleThreshold().range(map_fill);
@@ -104,14 +109,12 @@ class OtherLevelMap extends Component {
 
     // add layers
     d3.select(this.map.current)
-    .on("mouseenter", ()=>{
-      d3.select(this.tooltip.current)
-      .style("display", null);
-    })
-    .on("mouseleave", ()=>{
-      d3.select(this.tooltip.current)
-      .style("display", "none");
-    });
+      .on("mouseenter", () => {
+        d3.select(this.tooltip.current).style("display", null);
+      })
+      .on("mouseleave", () => {
+        d3.select(this.tooltip.current).style("display", "none");
+      });
 
     d3.select(this.paths.current).selectAll("path").remove();
     d3.select(this.paths.current)
@@ -128,40 +131,77 @@ class OtherLevelMap extends Component {
       )
       .style("stroke", "#000")
       .style("stroke-width", 0.5)
-      .on('mouseover', d=>{
+      .on("mouseover", (d) => {
         d3.select(this.tooltip.current)
-        .transition()
-        .duration(100)
-        .style("opacity", 1);
+          .transition()
+          .duration(100)
+          .style("opacity", 1);
       })
-      .on('mousemove', d=>{
-        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + this.formatNumber(d.properties.value) + (d.properties.unit==="%"?"%":(" " + d.properties.unit)) + "</b>.</span>";
+      .on("mousemove", (d) => {
+        let html =
+          "<span>The <b>" +
+          this.props.title.slice(0, 1).toLowerCase() +
+          this.props.title.slice(1).split(" (")[0] +
+          "</b><br>for <b>" +
+          d.properties.name +
+          "</b><br>is <b>" +
+          this.formatNumber(d.properties.value) +
+          (d.properties.unit === "%" ? "%" : " " + d.properties.unit) +
+          "</b>.</span>";
         d3.select(this.tooltip.current)
-        .html(html)
-        .style("position", "absolute")
-        .style("top", d3.event.pageY + 15 + "px")
-        .style("left", d3.event.pageX + 15 + "px")
-        .style("opacity", 1);
+          .html(html)
+          .style("position", "absolute")
+          .style("top", d3.event.pageY + 15 + "px")
+          .style("left", d3.event.pageX + 15 + "px")
+          .style("opacity", 1);
 
-        d3.selectAll('.mouseover_target rect').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
-        d3.selectAll('.mouseover_target text').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
-        d3.selectAll('path.mouseover_target').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+        d3.selectAll(".mouseover_target rect")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
+        d3.selectAll(".mouseover_target text")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
+        d3.selectAll("path.mouseover_target")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
 
-        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true).style("stroke", "#000").style("stroke-width", 1).style("opacity", 1);
-        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true).style("font-weight", "bold").style("opacity", 1);
-        d3.selectAll('path.region_'+d.properties.id).classed('selected', true).style("stroke-width", 1).style("opacity", 1);
+        d3.selectAll(".region_" + d.properties.id + " rect")
+          .classed("selected", true)
+          .style("stroke", "#000")
+          .style("stroke-width", 1)
+          .style("opacity", 1);
+        d3.selectAll(".region_" + d.properties.id + " text")
+          .classed("selected", true)
+          .style("font-weight", "bold")
+          .style("opacity", 1);
+        d3.selectAll("path.region_" + d.properties.id)
+          .classed("selected", true)
+          .style("stroke-width", 1)
+          .style("opacity", 1);
       })
-      .on('mouseout', d=>{
+      .on("mouseout", (d) => {
         d3.select(this.tooltip.current)
-        .transition()
-        .duration(500)
-        .style("opacity", 0);
+          .transition()
+          .duration(500)
+          .style("opacity", 0);
 
-        d3.selectAll('.deemphasized').classed('deemphasized', false).style("opacity", 1).style("transition", "opacity 0.5s");
+        d3.selectAll(".deemphasized")
+          .classed("deemphasized", false)
+          .style("opacity", 1)
+          .style("transition", "opacity 0.5s");
 
-        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true).style("stroke", "none");
-        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true).style("font-weight", "normal");
-        d3.selectAll('path.region_'+d.properties.id).classed('selected', true).style("stroke-width", 0.5);
+        d3.selectAll(".region_" + d.properties.id + " rect")
+          .classed("selected", true)
+          .style("stroke", "none");
+        d3.selectAll(".region_" + d.properties.id + " text")
+          .classed("selected", true)
+          .style("font-weight", "normal");
+        d3.selectAll("path.region_" + d.properties.id)
+          .classed("selected", true)
+          .style("stroke-width", 0.5);
       });
 
     // add labels
@@ -198,41 +238,78 @@ class OtherLevelMap extends Component {
         this.props.layer_type !== "grid gross loss rates"
           ? d.properties.label
           : d.properties.label + ": " + d.properties.value + "%"
-      ).on('mouseover', d=>{
+      )
+      .on("mouseover", (d) => {
         d3.select(this.tooltip.current)
-        .transition()
-        .duration(100)
-        .style("opacity", 1);
+          .transition()
+          .duration(100)
+          .style("opacity", 1);
       })
-      .on('mousemove', d=>{
-        let html = "<span>The <b>"+ this.props.title.slice(0,1).toLowerCase() + this.props.title.slice(1).split(' (')[0] + "</b><br>for <b>" + d.properties.name + "</b><br>is <b>" + this.formatNumber(d.properties.value) + (d.properties.unit==="%"?"%":(" " + d.properties.unit)) + "</b>.</span>";
+      .on("mousemove", (d) => {
+        let html =
+          "<span>The <b>" +
+          this.props.title.slice(0, 1).toLowerCase() +
+          this.props.title.slice(1).split(" (")[0] +
+          "</b><br>for <b>" +
+          d.properties.name +
+          "</b><br>is <b>" +
+          this.formatNumber(d.properties.value) +
+          (d.properties.unit === "%" ? "%" : " " + d.properties.unit) +
+          "</b>.</span>";
         d3.select(this.tooltip.current)
-        .html(html)
-        .style("position", "absolute")
-        .style("top", d3.event.pageY + 15 +  "px")
-        .style("left", d3.event.pageX + 15 + "px")
-        .style("opacity", 1);
+          .html(html)
+          .style("position", "absolute")
+          .style("top", d3.event.pageY + 15 + "px")
+          .style("left", d3.event.pageX + 15 + "px")
+          .style("opacity", 1);
 
-        d3.selectAll('.mouseover_target rect').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
-        d3.selectAll('.mouseover_target text').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
-        d3.selectAll('path.mouseover_target').classed('deemphasized', true).style("opacity", 0.5).style("transition", "opacity 0.5s");
+        d3.selectAll(".mouseover_target rect")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
+        d3.selectAll(".mouseover_target text")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
+        d3.selectAll("path.mouseover_target")
+          .classed("deemphasized", true)
+          .style("opacity", 0.5)
+          .style("transition", "opacity 0.5s");
 
-        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', true).style("stroke", "#000").style("stroke-width", 1).style("opacity", 1);
-        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', true).style("font-weight", "bold").style("opacity", 1);
-        d3.selectAll('path.region_'+d.properties.id).classed('selected', true).style("stroke-width", 1).style("opacity", 1);
-
+        d3.selectAll(".region_" + d.properties.id + " rect")
+          .classed("selected", true)
+          .style("stroke", "#000")
+          .style("stroke-width", 1)
+          .style("opacity", 1);
+        d3.selectAll(".region_" + d.properties.id + " text")
+          .classed("selected", true)
+          .style("font-weight", "bold")
+          .style("opacity", 1);
+        d3.selectAll("path.region_" + d.properties.id)
+          .classed("selected", true)
+          .style("stroke-width", 1)
+          .style("opacity", 1);
       })
-      .on('mouseout', d=>{
+      .on("mouseout", (d) => {
         d3.select(this.tooltip.current)
-        .transition()
-        .duration(500)
-        .style("opacity", 0);
+          .transition()
+          .duration(500)
+          .style("opacity", 0);
 
-        d3.selectAll('.deemphasized').classed('deemphasized', false).style("opacity", 1).style("transition", "opacity 0.5s");
+        d3.selectAll(".deemphasized")
+          .classed("deemphasized", false)
+          .style("opacity", 1)
+          .style("transition", "opacity 0.5s");
 
-        d3.selectAll('.region_'+d.properties.id+' rect').classed('selected', false).style("stroke", "none");
-        d3.selectAll('.region_'+d.properties.id+' text').classed('selected', false).style("font-weight", "normal");
-        d3.selectAll('path.region_'+d.properties.id).classed('selected', false).style("stroke-width", 0.5);
+        d3.selectAll(".region_" + d.properties.id + " rect")
+          .classed("selected", false)
+          .style("stroke", "none");
+        d3.selectAll(".region_" + d.properties.id + " text")
+          .classed("selected", false)
+          .style("font-weight", "normal");
+        d3.selectAll("path.region_" + d.properties.id)
+          .classed("selected", false)
+          .style("stroke-width", 0.5);
       });
 
     // add background (grid gross loss rates)
@@ -266,45 +343,57 @@ class OtherLevelMap extends Component {
   }
 
   resize() {
-    if (this.props.layer_type === "grid gross loss rates"){
+    if (this.props.layer_type === "grid gross loss rates") {
       if (this.props.window_width < this.props.ipad_width) {
-        this.setState({
-          width: this.props.window_width*0.8,
-          height: 450,
-          scale: this.props.window_width,
-        }, ()=>{
-          this.initView();
-        });
+        this.setState(
+          {
+            width: this.props.window_width * 0.8,
+            height: 450,
+            scale: this.props.window_width,
+          },
+          () => {
+            this.initView();
+          }
+        );
       } else {
-        this.setState({
-          width: 700,
-          height: 600,
-          scale: 875
-        }, ()=>{
-          this.initView();
-        });
+        this.setState(
+          {
+            width: 700,
+            height: 607,
+            scale: 875,
+          },
+          () => {
+            this.initView();
+          }
+        );
       }
     } else {
       if (this.props.window_width < this.props.ipad_width) {
-        this.setState({
-          width: this.props.window_width*0.8,
-          height: 450,
-          scale: this.props.window_width,
-        }, ()=>{
-          this.initView();
-        });
+        this.setState(
+          {
+            width: this.props.window_width * 0.8,
+            height: 450,
+            scale: this.props.window_width,
+          },
+          () => {
+            this.initView();
+          }
+        );
       } else {
-        this.setState({
-          width: 600,
-          height: 600,
-          scale: 750
-        }, ()=>{
-          this.initView();
-        });
+        this.setState(
+          {
+            width: 600,
+            height: 607,
+            scale: 750,
+          },
+          () => {
+            this.initView();
+          }
+        );
       }
     }
   }
-  
+
   render() {
     let title = (
       <div>
@@ -323,13 +412,22 @@ class OtherLevelMap extends Component {
     );
 
     return (
-      <div style={{width: this.state.width, height: this.state.height, margin: "0 auto"}}>
-        {title}
-        <svg ref={this.map} style={{display:"block", margin: "0 auto"}} width={this.state.width} height={this.state.height}>
-          <g ref={this.background} />
-          <g ref={this.paths} />
-          <g ref={this.labels} />
-        </svg>
+      <div style={{width: this.state.width}}>
+        <div
+        >
+          {title}
+          <div>
+            <svg
+              ref={this.map}
+              width={this.state.width}
+              height={this.state.height}
+            >
+              <g ref={this.background} />
+              <g ref={this.paths} />
+              <g ref={this.labels} />
+            </svg>
+          </div>
+        </div>
         <div
           ref={this.tooltip}
           style={{

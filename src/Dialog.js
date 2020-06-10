@@ -38,12 +38,12 @@ function Dialog(props) {
       </Modal.Header>
       <Modal.Body>
         {props.is_table==="true" ? (
-          <table>
+          <table style={{fontSize: "1.2em"}}>
             <thead>{table_header}</thead>
             <tbody>{table_rows}</tbody>
           </table>
         ) : (
-          <p>{props.text}</p>
+          <p style={{fontSize: "1.2em"}}>{props.text}</p>
         )}
       </Modal.Body>
       <Modal.Footer>

@@ -357,7 +357,7 @@ class Visualization extends Component {
             this.init_window_width < 768 ? this.init_window_width * 0.8 : 700
           }
           ipad_width={768}
-          height={600}
+          height={607}
           scale={this.init_window_width < 768 ? this.init_window_width : 875}
           layer={this.props.ggl_layer}
           us_data={this.state.us_data}
@@ -417,7 +417,7 @@ class Visualization extends Component {
                       : 600
                   }
                   ipad_width={768}
-                  height={600}
+                  height={607}
                   scale={
                     this.init_window_width < 768 ? this.init_window_width : 750
                   }

@@ -210,9 +210,13 @@ class PlantLevelMapZoom extends Component {
     h = d3.select(".map-zoomable-legend").node().clientHeight;
     let nbox = this.legend_len;
     let boxlen = w / nbox;
-    let legend_values = this.legend_percentile.map((d) =>
-      d3.quantile(field_values, d)
-    );
+
+    // get features from visible layer
+    let r_values = features.map((d) => scale(d.properties[this.props.field])).sort((a, b) => a - b);
+
+    let legend_values = r_values.filter(d=>d>2).length > this.legend_percentile.length ? this.legend_percentile.map((d) =>
+      d3.quantile(r_values.filter(d=>d>2), d)
+    ) : r_values.filter(d=>d>2);
 
     d3.select(".map-static-legend").select("svg").remove();
     d3.select(".map-static-legend-title").html(this.props.unit);
@@ -232,7 +236,7 @@ class PlantLevelMapZoom extends Component {
       .append("circle")
       .style("fill", "#ddd")
       .style("stroke", "black")
-      .attr("r", (d) => scale(d))
+      .attr("r", (d) => d)
       .attr("cx", boxlen / 2)
       .attr("cy", Math.min(boxlen, h * 0.5) / 2);
 
@@ -242,12 +246,12 @@ class PlantLevelMapZoom extends Component {
       .attr(
         "y",
         Math.min(boxlen, h * 0.5) / 2 +
-          scale(legend_values[legend_values.length - 1]) +
+        legend_values[legend_values.length - 1] +
           20
       )
       .attr("dx", 0)
       .attr("dy", 0)
-      .text((d) => this.formatLegend(d))
+      .text((d) => this.formatLegend(scale.invert(d)))
       .style("text-anchor", "middle");
   }
 
@@ -289,6 +293,9 @@ class PlantLevelMapZoom extends Component {
         ],
       }), factor);
     });
+
+    // update static map
+    this.updateStaticMap(data.features, factor);
 
     // update fuel filter
     d3.selectAll(".selected")
@@ -355,6 +362,9 @@ class PlantLevelMapZoom extends Component {
       }), factor);
     });
 
+    // update static map
+    this.updateStaticMap(data.features, factor);
+
     // update fuel filter
     d3.selectAll(".fuels-selection")
       .select(".reset")
@@ -392,8 +402,6 @@ class PlantLevelMapZoom extends Component {
         ["/", ["get", this.props.field], factor / this.zoom_factor],
       ]
     );
-
-    this.updateStaticMap(features, factor);
   }
 
   componentDidUpdate(prevProps, prevState) {

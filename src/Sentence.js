@@ -44,7 +44,6 @@ class SentenceDropdown extends Component {
         paddingLeft: "5px",
         paddingRight: "17px",
         marginRight: "6px",
-        backgroundImage: "url('./assets/img/dropdown_arrow.png')",
         backgroundRepeat: "no-repeat",
         backgroundSize: "14px 14px",
         backgroundPosition: "100% 90%",
