@@ -412,7 +412,7 @@ class OtherLevelMap extends Component {
     );
 
     return (
-      <div style={{width: this.state.width}}>
+      <div style={{width: this.state.width, margin: "0 auto"}}>
         <div
         >
           {title}
