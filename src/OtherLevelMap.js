@@ -151,7 +151,7 @@ class OtherLevelMap extends Component {
         d3.select(this.tooltip.current)
           .html(html)
           .style("position", "absolute")
-          .style("top", d3.event.pageY + 15 + "px")
+          .style("top", d3.event.pageY - 270 + 15 + "px")
           .style("left", d3.event.pageX + 15 + "px")
           .style("opacity", 1);
 
@@ -259,7 +259,7 @@ class OtherLevelMap extends Component {
         d3.select(this.tooltip.current)
           .html(html)
           .style("position", "absolute")
-          .style("top", d3.event.pageY + 15 + "px")
+          .style("top", d3.event.pageY - 270 + 15 + "px")
           .style("left", d3.event.pageX + 15 + "px")
           .style("opacity", 1);
 

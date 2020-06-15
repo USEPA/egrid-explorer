@@ -20,12 +20,13 @@ class PlantLevelMapZoom extends Component {
       map_style: null,
     };
 
+    this.legend_min_radius = 3;
     this.map_layer_load_times = 0;
-    this.field_factor_divided_by = 12;
+    this.field_factor_divided_by = 18;
     this.max_radius = 24;
     this.zoom_factor = this.max_radius / this.field_factor_divided_by;
     this.legend_len = 6;
-    this.legend_percentile = [0, 0.25, 0.5, 0.75, 0.95, 1];
+    this.legend_percentile = [0, 0.2, 0.4, 0.6, 0.8, 1];
 
     this.filter_text = "Filter by Primary Fuel";
     this.filter_reset_text = "Show All Fuels";
@@ -120,44 +121,53 @@ class PlantLevelMapZoom extends Component {
     d3.select(".map-zoomable-legend-title").html(this.props.unit);
 
     // get features from visible layer
-    let r_values = layer_features.map((d) => scale(d.properties[this.props.field])).sort((a, b) => a - b);
+    let r_values = layer_features
+      .map((d) => scale(d.properties[this.props.field]))
+      .sort((a, b) => a - b);
 
-    let legend_values = r_values.filter(d=>d>2).length > this.legend_percentile.length ? this.legend_percentile.map((d) =>
-      d3.quantile(r_values.filter(d=>d>2), d)
-    ) : r_values.filter(d=>d>2);
+    let legend_values =
+      r_values.filter((d) => d > this.legend_min_radius).length >
+      this.legend_percentile.length
+        ? this.legend_percentile.map((d) =>
+            d3.quantile(
+              r_values.filter((d) => d > this.legend_min_radius),
+              d
+            )
+          )
+        : r_values.filter((d) => d > this.legend_min_radius);
 
     let legend_cells = d3
-    .select(".map-zoomable-legend")
-    .append("g")
-    .attr("width", w)
-    .attr("height", h)
-    .selectAll("g")
-    .data(legend_values)
-    .enter()
-    .append("g")
-    .attr("transform", (d, i) => "translate(" + i * boxlen + "," + 5 + ")");
+      .select(".map-zoomable-legend")
+      .append("g")
+      .attr("width", w)
+      .attr("height", h)
+      .selectAll("g")
+      .data(legend_values)
+      .enter()
+      .append("g")
+      .attr("transform", (d, i) => "translate(" + i * boxlen + "," + 5 + ")");
 
-  legend_cells
-    .append("circle")
-    .style("fill", "#ddd")
-    .style("stroke", "black")
-    .attr("r", (d) => d)
-    .attr("cx", boxlen / 2)
-    .attr("cy", Math.min(boxlen, h * 0.5) / 2);
+    legend_cells
+      .append("circle")
+      .style("fill", "#ddd")
+      .style("stroke", "black")
+      .attr("r", (d) => d)
+      .attr("cx", boxlen / 2)
+      .attr("cy", Math.min(boxlen, h * 0.5) / 2);
 
-  legend_cells
-    .append("text")
-    .attr("x", boxlen / 2)
-    .attr(
-      "y",
-      Math.min(boxlen, h * 0.5) / 2 +
-        legend_values[legend_values.length - 1] +
-        20
-    )
-    .attr("dx", 0)
-    .attr("dy", 0)
-    .text((d) => this.formatLegend(scale.invert(d)))
-    .style("text-anchor", "middle");
+    legend_cells
+      .append("text")
+      .attr("x", boxlen / 2)
+      .attr(
+        "y",
+        Math.min(boxlen, h * 0.5) / 2 +
+          legend_values[legend_values.length - 1] +
+          20
+      )
+      .attr("dx", 0)
+      .attr("dy", 0)
+      .text((d,i) => i===0 ? this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_outlier[this.props.field]? ">= " + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
+      .style("text-anchor", "middle");
   }
 
   updateStaticMap(features, factor) {
@@ -212,11 +222,20 @@ class PlantLevelMapZoom extends Component {
     let boxlen = w / nbox;
 
     // get features from visible layer
-    let r_values = features.map((d) => scale(d.properties[this.props.field])).sort((a, b) => a - b);
+    let r_values = features
+      .map((d) => scale(d.properties[this.props.field]))
+      .sort((a, b) => a - b);
 
-    let legend_values = r_values.filter(d=>d>2).length > this.legend_percentile.length ? this.legend_percentile.map((d) =>
-      d3.quantile(r_values.filter(d=>d>2), d)
-    ) : r_values.filter(d=>d>2);
+      let legend_values =
+      r_values.filter((d) => d > this.legend_min_radius).length >
+      this.legend_percentile.length
+        ? this.legend_percentile.map((d) =>
+            d3.quantile(
+              r_values.filter((d) => d > this.legend_min_radius),
+              d
+            )
+          )
+        : r_values.filter((d) => d > this.legend_min_radius);
 
     d3.select(".map-static-legend").select("svg").remove();
     d3.select(".map-static-legend-title").html(this.props.unit);
@@ -246,12 +265,12 @@ class PlantLevelMapZoom extends Component {
       .attr(
         "y",
         Math.min(boxlen, h * 0.5) / 2 +
-        legend_values[legend_values.length - 1] +
+          legend_values[legend_values.length - 1] +
           20
       )
       .attr("dx", 0)
       .attr("dy", 0)
-      .text((d) => this.formatLegend(scale.invert(d)))
+      .text((d,i) => i===0 ? "< " + this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_outlier[this.props.field]? ">= " + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
       .style("text-anchor", "middle");
   }
 
@@ -280,18 +299,24 @@ class PlantLevelMapZoom extends Component {
     this.setRadius(data.features);
 
     // update legend
-    let factor = d3.max(data.features.map((d) => d.properties[this.props.field])) / this.field_factor_divided_by;
+    let factor =
+      d3.max(data.features.map((d) => d.properties[this.props.field])) /
+      this.field_factor_divided_by;
 
     // update source data event
-    this.map.on("sourcedata", d=>{
-      this.updateLegend(data.features, this.map.queryRenderedFeatures({
-        layers: [
-          "plants-" +
-            this.state.map_style +
-            "-" +
-            this.map_layer_load_times.toString(),
-        ],
-      }), factor);
+    this.map.on("sourcedata", (d) => {
+      this.updateLegend(
+        data.features,
+        this.map.queryRenderedFeatures({
+          layers: [
+            "plants-" +
+              this.state.map_style +
+              "-" +
+              this.map_layer_load_times.toString(),
+          ],
+        }),
+        factor
+      );
     });
 
     // update static map
@@ -348,18 +373,24 @@ class PlantLevelMapZoom extends Component {
     this.setRadius(data.features);
 
     // update legend
-    let factor = d3.max(data.features.map((d) => d.properties[this.props.field])) / this.field_factor_divided_by;
+    let factor =
+      d3.max(data.features.map((d) => d.properties[this.props.field])) /
+      this.field_factor_divided_by;
 
     // update source data event
-    this.map.on("sourcedata", d=>{
-      this.updateLegend(data.features, this.map.queryRenderedFeatures({
-        layers: [
-          "plants-" +
-            this.state.map_style +
-            "-" +
-            this.map_layer_load_times.toString(),
-        ],
-      }), factor);
+    this.map.on("sourcedata", (d) => {
+      this.updateLegend(
+        data.features,
+        this.map.queryRenderedFeatures({
+          layers: [
+            "plants-" +
+              this.state.map_style +
+              "-" +
+              this.map_layer_load_times.toString(),
+          ],
+        }),
+        factor
+      );
     });
 
     // update static map
@@ -481,7 +512,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl-group mapboxgl-ctrl";
         this._container.innerHTML =
-          "<button><span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src='reset_view_icon.jpg' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
+          "<button><span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src='/eGrid_2018_v2/reset_view_icon.jpg' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
         this._container.style.borderRadius = "4px";
         this._container.style.boxShadow = "0 0 0 2px rgba(0,0,0,.1)";
         this._container.style.cursor = "pointer";
