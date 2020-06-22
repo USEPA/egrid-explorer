@@ -89,13 +89,13 @@ class OtherLevelBarchart extends Component {
 
     // update scale domain
     let domainArr = this.props.data.map((e) => e.value).sort((a, b) => a - b);
-    barFillScale.domain(
-      d3
-        .range(this.props.map_fill.length - 1)
-        .map((d) =>
-          d3.quantile(domainArr, (d + 1) / this.props.map_fill.length)
-        )
-    );
+    domainArr = domainArr.filter((d,i)=>domainArr.indexOf(d)===i);
+    let domain = d3.range(this.props.map_fill.length)
+    .map((d) => {
+      return d3.quantile(domainArr, (d+1) / this.props.map_fill.length);
+    });
+    domain = domain.filter((d,i)=>domain.indexOf(d)===i);
+    barFillScale.domain(domain);
 
     // bars
     d3.select(this.bars.current).selectAll("g").remove();
@@ -295,12 +295,12 @@ class OtherLevelBarchart extends Component {
     let input_n = d3.select(".sort-buttons").selectAll("input").nodes();
     let selected_input =
       by === "alphabet"
-        ? input_n.filter((e) => e.defaultValue === "Sort by Alphabet")[0]
+        ? input_n.filter((e) => e.defaultValue === "Sort A to Z")[0]
         : input_n.filter((e) => e.defaultValue === "Sort by Amount")[0];
     let non_selected_input =
       by === "alphabet"
         ? input_n.filter((e) => e.defaultValue === "Sort by Amount")[0]
-        : input_n.filter((e) => e.defaultValue === "Sort by Alphabet")[0];
+        : input_n.filter((e) => e.defaultValue === "Sort A to Z")[0];
 
     d3.select(selected_input)
       .style("font-weight", "bold")
@@ -394,7 +394,7 @@ class OtherLevelBarchart extends Component {
               borderBottomRightRadius: 0,
             }}
             type="button"
-            value={this.state.width/2<100?"Alphabet":"Sort by Alphabet"}
+            value={this.state.width/2<100?"Alphabet":"Sort A to Z"}
             onClick={(e) => this.setState({ sort_by: "alphabet" })}
           />
           <input

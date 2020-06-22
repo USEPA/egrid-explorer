@@ -335,10 +335,11 @@ class Main extends Component {
         <p
           className="no-export"
           style={{
+            background: "#0071bc",
+            color: "#fff",
             fontSize: "1em",
             fontWeight: "bold",
-            padding: ".8rem 0",
-            borderBottom: "1px solid rgba(0, 0, 0, 0.5)",
+            padding: ".5rem",
           }}
         >
           I want to explore

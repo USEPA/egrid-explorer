@@ -25,7 +25,7 @@ class ResourceMixChart extends Component {
       table_info: {},
     };
     this.sort_text = "Click to Rearrange";
-    this.sort_reset_text = "Click to Rearrange";
+    this.sort_reset_text = "Reset";
 
     this.micromap_width_pct = 0.13;
     this.fuels_filter_pct = 0.87;

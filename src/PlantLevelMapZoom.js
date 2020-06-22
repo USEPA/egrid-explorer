@@ -270,7 +270,7 @@ class PlantLevelMapZoom extends Component {
       )
       .attr("dx", 0)
       .attr("dy", 0)
-      .text((d,i) => i===0 ? "< " + this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_outlier[this.props.field]? ">= " + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
+      .text((d,i) => i===0 ? this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_outlier[this.props.field]? ">= " + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
       .style("text-anchor", "middle");
   }
 
@@ -512,7 +512,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl-group mapboxgl-ctrl";
         this._container.innerHTML =
-          "<button><span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src='/eGrid_2018_v2/reset_view_icon.jpg' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
+          "<button><span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src='reset_view_icon.jpg' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
         this._container.style.borderRadius = "4px";
         this._container.style.boxShadow = "0 0 0 2px rgba(0,0,0,.1)";
         this._container.style.cursor = "pointer";

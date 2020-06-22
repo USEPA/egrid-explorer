@@ -441,11 +441,11 @@ tier1,tier2,tier4,tier5,Final field name in eGRID,Units,Full Name
 4,26,48,51,NRGENAOF,MWh,Annual other fossil net generation (MWh)
 4,26,48,52,USGENAOF,MWh,Annual other fossil net generation (MWh)
 4,26,48,99,PLGENAOF,MWh,Annual other fossil net generation (MWh)
-4,27,48,49,SRGENAOP,MWh,Annual other unknown/ purchased fuel net generation (MWh)
-4,27,48,50,STGENAOP,MWh,Annual other unknown/ purchased fuel net generation (MWh)
-4,27,48,51,NRGENAOP,MWh,Annual other unknown/ purchased fuel net generation (MWh)
-4,27,48,52,USGENAOP,MWh,Annual other unknown/ purchased fuel net generation (MWh)
-4,27,48,99,PLGENAOP,MWh,Annual other unknown/ purchased fuel net generation (MWh)
+4,27,48,49,SRGENAOP,MWh,Annual other unknown/purchased fuel net generation (MWh)
+4,27,48,50,STGENAOP,MWh,Annual other unknown/purchased fuel net generation (MWh)
+4,27,48,51,NRGENAOP,MWh,Annual other unknown/purchased fuel net generation (MWh)
+4,27,48,52,USGENAOP,MWh,Annual other unknown/purchased fuel net generation (MWh)
+4,27,48,99,PLGENAOP,MWh,Annual other unknown/purchased fuel net generation (MWh)
 4,28,48,49,SRGENATN,MWh,Annual total nonrenewables net generation (MWh)
 4,28,48,50,STGENATN,MWh,Annual total nonrenewables net generation (MWh)
 4,28,48,51,NRGENATN,MWh,Annual total nonrenewables net generation (MWh)
@@ -505,3 +505,5 @@ tier1,tier2,tier4,tier5,Final field name in eGRID,Units,Full Name
 8,36,48,52,USNAMEPCAP,MW,Nameplate capacity (MW)
 8,36,48,99,PLNAMEPCAP,MW,Nameplate capacity (MW)
 9,36,48,53,,%,Grid gross loss rates
+7,35,40,50,"[STNBCLPR, STNBOLPR, STNBGSPR, STNBNCPR, STNBHYPR, STNBBMPR, STNBWIPR, STNBSOPR, STNBGTPR, STNBOFPR, STNBOPPR]",%,Resource Mix by all fuel types
+7,35,40,51,"[NRNBCLPR, NRNBOLPR, NRNBGSPR, NRNBNCPR, NRNBHYPR, NRNBBMPR, NRNBWIPR, NRNBSOPR, NRNBGTPR, NRNBOFPR, NRNBOPPR]",%,Resource Mix by all fuel types

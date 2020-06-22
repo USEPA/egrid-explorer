@@ -508,7 +508,7 @@ class Visualization extends Component {
           );
       }
     }
-    return <div style={{ textAlign: "center"}}>{vis}</div>;
+    return <div style={{ textAlign: "center" }}>{vis}</div>;
   }
 }
 
@@ -522,7 +522,7 @@ class UpdatedVisualization extends Component {
 
     this.handleOpenDialog = this.handleOpenDialog.bind(this);
     this.glossary_table_header = Object.keys(this.props.glossary[0]);
-    this.glossary_table_rows = this.props.glossary.map(d=>Object.values(d));
+    this.glossary_table_rows = this.props.glossary.map((d) => Object.values(d));
     this.glossary_title = "Glossary";
   }
 
@@ -546,7 +546,7 @@ class UpdatedVisualization extends Component {
     return (
       <div>
         <Visualization
-          style={{ textAlign: "center"}}
+          style={{ textAlign: "center" }}
           options={this.props.options}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}
@@ -636,7 +636,30 @@ class UpdatedVisualization extends Component {
             type="button"
             value="Glossary"
             onClick={this.handleOpenDialog}
+          />{" "}
+          <a href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx" target="_blank" rel="noopener noreferrer">
+          <input
+            style={{
+              margin: "5px 0",
+              padding: "5px",
+              borderRadius: "4px",
+            }}
+            type="button"
+            value="Download eGRID2018 data"
           />
+          </a>
+          {" "}
+          <a href="https://www.epa.gov/energy/forms/egrid-and-power-profiler-feedback-and-questions" target="_blank" rel="noopener noreferrer">
+          <input
+            style={{
+              margin: "5px 0",
+              padding: "5px",
+              borderRadius: "4px",
+            }}
+            type="button"
+            value="Feedback or Questions"
+          />
+          </a>
         </div>
         <Dialog
           is_table="true"

@@ -101,11 +101,13 @@ class OtherLevelMap extends Component {
     let domainArr = layer.features
       .map((e) => e.properties.value)
       .sort((a, b) => a - b);
-    fill_scale.domain(
-      d3
-        .range(map_fill.length - 1)
-        .map((d) => d3.quantile(domainArr, (d + 1) / map_fill.length))
-    );
+    domainArr = domainArr.filter((d,i)=>domainArr.indexOf(d)===i);
+    let domain = d3.range(map_fill.length)
+    .map((d) => {
+      return d3.quantile(domainArr, (d+1) / map_fill.length);
+    });
+    domain = domain.filter((d,i)=>domain.indexOf(d)===i);
+    fill_scale.domain(domain);
 
     // add layers
     d3.select(this.map.current)

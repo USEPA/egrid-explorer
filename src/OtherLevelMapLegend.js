@@ -67,17 +67,21 @@ class OtherLevelMapLegend extends Component {
     let map_fill = this.props.map_fill;
     let fill_scale = d3.scaleThreshold().range(map_fill);
     let domainArr = this.props.data.map((e) => e.value).sort((a, b) => a - b);
-    fill_scale.domain(
-      d3
-        .range(map_fill.length - 1)
-        .map((d) => d3.quantile(domainArr, (d + 1) / map_fill.length))
-    );
+    domainArr = domainArr.filter((d,i)=>domainArr.indexOf(d)===i);
+    let domain = d3.range(map_fill.length)
+    .map((d) => {
+      return d3.quantile(domainArr, (d+1) / map_fill.length);
+    });
+    fill_scale.domain(domain);
+
+    let w = d3.select(this.legend.current).node().clientWidth,
+      h = d3.select(this.legend.current).node().clientHeight;
 
     let legend = d3_legend
       .legendColor()
       .scale(fill_scale)
       .shape("rect")
-      .shapeWidth(this.state.width / 5)
+      .shapeWidth(w / fill_scale.domain().length)
       .shapeHeight(10)
       .shapePadding(0)
       .labelOffset(10)
@@ -86,16 +90,13 @@ class OtherLevelMapLegend extends Component {
       .labelFormat(d3.format(".3f"))
       .labelAlign("start")
       .labels((d) => {
-        if (d.i === 0) {
+        if (d.i===0) {
           return 0;
         } else {
-          let label_str = d.generatedLabels[d.i - 1].split(" ");
-          return label_str[label_str.length - 1];
+          let label_str = d.generatedLabels[d.i].split(" ");
+          return label_str[0];
         }
       });
-
-    let w = d3.select(this.legend.current).node().clientWidth,
-      h = d3.select(this.legend.current).node().clientHeight;
 
     d3.select(this.legend.current).selectAll("svg").remove();
     d3.select(this.legend.current)

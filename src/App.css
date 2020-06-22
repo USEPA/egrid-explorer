@@ -4,7 +4,10 @@
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 10px;
+}
+
+.loading div {
+  color: #0071bc !important;
 }
 
 .app header {
@@ -15,9 +18,8 @@
 .app h2 {
   display: inline-block;
   font-family: Merriweather, Georgia, Cambria, "Times New Roman", Times, serif;
-  max-width: 77%;
+  max-width: 64%;
   vertical-align: middle;
-  margin: 0;
 }
 
 .app p {
@@ -27,8 +29,8 @@
 }
 
 .app #logo {
-  width: 60%;
-  vertical-align: "bottom";
+  width: 50%;
+  vertical-align: bottom;
 }
 
 .app table, .app th, .app td, .modal-body table, .modal-body th, .modal-body td {
@@ -41,6 +43,8 @@
 }
 
 .app select {
+  background: #0071bc;
+  color: #fff;
   word-wrap: break-word !important;
   margin: 0 !important;
   padding: 0 !important;

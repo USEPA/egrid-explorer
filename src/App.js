@@ -43,8 +43,14 @@ class App extends Component {
       us_data: [],
     };
 
-    this.more_info_text =
-      "Use the drop down arrows to query the data you would like to view. You can change the main data displayed (emission rates, generation, etc.), the pollutant type (CO2, NOx, etc.), the fuel type (coal, gas, etc.), and the geographic representation (state, eGRID subregion, plant, etc.), where applicable. Note that non-baseload emission rates and non-baseload generation are not available at the plant level.";
+    this.more_info_text = {
+      text: ["Use the drop down arrows to query the data you would like to view. You can change", 
+            "where applicable. Note that non-baseload emission rates and non-baseload generation are not available at the plant level."],
+      list: ["the main data displayed (emission rates, generation, etc.)", 
+             "the pollutant type (CO2, NOx, etc.)",
+             "the fuel type (coal, gas, etc.)", 
+             "and the geographic representation (state, eGRID subregion, plant, etc.)"]
+    };
     this.more_info_title = "Use Instruction";
 
     this.year = 2018;
@@ -413,12 +419,12 @@ class App extends Component {
         this.state.ggl_data.length > 0 &&
         this.state.us_data.length > 0 ? (
           <div className="app">
-            <header style={{ minHeight: 100 }} className="no-export">
+            <header className="no-export">
               <h2>Emissions and Generation Resource Integrated Database</h2>
-              <div style={{display:"inline-block",float:"right",width:"22%"}}>
+              <div style={{display:"inline-block",textAlign: "end", width:"36%", verticalAlign: "middle"}}>
                 <input
                   style={{
-                    fontSize: "0.9em",
+                    fontSize: "0.8em",
                     fontWeight: "normal",
                     margin: "5px 0",
                     padding: "0 5px",
@@ -426,10 +432,10 @@ class App extends Component {
                     verticalAlign: "bottom"
                   }}
                   type="button"
-                  value="More Info"
+                  value="Use Instruction"
                   onClick={this.handleOpenDialog}
                 />
-                <img id="logo" src={logo} alt="eGrid Logo"></img>
+                <a href="https://www.epa.gov/energy/emissions-generation-resource-integrated-database-egrid" target="_blank" rel="noopener noreferrer"><img id="logo" src={logo} alt="eGrid Logo"/></a>
               </div>
             </header>
             <Main
