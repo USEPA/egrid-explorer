@@ -19,6 +19,7 @@ import state from "./assets/data/csv/state.csv";
 import statefullname from "./assets/data/csv/eGRID state fullname.csv";
 import plant from "./assets/data/csv/plant.csv";
 import ggl from "./assets/data/csv/GGL.csv";
+import ggl_subrgn from "./assets/data/csv/eGRID GGL subregion.csv";
 import us from "./assets/data/csv/US.csv";
 
 import Main from "./Main";
@@ -40,16 +41,15 @@ class App extends Component {
       subrgn_data: [],
       nerc_data: [],
       ggl_data: [],
+      ggl_subrgn_data: [],
       us_data: [],
     };
 
     this.more_info_text = {
-      text: ["Use the drop down arrows to query the data you would like to view. You can change", 
-            "where applicable. Note that non-baseload emission rates and non-baseload generation are not available at the plant level."],
-      list: ["the main data displayed (emission rates, generation, etc.)", 
-             "the pollutant type (CO2, NOx, etc.)",
-             "the fuel type (coal, gas, etc.)", 
-             "and the geographic representation (state, eGRID subregion, plant, etc.)"]
+      text: ["To explore the data, change the wording of the sentence by selecting different variables from the drop-downs (underlined words). The graphs will immediately change according to the selected variables.", 
+            "In the plant view, you can select a specific plant to get more information displayed in the accompanying table or you can filter by one or more fuels by clicking on the fuel types immediately above the map.",
+            "In the resource mix view, clicking on the fuel types will sort the bar graph accordingly, and you can select one of the bars to get more information displayed in the accompanying table."],
+      list: []
     };
     this.more_info_title = "Use Instruction";
 
@@ -189,23 +189,43 @@ class App extends Component {
     };
 
     this.fuel_color_lookup = {
-      COAL: "rgb(31, 119, 180)",
-      OIL: "rgb(255, 187, 120)",
-      GAS: "rgb(255, 127, 14)",
-      NUCLEAR: "rgb(148, 103, 189)",
-      HYDRO: "rgb(174, 199, 232)",
-      BIOMASS: "rgb(44, 160, 44)",
-      WIND: "rgb(158, 218, 229)",
-      SOLAR: "rgb(214, 39, 40)",
-      GEOTHERMAL: "rgb(255, 152, 150)",
-      OFSL: "rgb(140, 86, 75)",
-      OTHF: "rgb(127, 127, 127)",
-      HYPR: "rgb(174, 199, 232)",
+      COAL: "rgb(135,135,135)",
+      OIL: "rgb(253,191,111)",
+      GAS: "rgb(255,127,0)",
+      NUCLEAR: "rgb(106,61,154)",
+      HYDRO: "rgb(31,120,180)",
+      BIOMASS: "rgb(51,160,44)",
+      WIND: "rgb(178,223,138)",
+      SOLAR: "rgb(227,26,28)",
+      GEOTHERMAL: "rgb(251,154,153)",
+      OFSL: "rgb(202,178,214)",
+      OTHF: "rgb(140,81,10)",
+      HYPR: "rgb(31,120,180)",
       THPR: "rgb(255, 187, 120)",
       TNPR: "rgb(255, 127, 14)",
       CYPR: "rgb(31, 119, 180)",
       CNPR: "rgb(255, 187, 120)",
     };
+
+    this.fuel_sentence_code_lookup = {
+      "coal": ["COAL"],
+      "oil": ["OIL"],
+      "natural gas": ["GAS"],
+      "nuclear": ["NUCLEAR"],
+      "hydro": ["HYDRO"],
+      "biomass": ["BIOMASS"],
+      "wind": ["WIND"],
+      "solar": ["SOLAR"],
+      "geothermal": ["GEOTHERMAL"],
+      "other fossil fuels": ["OFSL"],
+      "other unknown/purchased fuels": ["OTHF"],
+      "all non-renewable fuels": ["COAL", "OIL", "GAS", "OFSL", "NUCLEAR", "OTHF"],
+      "all renewable fuels": ["BIOMASS", "WIND", "SOLAR", "GEOTHERMAL", "HYDRO"],
+      "all non-hydro renewable fuels": ["BIOMASS", "WIND", "SOLAR", "GEOTHERMAL"],
+      "all combustion fuels": ["COAL", "OIL", "GAS", "OFSL", "BIOMASS", "OTHF"],
+      "all non-combustion fuels": ["NUCLEAR", "HYDRO", "WIND", "SOLAR", "GEOTHERMAL"],
+    };
+
     this.wrap_long_labels = function (text, width) {
       text.each(function () {
         var text = d3.select(this),
@@ -283,6 +303,7 @@ class App extends Component {
       d3.csv(nerc),
       d3.csv(plant),
       d3.csv(ggl),
+      d3.csv(ggl_subrgn),
       d3.csv(us),
     ]).then(
       ([
@@ -294,6 +315,7 @@ class App extends Component {
         nerc,
         plant,
         ggl,
+        ggl_subrgn,
         us,
       ]) => {
         // process data
@@ -365,6 +387,13 @@ class App extends Component {
           d.unit = "%";
           d.value = +d.percentage;
         });
+        ggl_subrgn.map((d,i)=>{
+          d.label = d.SUBRGN;
+          d.name = d.SUBRGN;
+          d.id = i;
+          d.unit = "%";
+          d.value = +d.percentage;
+        });
         this.ggl_layer.features.map((d) => {
           d.id = ggl.filter((e) => e.name === d.name).map((e) => e.id)[0];
         });
@@ -384,6 +413,7 @@ class App extends Component {
         this.subrgn_data = subrgn;
         this.nerc_data = nerc;
         this.ggl_data = ggl;
+        this.ggl_subrgn_data = ggl_subrgn;
         this.us_data = us;
 
         this.setState({
@@ -394,6 +424,7 @@ class App extends Component {
           subrgn_data: subrgn,
           nerc_data: nerc,
           ggl_data: ggl,
+          ggl_subrgn_data: ggl_subrgn,
           us_data: us,
         });
       }
@@ -417,6 +448,7 @@ class App extends Component {
         this.state.subrgn_data.length > 0 &&
         this.state.nerc_data.length > 0 &&
         this.state.ggl_data.length > 0 &&
+        this.state.ggl_subrgn_data.length > 0 &&
         this.state.us_data.length > 0 ? (
           <div className="app">
             <header className="no-export">
@@ -446,6 +478,7 @@ class App extends Component {
               plant_outlier={this.plant_outlier}
               fuel_label_lookup={this.fuel_label_lookup}
               fuel_color_lookup={this.fuel_color_lookup}
+              fuel_sentence_code_lookup={this.fuel_sentence_code_lookup}
               wrap_long_labels={this.wrap_long_labels}
               options={this.state.options}
               glossary={this.state.glossary}
@@ -454,6 +487,7 @@ class App extends Component {
               subrgn_data={this.state.subrgn_data}
               nerc_data={this.state.nerc_data}
               ggl_data={this.state.ggl_data}
+              ggl_subrgn_data={this.state.ggl_subrgn_data}
               us_data={this.state.us_data}
               state_layer={this.state_layer}
               subrgn_layer={this.subrgn_layer}

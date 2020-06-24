@@ -340,6 +340,7 @@ class Main extends Component {
             fontSize: "1em",
             fontWeight: "bold",
             padding: ".5rem",
+            borderRadius: "4px"
           }}
         >
           I want to explore
@@ -463,6 +464,7 @@ class Main extends Component {
               plant_outlier={this.props.plant_outlier}
               fuel_label_lookup={this.props.fuel_label_lookup}
               fuel_color_lookup={this.props.fuel_color_lookup}
+              fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
               wrap_long_labels={this.props.wrap_long_labels}
               field={this.state.field}
               name={this.state.name}
@@ -476,6 +478,7 @@ class Main extends Component {
               subrgn_data={this.props.subrgn_data}
               nerc_data={this.props.nerc_data}
               ggl_data={this.props.ggl_data}
+              ggl_subrgn_data={this.props.ggl_subrgn_data}
               us_data={this.props.us_data}
               state_layer={this.props.state_layer}
               subrgn_layer={this.props.subrgn_layer}

@@ -355,7 +355,10 @@ class PlantLevelMapZoom extends Component {
   updateMapWithNOFuelFilter() {
     const data = {
       type: "FeatureCollection",
-      features: this.props.plant_data.features.map((d) => {
+      features: this.props.plant_data.features.filter(d=>{
+        return this.props.avail_fuels.indexOf(d.properties.FUEL) > -1;
+      })
+      .map((d) => {
         if (
           d.properties[this.props.field] >=
           this.props.plant_outlier[this.props.field]
@@ -744,10 +747,17 @@ class PlantLevelMapZoom extends Component {
               }
             });
 
+          d3.selectAll(".fuel")
+            .filter((d) => this.props.avail_fuels.indexOf(d) === -1)
+            .style("opacity", 0.3)
+            .style("pointer-events", "none");
+
           // add initial map data
           const data = {
             type: "FeatureCollection",
-            features: this.props.plant_data.features.map((d) => {
+            features: this.props.plant_data.features.filter(d=>{
+              return this.props.avail_fuels.indexOf(d.properties.FUEL) > -1;
+            }).map((d) => {
               if (
                 d.properties[this.props.field] >=
                 this.props.plant_outlier[this.props.field]

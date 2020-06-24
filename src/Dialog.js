@@ -55,8 +55,9 @@ function Dialog(props) {
         ) : (
           <div style={{ fontSize: "1.2em" }}>
             <p>{props.text.text[0]}</p>
-            <ul>{list}</ul>
             <p>{props.text.text[1]}</p>
+            <p>{props.text.text[2]}</p>
+            <ul>{list}</ul>
           </div>
         )}
       </Modal.Body>

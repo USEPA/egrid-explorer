@@ -345,54 +345,28 @@ class OtherLevelMap extends Component {
   }
 
   resize() {
-    if (this.props.layer_type === "grid gross loss rates") {
-      if (this.props.window_width < this.props.ipad_width) {
-        this.setState(
-          {
-            width: this.props.window_width * 0.8,
-            height: 450,
-            scale: this.props.window_width,
-          },
-          () => {
-            this.initView();
-          }
-        );
-      } else {
-        this.setState(
-          {
-            width: 700,
-            height: 607,
-            scale: 875,
-          },
-          () => {
-            this.initView();
-          }
-        );
-      }
+    if (this.props.window_width < this.props.ipad_width) {
+      this.setState(
+        {
+          width: this.props.window_width * 0.8,
+          height: 450,
+          scale: this.props.window_width,
+        },
+        () => {
+          this.initView();
+        }
+      );
     } else {
-      if (this.props.window_width < this.props.ipad_width) {
-        this.setState(
-          {
-            width: this.props.window_width * 0.8,
-            height: 450,
-            scale: this.props.window_width,
-          },
-          () => {
-            this.initView();
-          }
-        );
-      } else {
-        this.setState(
-          {
-            width: 600,
-            height: 607,
-            scale: 750,
-          },
-          () => {
-            this.initView();
-          }
-        );
-      }
+      this.setState(
+        {
+          width: 600,
+          height: this.props.layer_type === "grid gross loss rates" ? 550 : 607,
+          scale: 750,
+        },
+        () => {
+          this.initView();
+        }
+      );
     }
   }
 
@@ -414,7 +388,7 @@ class OtherLevelMap extends Component {
     );
 
     return (
-      <div style={{width: this.state.width, margin: "0 auto"}}>
+      <div style={{width: this.state.width}}>
         <div
         >
           {title}

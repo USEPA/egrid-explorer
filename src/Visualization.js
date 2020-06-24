@@ -11,7 +11,8 @@ import OtherLevelBarchart from "./OtherLevelBarchart";
 import PlantLevelMapZoom from "./PlantLevelMapZoom";
 import PlantLevelMapStatic from "./PlantLevelMapStatic";
 import ResourceMixChart from "./ResourceMixChart";
-import Dialog from "./Dialog.js";
+import Dialog from "./Dialog";
+import UpdatedTable from "./Table";
 
 class Visualization extends Component {
   constructor(props) {
@@ -27,6 +28,7 @@ class Visualization extends Component {
       tier2: this.props.tier2,
       tier4: this.props.tier4,
       tier5: this.props.tier5,
+      barchart_sort: false,
       data: [],
       us_data: [],
       resource_mix_data: [],
@@ -160,6 +162,8 @@ class Visualization extends Component {
                     "SECFUEL",
                     "PLNAMEPCAP",
                     "FUEL",
+                    "NUMUNT",
+                    "NUMGEN"
                   ],
                   this.props.options
                     .map((d) => d["Final field name in eGRID"])
@@ -307,6 +311,8 @@ class Visualization extends Component {
     const plant_outlier = this.props.plant_outlier;
     const fuel_label_lookup = this.props.fuel_label_lookup;
     const fuel_color_lookup = this.props.fuel_color_lookup;
+    const fuel_sentence_code_lookup = this.props.fuel_sentence_code_lookup;
+    
     const wrap_long_labels = this.props.wrap_long_labels;
     let fuel_name_lookup = {};
     this.state.fuels.forEach((d) => {
@@ -348,24 +354,35 @@ class Visualization extends Component {
     let vis;
     if (category === "grid gross loss rates") {
       vis = (
-        <OtherLevelMap
-          title={this.state.name}
-          data={this.props.ggl_data}
-          window_width={this.state.window_width}
-          window_height={this.state.window_height}
-          width={
-            this.init_window_width < 768 ? this.init_window_width * 0.8 : 700
-          }
-          ipad_width={768}
-          height={607}
-          scale={this.init_window_width < 768 ? this.init_window_width : 875}
-          layer={this.props.ggl_layer}
-          us_data={this.state.us_data}
-          background_layer={this.props.state_layer}
-          field={this.state.field}
-          layer_type={category}
-          map_fill={this.state.map_fill}
-        />
+        <div style={{ textAlign: "center" }}>
+          <div style={{ display: "inline-block", verticalAlign: "top" }}>
+            <OtherLevelMap
+              title={this.state.name}
+              data={this.props.ggl_data}
+              window_width={this.state.window_width}
+              window_height={this.state.window_height}
+              width={
+                this.init_window_width < 768 ? this.init_window_width * 0.8 : 600
+              }
+              ipad_width={768}
+              height={550}
+              scale={this.init_window_width < 768 ? this.init_window_width : 750}
+              layer={this.props.ggl_layer}
+              us_data={this.state.us_data}
+              background_layer={this.props.state_layer}
+              field={this.state.field}
+              layer_type={category}
+              map_fill={this.state.map_fill}
+            />
+          </div>
+          <div style={{ display: "inline-block", verticalAlign: "top" }}>
+            <UpdatedTable
+              style={{ display: "inline-block", verticalAlign: "top" }}
+              title={this.state.name}
+              data={this.props.ggl_subrgn_data}
+            />
+          </div>
+        </div>
       );
     } else if (category === "resource mix (%)") {
       vis = (
@@ -455,6 +472,7 @@ class Visualization extends Component {
                       ? this.init_window_width * 0.8
                       : 350
                   }
+                  barchart_sort={this.state.barchart_sort}
                   height={580}
                   margin_top={40}
                   margin_bottom={0}
@@ -470,6 +488,11 @@ class Visualization extends Component {
             </div>
           );
       } else if (region === "Plant") {
+        let avail_fuels = ["COAL", "OIL", "GAS", "NUCLEAR", "HYDRO", "BIOMASS", "WIND", "SOLAR", "GEOTHERMAL", "OFSL", "OTHF"];
+        if (lookup[this.props.tier1]==="total generation (MWh)" & lookup[this.props.tier2]!=="all fuels") {
+          avail_fuels = fuel_sentence_code_lookup[lookup[this.props.tier2]];
+        }
+
         vis =
           this.state.data.length === 0 ? (
             <div className="loading">
@@ -485,6 +508,7 @@ class Visualization extends Component {
                 window_width={this.state.window_width}
                 window_height={this.state.window_height}
                 fuels={this.state.fuels}
+                avail_fuels={avail_fuels}
                 init_center={[-96.922211, 38.381266]}
                 init_zoom={3.3}
                 min_zoom={2}
@@ -553,6 +577,7 @@ class UpdatedVisualization extends Component {
           plant_outlier={this.props.plant_outlier}
           fuel_label_lookup={this.props.fuel_label_lookup}
           fuel_color_lookup={this.props.fuel_color_lookup}
+          fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
           wrap_long_labels={this.props.wrap_long_labels}
           field={this.props.field}
           name={this.props.name}
@@ -566,6 +591,7 @@ class UpdatedVisualization extends Component {
           subrgn_data={this.props.subrgn_data}
           nerc_data={this.props.nerc_data}
           ggl_data={this.props.ggl_data}
+          ggl_subrgn_data={this.props.ggl_subrgn_data}
           us_data={this.props.us_data}
           state_layer={this.props.state_layer}
           subrgn_layer={this.props.subrgn_layer}
@@ -637,28 +663,35 @@ class UpdatedVisualization extends Component {
             value="Glossary"
             onClick={this.handleOpenDialog}
           />{" "}
-          <a href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx" target="_blank" rel="noopener noreferrer">
-          <input
-            style={{
-              margin: "5px 0",
-              padding: "5px",
-              borderRadius: "4px",
-            }}
-            type="button"
-            value="Download eGRID2018 data"
-          />
-          </a>
-          {" "}
-          <a href="https://www.epa.gov/energy/forms/egrid-and-power-profiler-feedback-and-questions" target="_blank" rel="noopener noreferrer">
-          <input
-            style={{
-              margin: "5px 0",
-              padding: "5px",
-              borderRadius: "4px",
-            }}
-            type="button"
-            value="Feedback or Questions"
-          />
+          <a
+            href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <input
+              style={{
+                margin: "5px 0",
+                padding: "5px",
+                borderRadius: "4px",
+              }}
+              type="button"
+              value="Download eGRID2018 data"
+            />
+          </a>{" "}
+          <a
+            href="https://www.epa.gov/energy/forms/egrid-and-power-profiler-feedback-and-questions"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <input
+              style={{
+                margin: "5px 0",
+                padding: "5px",
+                borderRadius: "4px",
+              }}
+              type="button"
+              value="Feedback or Questions"
+            />
           </a>
         </div>
         <Dialog
