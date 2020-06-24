@@ -452,14 +452,12 @@ class App extends Component {
         this.state.us_data.length > 0 ? (
           <div className="app">
             <header className="no-export">
-              <h2>Emissions and Generation Resource Integrated Database</h2>
-              <div style={{display:"inline-block",textAlign: "end", width:"36%", verticalAlign: "middle"}}>
+              <div style={{display:"inline-block",textAlign: "end", width:"100%", verticalAlign: "middle"}}>
                 <input
                   style={{
                     fontSize: "0.8em",
                     fontWeight: "normal",
                     margin: "5px 0",
-                    padding: "0 5px",
                     borderRadius: "4px",
                     verticalAlign: "bottom"
                   }}

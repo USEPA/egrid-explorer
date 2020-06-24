@@ -1,8 +1,8 @@
 .app {
-  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-  font-size: 18px;
+  font-family: Meriweather, Georgia, Cambria, "Times New Roman" , Times, serif !important;
+  font-size: 20px;
   width: 100%;
-  max-width: 1280px;
+  max-width: 1580px;
   margin: 0 auto;
 }
 
@@ -16,9 +16,12 @@
 
 .app h2 {
   display: inline-block;
-  font-family: Merriweather, Georgia, Cambria, "Times New Roman", Times, serif;
   max-width: 64%;
   vertical-align: middle;
+}
+
+.app .modal-title {
+  font-size: 1.5em !important;
 }
 
 .app p {
@@ -28,7 +31,7 @@
 }
 
 .app #logo {
-  width: 50%;
+  width: 20%;
   vertical-align: bottom;
 }
 

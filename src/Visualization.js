@@ -609,7 +609,6 @@ class UpdatedVisualization extends Component {
           <input
             style={{
               margin: "5px 0",
-              padding: "5px",
               borderRadius: "4px",
             }}
             type="button"
@@ -620,7 +619,6 @@ class UpdatedVisualization extends Component {
             <input
               style={{
                 margin: "5px 0",
-                padding: "5px",
                 borderRadius: "4px",
               }}
               type="button"
@@ -632,7 +630,6 @@ class UpdatedVisualization extends Component {
             <input
               style={{
                 margin: "5px 0",
-                padding: "5px",
                 borderRadius: "4px",
               }}
               type="button"
@@ -645,7 +642,6 @@ class UpdatedVisualization extends Component {
             <input
               style={{
                 margin: "5px 0",
-                padding: "5px",
                 borderRadius: "4px",
               }}
               type="button"
@@ -656,7 +652,6 @@ class UpdatedVisualization extends Component {
           <input
             style={{
               margin: "5px 0",
-              padding: "5px",
               borderRadius: "4px",
             }}
             type="button"
@@ -671,7 +666,6 @@ class UpdatedVisualization extends Component {
             <input
               style={{
                 margin: "5px 0",
-                padding: "5px",
                 borderRadius: "4px",
               }}
               type="button"
@@ -686,7 +680,6 @@ class UpdatedVisualization extends Component {
             <input
               style={{
                 margin: "5px 0",
-                padding: "5px",
                 borderRadius: "4px",
               }}
               type="button"
