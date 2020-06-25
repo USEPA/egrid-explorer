@@ -81,7 +81,7 @@ class PlantLevelMapStatic extends Component {
         <div>
           <div><span className="map-static-legend-title"></span></div>
           <div className="map-static-legend"
-            style={{ width: 300, height: 75, display: "inline-block" }}
+            style={{ width: 400, height: 75, display: "inline-block" }}
             ref={this.legend}
           ></div>
         </div>

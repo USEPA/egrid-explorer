@@ -130,7 +130,7 @@ class OtherLevelBarchart extends Component {
       .attr("dx", 5)
       .attr("dy", barYScale.bandwidth() / 2 + 5)
       .text((d) => this.formatLabel(d.value))
-      .style("font-size", this.props.layer_type==="state"?"0.65em":(this.props.layer_type==="NERC region"?"1em":"0.8em"))
+      .style("font-size", this.props.layer_type==="state"?"0.6em":(this.props.layer_type==="NERC region"?"1em":"0.8em"))
       .style("fill", "#000")
       .style("stroke", "none");
 
@@ -175,7 +175,7 @@ class OtherLevelBarchart extends Component {
           this.props.data.filter((e) => e.name === d).map((e) => e.id)[0]
       )
       .selectAll("text")
-      .style("font-size", "1.2em");
+      .style("font-size", this.props.layer_type==="state"?"1.1em":(this.props.layer_type==="NERC region"?"1.5em":"1.2em"));
 
     d3.select(this.barchart.current)
       .on("mouseenter", ()=>{
@@ -228,7 +228,7 @@ class OtherLevelBarchart extends Component {
         d3.select(this.tooltip.current)
           .html(html)
           .style("position", "absolute")
-          .style("top", d3.event.pageY + 15 + "px")
+          .style("top", d3.event.pageY - 270 + 15 + "px")
           .style("left", d3.event.pageX + 15 + "px")
           .style("opacity", 1);
 
@@ -372,7 +372,7 @@ class OtherLevelBarchart extends Component {
       });
     } else {
       this.setState({
-        width: 350
+        width: 400
       }, ()=>{
         this.initView(this.state.sort_by);
       });
@@ -381,7 +381,7 @@ class OtherLevelBarchart extends Component {
 
   render() {
     return (
-      <div style={{width: this.state.width, height: "100%"}}>
+      <div style={{width: this.state.width, height: "100%", margin: "0 auto"}}>
         <div className="sort-buttons no-export" style={{height: 40, marginBottom: "5px"}}>
           <input
             style={{

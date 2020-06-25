@@ -41,6 +41,7 @@ class Visualization extends Component {
     };
 
     this.init_window_width = window.innerWidth;
+    this.plant_avail_fuels = ["COAL", "OIL", "GAS", "NUCLEAR", "HYDRO", "BIOMASS", "WIND", "SOLAR", "GEOTHERMAL", "OFSL", "OTHF"];
   }
 
   componentDidMount() {
@@ -132,6 +133,10 @@ class Visualization extends Component {
       });
 
       if (region === "Plant") {
+        const fuel_sentence_code_lookup = this.props.fuel_sentence_code_lookup;
+        if (lookup[this.props.tier1]==="total generation (MWh)" & lookup[this.props.tier2]!=="all fuels") {
+          this.plant_avail_fuels = fuel_sentence_code_lookup[lookup[this.props.tier2]];
+        }
         fuels = this.props.plant_fuels;
         data.forEach((d) => {
           d.value = d[this.props.field];
@@ -218,7 +223,9 @@ class Visualization extends Component {
 
           if (+this.state.tier1 !== 7 && +this.state.tier1 !== 9) {
             if (+this.state.tier5 === 99) {
-              export_table = this.state.plant_data.features.map(
+              export_table = this.state.plant_data.features.filter(
+                d=>this.plant_avail_fuels.indexOf(d.properties.FUEL)>-1
+              ).map(
                 (d) => d.properties
               );
             } else {
@@ -311,8 +318,6 @@ class Visualization extends Component {
     const plant_outlier = this.props.plant_outlier;
     const fuel_label_lookup = this.props.fuel_label_lookup;
     const fuel_color_lookup = this.props.fuel_color_lookup;
-    const fuel_sentence_code_lookup = this.props.fuel_sentence_code_lookup;
-    
     const wrap_long_labels = this.props.wrap_long_labels;
     let fuel_name_lookup = {};
     this.state.fuels.forEach((d) => {
@@ -393,7 +398,7 @@ class Visualization extends Component {
           window_height={this.state.window_height}
           width={this.init_window_width > 1280 ? 1280 : this.init_window_width}
           ipad_width={768}
-          table_width={385}
+          table_width={400}
           barchart_height={600}
           filter_height={100}
           margin_top={20}
@@ -431,12 +436,12 @@ class Visualization extends Component {
                   width={
                     this.init_window_width < 768
                       ? this.init_window_width * 0.8
-                      : 600
+                      : 650
                   }
                   ipad_width={768}
                   height={607}
                   scale={
-                    this.init_window_width < 768 ? this.init_window_width : 750
+                    this.init_window_width < 768 ? this.init_window_width : 812.5
                   }
                   layer={this.state.layer}
                   us_data={this.state.us_data}
@@ -470,13 +475,13 @@ class Visualization extends Component {
                   width={
                     this.init_window_width < 768
                       ? this.init_window_width * 0.8
-                      : 350
+                      : 400
                   }
                   barchart_sort={this.state.barchart_sort}
                   height={580}
                   margin_top={40}
                   margin_bottom={0}
-                  margin_right={70}
+                  margin_right={85}
                   margin_left={region === "state" ? 155 : 60}
                   field={this.state.field}
                   us_data={this.state.us_data}
@@ -488,11 +493,6 @@ class Visualization extends Component {
             </div>
           );
       } else if (region === "Plant") {
-        let avail_fuels = ["COAL", "OIL", "GAS", "NUCLEAR", "HYDRO", "BIOMASS", "WIND", "SOLAR", "GEOTHERMAL", "OFSL", "OTHF"];
-        if (lookup[this.props.tier1]==="total generation (MWh)" & lookup[this.props.tier2]!=="all fuels") {
-          avail_fuels = fuel_sentence_code_lookup[lookup[this.props.tier2]];
-        }
-
         vis =
           this.state.data.length === 0 ? (
             <div className="loading">
@@ -508,7 +508,7 @@ class Visualization extends Component {
                 window_width={this.state.window_width}
                 window_height={this.state.window_height}
                 fuels={this.state.fuels}
-                avail_fuels={avail_fuels}
+                avail_fuels={this.plant_avail_fuels}
                 init_center={[-96.922211, 38.381266]}
                 init_zoom={3.3}
                 min_zoom={2}

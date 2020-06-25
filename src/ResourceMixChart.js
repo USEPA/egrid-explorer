@@ -363,9 +363,9 @@ class ResourceMixChart extends Component {
         )
         .style("cursor", "pointer")
         .selectAll("text")
-        .style("font-size", (d) => (d === "US" ? "1.5em" : "1.2em"))
+        .style("font-size", (d) => (d === "US" ? "1.5em" : (this.props.layer_type==="state"?"1.1em":(this.props.layer_type==="NERC region"?"1.5em":"1.2em"))))
         .style("font-weight", (d) => (d === "US" ? "bold" : "normal"));
-
+        
       d3.selectAll(".tick.mouseover_target")
         .on("mouseover", (d) => {
           if (!this.state.clicked_on_bar) {
@@ -551,6 +551,7 @@ class ResourceMixChart extends Component {
         .attr("dy", 0)
         .text((d) => this.props.fuel_label_lookup[d])
         .style("text-anchor", "middle")
+        .style("font-size", "0.9em")
         .call(this.props.wrap_long_labels, boxlen_filter * 0.9);
 
       let reset = d3
@@ -855,15 +856,15 @@ class ResourceMixChart extends Component {
     );
 
     return (
-      <div id="resource-mix-chart" ref={this.wrapper}>
+      <div id="resource-mix-chart" ref={this.wrapper} style={{width: this.state.width, height: "100%", margin: "0 auto"}}>
         {title}
         <div>
           <svg
             style={{
               width:
                 this.state.width < this.props.ipad_width
-                  ? this.state.width * 0.8
-                  : this.state.width * 0.95 * this.micromap_width_pct,
+                  ? this.state.width * 0.9
+                  : this.state.width * this.micromap_width_pct,
               height: this.props.filter_height,
               display: "inline-block",
               verticalAlign: "top",
@@ -876,8 +877,8 @@ class ResourceMixChart extends Component {
             style={{
               width:
                 this.state.width < this.props.ipad_width
-                  ? this.state.width * 0.8
-                  : this.state.width * 0.95 * this.fuels_filter_pct,
+                  ? this.state.width * 0.9
+                  : this.state.width * this.fuels_filter_pct,
               display: "inline-block",
               verticalAlign: "top",
             }}
@@ -889,8 +890,8 @@ class ResourceMixChart extends Component {
             style={{
               width:
                 this.state.width < this.props.ipad_width
-                  ? this.state.width * 0.8
-                  : this.state.width * 0.85 - this.props.table_width,
+                  ? this.state.width * 0.9
+                  : this.state.width * 0.95 - this.props.table_width,
               height: this.props.barchart_height,
               display: "inline-block",
               verticalAlign: "bottom",
@@ -906,7 +907,7 @@ class ResourceMixChart extends Component {
             style={{
               width:
                 this.state.width < this.props.ipad_width
-                  ? this.state.width * 0.8
+                  ? this.state.width
                   : this.props.table_width,
               height: this.props.barchart_height - this.props.margin_top,
               marginTop:

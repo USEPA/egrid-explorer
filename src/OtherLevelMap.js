@@ -31,12 +31,12 @@ class OtherLevelMap extends Component {
     const layer = this.props.layer,
       label_width =
         this.props.layer_type === "grid gross loss rates"
-          ? 103
+          ? 115
           : this.props.layer_type === "state"
-          ? 20
-          : 40,
+          ? 22
+          : 50,
       label_height =
-        this.props.layer_type !== "grid gross loss rates" ? 14 : 20;
+        this.props.layer_type !== "grid gross loss rates" ? 15 : 20;
 
     let projection = d3_composite
       .geoAlbersUsaTerritories()
@@ -56,11 +56,23 @@ class OtherLevelMap extends Component {
           case "AKMS":
             prop.centroid[1] = prop.centroid[1] - 25;
             break;
+          case "NYUP":
+            prop.centroid[1] = prop.centroid[1] - 5;
+            break;
           case "NYLI":
-            prop.centroid[0] = prop.centroid[0] + 20;
+            prop.centroid[0] = prop.centroid[0] + 25;
+            prop.centroid[1] = prop.centroid[1] + 10;
             break;
           case "NYCW":
-            prop.centroid[0] = prop.centroid[0] - 10;
+            prop.centroid[0] = prop.centroid[0] + 30;
+            prop.centroid[1] = prop.centroid[1] - 15;
+            break;
+          case "MARYLAND":
+            prop.centroid[1] = prop.centroid[1] - 10;
+            break;
+          case "DISTRICT OF COLUMBIA":
+            prop.centroid[0] = prop.centroid[0] + 5;
+            prop.centroid[1] = prop.centroid[1] + 10;
             break;
           case "DELAWARE":
             prop.centroid[0] = prop.centroid[0] + 15;
@@ -153,7 +165,7 @@ class OtherLevelMap extends Component {
         d3.select(this.tooltip.current)
           .html(html)
           .style("position", "absolute")
-          .style("top", d3.event.pageY + 15 + "px")
+          .style("top", d3.event.pageY - 270 + 15 + "px")
           .style("left", d3.event.pageX + 15 + "px")
           .style("opacity", 1);
 
@@ -218,7 +230,7 @@ class OtherLevelMap extends Component {
     labels
       .append("rect")
       .attr("x", (d) => d.properties.centroid[0] - label_width / 2)
-      .attr("y", (d) => d.properties.centroid[1])
+      .attr("y", (d) => d.properties.centroid[1] - label_height*0.5)
       .attr("width", label_width)
       .attr("height", label_height)
       .attr("rx", 4)
@@ -230,7 +242,7 @@ class OtherLevelMap extends Component {
     labels
       .append("text")
       .attr("x", (d) => d.properties.centroid[0])
-      .attr("y", (d) => d.properties.centroid[1] + label_height * 0.8)
+      .attr("y", (d) => d.properties.centroid[1] + label_height * 0.3)
       .style("text-anchor", "middle")
       .style("font-size", (d) =>
         this.props.layer_type !== "grid gross loss rates" ? "0.7em" : "0.8em"
@@ -261,7 +273,7 @@ class OtherLevelMap extends Component {
         d3.select(this.tooltip.current)
           .html(html)
           .style("position", "absolute")
-          .style("top", d3.event.pageY + 15 + "px")
+          .style("top", d3.event.pageY - 270 + 15 + "px")
           .style("left", d3.event.pageX + 15 + "px")
           .style("opacity", 1);
 
@@ -359,9 +371,9 @@ class OtherLevelMap extends Component {
     } else {
       this.setState(
         {
-          width: 600,
+          width: 650,
           height: this.props.layer_type === "grid gross loss rates" ? 550 : 607,
-          scale: 750,
+          scale: 812.5,
         },
         () => {
           this.initView();

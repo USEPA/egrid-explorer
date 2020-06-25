@@ -456,7 +456,6 @@ class App extends Component {
                 <input
                   style={{
                     fontSize: "0.8em",
-                    fontWeight: "normal",
                     margin: "5px 0",
                     borderRadius: "4px",
                     verticalAlign: "bottom"

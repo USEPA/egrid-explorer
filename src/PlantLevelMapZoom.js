@@ -112,8 +112,7 @@ class PlantLevelMapZoom extends Component {
       .range(d3.extent(radius_values));
 
     // draw legend
-    let w = d3.select(".map-zoomable-legend").node().clientWidth,
-      h = d3.select(".map-zoomable-legend").node().clientHeight;
+    let w = 300, h = 75;
     let nbox = this.legend_len;
     let boxlen = w / nbox;
 
@@ -166,7 +165,7 @@ class PlantLevelMapZoom extends Component {
       )
       .attr("dx", 0)
       .attr("dy", 0)
-      .text((d,i) => i===0 ? this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_outlier[this.props.field]? ">= " + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
+      .text((d,i) => i===0 ? this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_outlier[this.props.field]? ">=" + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
       .style("text-anchor", "middle");
   }
 
@@ -216,8 +215,8 @@ class PlantLevelMapZoom extends Component {
       .style("stroke", (d) => this.props.fuel_color_lookup[d.properties.FUEL]);
 
     // draw legend
-    w = d3.select(".map-zoomable-legend").node().clientWidth;
-    h = d3.select(".map-zoomable-legend").node().clientHeight;
+    w = 400;
+    h = 75;
     let nbox = this.legend_len;
     let boxlen = w / nbox;
 
@@ -270,7 +269,7 @@ class PlantLevelMapZoom extends Component {
       )
       .attr("dx", 0)
       .attr("dy", 0)
-      .text((d,i) => i===0 ? this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_outlier[this.props.field]? ">= " + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
+      .text((d,i) => i===0 ? this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_outlier[this.props.field]? ">=" + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
       .style("text-anchor", "middle");
   }
 
@@ -1032,7 +1031,7 @@ class PlantLevelMapZoom extends Component {
             className="map-container"
             style={{
               width: this.props.window_width < 1024 ? "100%" : "62%",
-              height: this.props.window_width < 1024 ? 640 : 800,
+              height: this.props.window_width < 1024 ? 640 : 850,
               display: "inline-block",
               verticalAlign: "top",
             }}
@@ -1040,7 +1039,7 @@ class PlantLevelMapZoom extends Component {
           />
           <div
             style={{
-              width: this.props.window_width < 1024 ? "100%" : "37%",
+              width: this.props.window_width < 1024 ? "unset" : "37%",
               marginTop: this.props.window_width < 1024 ? 5 : 0,
               marginLeft: 5,
               display: "inline-block",
