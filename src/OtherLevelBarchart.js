@@ -52,13 +52,13 @@ class OtherLevelBarchart extends Component {
 
   formatLabel(d) {
     if (d >= 1000000) {
-      var num = d3.format(".2s")(d);
-      var abbr = num.slice(-1);
+      let num = d3.format(".2s")(d);
+      let abbr = num.slice(-1);
       if (abbr === "G") {
         num = num.substring(0, num.length - 1) + "B";
       }
-      var chars1 = num.slice(-3);
-      var chars2 = chars1.substring(0, 2);
+      let chars1 = num.slice(-3);
+      let chars2 = chars1.substring(0, 2);
       if (chars2 === ".0") {
         num = num.slice(0, -3) + num.slice(-1);
         return num;

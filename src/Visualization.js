@@ -315,7 +315,8 @@ class Visualization extends Component {
   render() {
     let category = lookup[this.props.tier1],
       region = lookup[this.props.tier5];
-    const plant_outlier = this.props.plant_outlier;
+    const plant_dist_max = this.props.plant_dist_max;
+    const plant_dist = this.props.plant_dist;
     const fuel_label_lookup = this.props.fuel_label_lookup;
     const fuel_color_lookup = this.props.fuel_color_lookup;
     const wrap_long_labels = this.props.wrap_long_labels;
@@ -400,7 +401,7 @@ class Visualization extends Component {
           ipad_width={768}
           table_width={400}
           barchart_height={600}
-          filter_height={100}
+          filter_height={120}
           margin_top={20}
           margin_right={10}
           margin_left={region === "state" ? 155 : 60}
@@ -516,7 +517,8 @@ class Visualization extends Component {
                 circle_opacity={0.8}
                 unit={this.state.unit}
                 field={this.state.field}
-                plant_outlier={plant_outlier}
+                plant_dist_max={plant_dist_max}
+                plant_dist = {plant_dist}
                 fuel_label_lookup={fuel_label_lookup}
                 fuel_color_lookup={fuel_color_lookup}
                 wrap_long_labels={wrap_long_labels}
@@ -574,7 +576,8 @@ class UpdatedVisualization extends Component {
           options={this.props.options}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}
-          plant_outlier={this.props.plant_outlier}
+          plant_dist_max={this.props.plant_dist_max}
+          plant_dist={this.props.plant_dist}
           fuel_label_lookup={this.props.fuel_label_lookup}
           fuel_color_lookup={this.props.fuel_color_lookup}
           fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}

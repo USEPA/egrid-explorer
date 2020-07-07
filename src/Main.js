@@ -461,7 +461,8 @@ class Main extends Component {
               }}
               choropleth_map_fill={this.props.choropleth_map_fill}
               plant_fuels={this.props.plant_fuels}
-              plant_outlier={this.props.plant_outlier}
+              plant_dist_max={this.props.plant_dist_max}
+              plant_dist={this.props.plant_dist}
               fuel_label_lookup={this.props.fuel_label_lookup}
               fuel_color_lookup={this.props.fuel_color_lookup}
               fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}

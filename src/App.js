@@ -18,6 +18,7 @@ import nerc from "./assets/data/csv/NERC.csv";
 import state from "./assets/data/csv/state.csv";
 import statefullname from "./assets/data/csv/eGRID state fullname.csv";
 import plant from "./assets/data/csv/plant.csv";
+import plant_legend from "./assets/data/csv/eGRID plant legend values.csv";
 import ggl from "./assets/data/csv/GGL.csv";
 import ggl_subrgn from "./assets/data/csv/eGRID GGL subregion.csv";
 import us from "./assets/data/csv/US.csv";
@@ -129,7 +130,7 @@ class App extends Component {
       "OFSL",
       "OTHF",
     ];
-    this.plant_outlier = {
+    this.plant_dist_max = {
       PLNOXRTA: 2000,
       PLNOXRTO: 1000,
       PLSO2RTA: 800,
@@ -169,6 +170,7 @@ class App extends Component {
       PLN2OAN: undefined,
       PLCO2EQA: 17000000,
     };
+    this.plant_dist = {};
     this.fuel_label_lookup = {
       COAL: "Coal",
       OIL: "Oil",
@@ -228,7 +230,7 @@ class App extends Component {
 
     this.wrap_long_labels = function (text, width) {
       text.each(function () {
-        var text = d3.select(this),
+        let text = d3.select(this),
           words = text.text().split(/\s+/).reverse(),
           word,
           line = [],
@@ -302,6 +304,7 @@ class App extends Component {
       d3.csv(statefullname),
       d3.csv(nerc),
       d3.csv(plant),
+      d3.csv(plant_legend),
       d3.csv(ggl),
       d3.csv(ggl_subrgn),
       d3.csv(us),
@@ -314,6 +317,7 @@ class App extends Component {
         state_fullname,
         nerc,
         plant,
+        plant_dist,
         ggl,
         ggl_subrgn,
         us,
@@ -349,6 +353,16 @@ class App extends Component {
             }
           });
           d.id = i;
+        });
+
+        plant_dist.map((d,i)=>{
+          this.plant_dist[d.Field] = {
+            min: +d.Threshold1,
+            t2: +d.Threshold2,
+            t3: +d.Threshold3,
+            t4: +d.Threshold4,
+            t5: +d.Threshold5,
+            max: +d.Threshold6};
         });
 
         subrgn.map((d, i) => {
@@ -452,7 +466,7 @@ class App extends Component {
         this.state.us_data.length > 0 ? (
           <div className="app">
             <header className="no-export">
-              <div style={{display:"inline-block",textAlign: "end", width:"100%", verticalAlign: "middle"}}>
+              <div style={{display:"inline-block",textAlign: "right", width:"100%", verticalAlign: "middle"}}>
                 <input
                   style={{
                     fontSize: "0.8em",
@@ -472,7 +486,8 @@ class App extends Component {
               conjunction={this.conjunction}
               choropleth_map_fill={this.choropleth_map_fill}
               plant_fuels={this.plant_fuels}
-              plant_outlier={this.plant_outlier}
+              plant_dist_max={this.plant_dist_max}
+              plant_dist={this.plant_dist}
               fuel_label_lookup={this.fuel_label_lookup}
               fuel_color_lookup={this.fuel_color_lookup}
               fuel_sentence_code_lookup={this.fuel_sentence_code_lookup}

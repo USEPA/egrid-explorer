@@ -3,6 +3,8 @@ import mapboxgl from "mapbox-gl";
 import * as d3 from "d3";
 import * as d3_composite from "d3-composite-projections";
 
+import reset_view_icon from "./assets/img/reset_view_icon.jpg";
+
 import UpdatedTable from "./Table";
 
 mapboxgl.accessToken =
@@ -22,7 +24,7 @@ class PlantLevelMapZoom extends Component {
 
     this.legend_min_radius = 3;
     this.map_layer_load_times = 0;
-    this.field_factor_divided_by = 18;
+    this.field_factor_divided_by = 12;
     this.max_radius = 24;
     this.zoom_factor = this.max_radius / this.field_factor_divided_by;
     this.legend_len = 6;
@@ -94,7 +96,7 @@ class PlantLevelMapZoom extends Component {
 
     // set up scale
     field_values = features
-      .map((d) => d.properties[this.props.field])
+      .map((d) => d.properties[this.props.field + '_trimmed'])
       .sort((a, b) => a - b);
     radius_values = field_values
       .map((d) =>
@@ -120,23 +122,29 @@ class PlantLevelMapZoom extends Component {
     d3.select(".map-zoomable-legend-title").html(this.props.unit);
 
     // get features from visible layer
-    let r_values = layer_features
-      .map((d) => scale(d.properties[this.props.field]))
-      .sort((a, b) => a - b);
+    let layer_features_extent = d3.extent(layer_features.map((d) => d.properties[this.props.field]));
+    let thresholds = Object.values(this.props.plant_dist[this.props.field]).slice(0,this.props.plant_dist[this.props.field].length);
+    let legend_values;
 
-    let legend_values =
-      r_values.filter((d) => d > this.legend_min_radius).length >
-      this.legend_percentile.length
-        ? this.legend_percentile.map((d) =>
-            d3.quantile(
-              r_values.filter((d) => d > this.legend_min_radius),
-              d
-            )
-          )
-        : r_values.filter((d) => d > this.legend_min_radius);
+    if (layer_features_extent[0]===undefined && layer_features_extent[1]===undefined) {
+      legend_values = [];
+    } else {
+      if (layer_features_extent[1] < thresholds.slice(thresholds.length-1)[0]) {
+        thresholds = [thresholds.slice(0)[0],
+        thresholds.slice(0)[0]+(layer_features_extent[1]-thresholds.slice(0)[0])/5,
+        thresholds.slice(0)[0]+(layer_features_extent[1]-thresholds.slice(0)[0])*2/5,
+        thresholds.slice(0)[0]+(layer_features_extent[1]-thresholds.slice(0)[0])*3/5,
+        thresholds.slice(0)[0]+(layer_features_extent[1]-thresholds.slice(0)[0])*4/5,
+        layer_features_extent[1]];
+  
+        if (layer_features_extent[1] <= thresholds.slice(0)[0]) {
+          thresholds = [thresholds.slice(0)[0]];
+        }
+      }
+      legend_values = thresholds.map((d) => scale(d)).sort((a, b) => a - b);
+    }
 
-    let legend_cells = d3
-      .select(".map-zoomable-legend")
+    let legend_cells = d3.select(".map-zoomable-legend")
       .append("g")
       .attr("width", w)
       .attr("height", h)
@@ -165,7 +173,7 @@ class PlantLevelMapZoom extends Component {
       )
       .attr("dx", 0)
       .attr("dy", 0)
-      .text((d,i) => i===0 ? this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_outlier[this.props.field]? ">=" + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
+      .text((d,i) => i===0 ? "<=" + this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_dist[this.props.field].max? ">=" + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
       .style("text-anchor", "middle");
   }
 
@@ -175,7 +183,7 @@ class PlantLevelMapZoom extends Component {
 
     // set up scale
     field_values = features
-      .map((d) => d.properties[this.props.field])
+      .map((d) => d.properties[this.props.field + '_trimmed'])
       .sort((a, b) => a - b);
     radius_values = field_values
       .map((d) =>
@@ -209,10 +217,13 @@ class PlantLevelMapZoom extends Component {
       .filter((d) => projection(d.geometry.coordinates) !== null)
       .attr("cx", (d) => projection(d.geometry.coordinates)[0])
       .attr("cy", (d) => projection(d.geometry.coordinates)[1])
-      .attr("r", (d) => scale(d.properties[this.props.field]))
+      .attr("r", (d) => scale(d.properties[this.props.field + '_trimmed']))
       .style("opacity", this.props.circle_opacity)
       .style("fill", (d) => this.props.fuel_color_lookup[d.properties.FUEL])
       .style("stroke", (d) => this.props.fuel_color_lookup[d.properties.FUEL]);
+
+    d3.select(".map-static-legend").select("svg").remove();
+    d3.select(".map-static-legend-title").html(this.props.unit);
 
     // draw legend
     w = 400;
@@ -221,24 +232,22 @@ class PlantLevelMapZoom extends Component {
     let boxlen = w / nbox;
 
     // get features from visible layer
-    let r_values = features
-      .map((d) => scale(d.properties[this.props.field]))
-      .sort((a, b) => a - b);
+    let thresholds = Object.values(this.props.plant_dist[this.props.field]).slice(0,this.props.plant_dist[this.props.field].length);
 
-      let legend_values =
-      r_values.filter((d) => d > this.legend_min_radius).length >
-      this.legend_percentile.length
-        ? this.legend_percentile.map((d) =>
-            d3.quantile(
-              r_values.filter((d) => d > this.legend_min_radius),
-              d
-            )
-          )
-        : r_values.filter((d) => d > this.legend_min_radius);
+    if (scale.domain()[1] < thresholds.slice(thresholds.length-1)[0]) {
+      thresholds = [thresholds.slice(0)[0],
+      thresholds.slice(0)[0]+(scale.domain()[1]-thresholds.slice(0)[0])/5,
+      thresholds.slice(0)[0]+(scale.domain()[1]-thresholds.slice(0)[0])*2/5,
+      thresholds.slice(0)[0]+(scale.domain()[1]-thresholds.slice(0)[0])*3/5,
+      thresholds.slice(0)[0]+(scale.domain()[1]-thresholds.slice(0)[0])*4/5,
+      scale.domain()[1]];
 
-    d3.select(".map-static-legend").select("svg").remove();
-    d3.select(".map-static-legend-title").html(this.props.unit);
+      if (scale.domain()[1] <= thresholds.slice(0)[0]) {
+        thresholds = [thresholds.slice(0)[0]];
+      }
+    }
 
+    let legend_values = thresholds.map((d) => scale(d)).sort((a, b) => a - b);
     let legend_cells = d3
       .select(".map-static-legend")
       .append("svg")
@@ -269,7 +278,7 @@ class PlantLevelMapZoom extends Component {
       )
       .attr("dx", 0)
       .attr("dy", 0)
-      .text((d,i) => i===0 ? this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_outlier[this.props.field]? ">=" + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
+      .text((d,i) => i===0 ? "<=" + this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_dist[this.props.field].max? ">=" + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
       .style("text-anchor", "middle");
   }
 
@@ -281,13 +290,22 @@ class PlantLevelMapZoom extends Component {
           (d) => this.state.selected_fuel.indexOf(d.properties.FUEL) !== -1
         )
         .map((d) => {
+          d.properties[this.props.field +  '_trimmed'] = d.properties[this.props.field];
           if (
             d.properties[this.props.field] >=
-            this.props.plant_outlier[this.props.field]
+            this.props.plant_dist[this.props.field].max
           ) {
-            d.properties[this.props.field] = this.props.plant_outlier[
+            d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
               this.props.field
-            ];
+            ].max;
+          }
+          if (
+            d.properties[this.props.field] <=
+            this.props.plant_dist[this.props.field].min
+          ) {
+            d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
+              this.props.field
+            ].min;
           }
           return d;
         }),
@@ -299,7 +317,7 @@ class PlantLevelMapZoom extends Component {
 
     // update legend
     let factor =
-      d3.max(data.features.map((d) => d.properties[this.props.field])) /
+      d3.max(data.features.map((d) => d.properties[this.props.field + '_trimmed'])) /
       this.field_factor_divided_by;
 
     // update source data event
@@ -358,13 +376,24 @@ class PlantLevelMapZoom extends Component {
         return this.props.avail_fuels.indexOf(d.properties.FUEL) > -1;
       })
       .map((d) => {
+        d.properties[this.props.field +  '_trimmed'] = d.properties[this.props.field];
+
         if (
           d.properties[this.props.field] >=
-          this.props.plant_outlier[this.props.field]
+          this.props.plant_dist[this.props.field].max
         ) {
-          d.properties[this.props.field] = this.props.plant_outlier[
+          d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
             this.props.field
-          ];
+          ].max;
+        }
+
+        if (
+          d.properties[this.props.field] <=
+          this.props.plant_dist[this.props.field].min
+        ) {
+          d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
+            this.props.field
+          ].min;
         }
         return d;
       }),
@@ -376,7 +405,7 @@ class PlantLevelMapZoom extends Component {
 
     // update legend
     let factor =
-      d3.max(data.features.map((d) => d.properties[this.props.field])) /
+      d3.max(data.features.map((d) => d.properties[this.props.field + '_trimmed'])) /
       this.field_factor_divided_by;
 
     // update source data event
@@ -416,7 +445,7 @@ class PlantLevelMapZoom extends Component {
 
   setRadius(features) {
     let factor =
-      d3.max(features.map((d) => d.properties[this.props.field])) /
+      d3.max(features.map((d) => d.properties[this.props.field + '_trimmed'])) /
       this.field_factor_divided_by;
 
     this.map.setPaintProperty(
@@ -430,9 +459,9 @@ class PlantLevelMapZoom extends Component {
         ["linear"],
         ["zoom"],
         this.props.min_zoom,
-        ["/", ["get", this.props.field], factor],
+        ["/", ["get", this.props.field + '_trimmed'], factor],
         this.props.max_zoom,
-        ["/", ["get", this.props.field], factor / this.zoom_factor],
+        ["/", ["get", this.props.field + '_trimmed'], factor / this.zoom_factor],
       ]
     );
   }
@@ -514,7 +543,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl-group mapboxgl-ctrl";
         this._container.innerHTML =
-          "<button><span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src='reset_view_icon.jpg' alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
+          "<button><span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src=" + reset_view_icon + " alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
         this._container.style.borderRadius = "4px";
         this._container.style.boxShadow = "0 0 0 2px rgba(0,0,0,.1)";
         this._container.style.cursor = "pointer";
@@ -757,14 +786,26 @@ class PlantLevelMapZoom extends Component {
             features: this.props.plant_data.features.filter(d=>{
               return this.props.avail_fuels.indexOf(d.properties.FUEL) > -1;
             }).map((d) => {
+              d.properties[this.props.field +  '_trimmed'] = d.properties[this.props.field];
+
               if (
                 d.properties[this.props.field] >=
-                this.props.plant_outlier[this.props.field]
+                this.props.plant_dist[this.props.field].max
               ) {
-                d.properties[this.props.field] = this.props.plant_outlier[
+                d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
                   this.props.field
-                ];
+                ].max;
               }
+
+              if (
+                d.properties[this.props.field] <=
+                this.props.plant_dist[this.props.field].min
+              ) {
+                d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
+                  this.props.field
+                ].min;
+              }
+              
               return d;
             }),
           };

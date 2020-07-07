@@ -28,7 +28,7 @@ class UpdatedTable extends Component {
           <table style={{ maxWidth: 400, fontSize: "0.8em", borderRadius: "10px", borderCollapse: "separate", borderStyle: "hidden", boxShadow: "0 0 0 1px", margin: "0 auto"}}>
             <thead>
               <tr style={{ lineHeight: 1 }}>
-                <th style={{padding: "0.6em", borderTopLeftRadius: "10px"}}>Generation by Fuel Type</th>
+                <th style={{padding: "0.6em", textAlign: "center", borderTopLeftRadius: "10px"}}>Generation by Fuel Type</th>
                 <th style={{padding: "0.6em", textAlign: "right", }}>US<br/>Resource Mix (%)</th>                
                 <th style={{padding: "0.6em", borderTopRightRadius: "10px", textAlign: "right", height: 95}}>
                   {this.props.region==="state"?"State":this.props.region}<br/>
@@ -46,7 +46,7 @@ class UpdatedTable extends Component {
                         this.props.type === "COAL" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em" }}>Coal</td>
+                    <td style={{ padding: "0.6em" , textAlign: "center"}}>Coal</td>
                     <td style={{ textAlign: "right", padding: "0.6em"}}>
                       {this.props.table_info.US_COAL}
                     </td>
@@ -61,7 +61,7 @@ class UpdatedTable extends Component {
                       fontWeight: this.props.type === "OIL" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em" }}>Oil</td>
+                    <td style={{ padding: "0.6em" , textAlign: "center"}}>Oil</td>
                     <td style={{ textAlign: "right", padding: "0.6em" }}>
                       {this.props.table_info.US_OIL}
                     </td>
@@ -76,7 +76,7 @@ class UpdatedTable extends Component {
                       fontWeight: this.props.type === "GAS" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em" }}>Gas</td>
+                    <td style={{ padding: "0.6em" , textAlign: "center"}}>Gas</td>
                     <td style={{ textAlign: "right", padding: "0.6em" }}>
                       {this.props.table_info.US_GAS}
                     </td>
@@ -92,7 +92,7 @@ class UpdatedTable extends Component {
                         this.props.type === "NUCLEAR" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em" }}>Nuclear</td>
+                    <td style={{ padding: "0.6em" , textAlign: "center"}}>Nuclear</td>
                     <td style={{ textAlign: "right", padding: "0.6em" }}>
                       {this.props.table_info.US_NUCLEAR}
                     </td>
@@ -108,7 +108,7 @@ class UpdatedTable extends Component {
                         this.props.type === "HYDRO" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em" }}>Hydro</td>
+                    <td style={{ padding: "0.6em" , textAlign: "center"}}>Hydro</td>
                     <td style={{ textAlign: "right", padding: "0.6em" }}>
                       {this.props.table_info.US_HYDRO}
                     </td>
@@ -124,7 +124,7 @@ class UpdatedTable extends Component {
                         this.props.type === "BIOMASS" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em" }}>Biomass</td>
+                    <td style={{ padding: "0.6em" , textAlign: "center" }}>Biomass</td>
                     <td style={{ textAlign: "right", padding: "0.6em" }}>
                       {this.props.table_info.US_BIOMASS}
                     </td>
@@ -140,7 +140,7 @@ class UpdatedTable extends Component {
                         this.props.type === "WIND" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em" }}>Wind</td>
+                    <td style={{ padding: "0.6em", textAlign: "center" }}>Wind</td>
                     <td style={{ textAlign: "right", padding: "0.6em" }}>
                       {this.props.table_info.US_WIND}
                     </td>
@@ -156,7 +156,7 @@ class UpdatedTable extends Component {
                         this.props.type === "SOLAR" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em" }}>Solar</td>
+                    <td style={{ padding: "0.6em", textAlign: "center" }}>Solar</td>
                     <td style={{ textAlign: "right", padding: "0.6em" }}>
                       {this.props.table_info.US_SOLAR}
                     </td>
@@ -172,7 +172,7 @@ class UpdatedTable extends Component {
                         this.props.type === "GEOTHERMAL" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em" }}>Geothermal</td>
+                    <td style={{ padding: "0.6em", textAlign: "center" }}>Geothermal</td>
                     <td style={{ textAlign: "right", padding: "0.6em" }}>
                       {this.props.table_info.US_GEOTHERMAL}
                     </td>
@@ -188,7 +188,7 @@ class UpdatedTable extends Component {
                         this.props.type === "OFSL" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em" }}>Other Fossil</td>
+                    <td style={{ padding: "0.6em", textAlign: "center" }}>Other Fossil</td>
                     <td style={{ textAlign: "right", padding: "0.6em" }}>
                       {this.props.table_info.US_OFSL}
                     </td>
@@ -204,7 +204,7 @@ class UpdatedTable extends Component {
                         this.props.type === "OTHF" ? "bold" : "normal",
                     }}
                   >
-                    <td style={{ padding: "0.6em", borderBottomLeftRadius: "10px"}}>Other Unknown or Purchased Fuel</td>
+                    <td style={{ padding: "0.6em", textAlign: "center", borderBottomLeftRadius: "10px"}}>Other Unknown or Purchased Fuel</td>
                     <td style={{ textAlign: "right", padding: "0.6em" }}>
                       {this.props.table_info.US_OTHF}
                     </td>
@@ -321,21 +321,21 @@ class UpdatedTable extends Component {
             <table style={{fontSize: "0.8em", borderRadius: "10px", borderCollapse: "separate", borderStyle: "hidden", boxShadow: "0 0 0 1px"}}>
             <thead>
               <tr style={{ lineHeight: 1 }}>
-                <th style={{ padding: "0.4em", width: 416, borderTopLeftRadius: "10px"}}>Plant Name</th>
-                <th style={{ padding: "0.4em",textAlign: "right", width: 170, height: 50, borderTopRightRadius: "10px"}}>{this.props.table_info.PNAME}</th>
+                <th style={{ padding: "0.4em", textAlign: "center", width: 416, borderTopLeftRadius: "10px"}}>Plant Name</th>
+                <th style={{ padding: "0.4em", textAlign: "right", width: 170, height: 50, borderTopRightRadius: "10px"}}>{this.props.table_info.PNAME}</th>
               </tr>
             </thead>
             <tbody>
               <tr style={{ lineHeight: 1 }}>
-                <td style={{ padding: "0.4em", width: 416}}>Facility ID</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416}}>Facility ID</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", width: 170, textAlign: "right"}}>{this.props.table_info.ORISPL}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td style={{ padding: "0.4em", width: 416 }}>Plant State</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>Plant State</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", width: 170, textAlign: "right"}}>{this.props.table_info.PSTATABB}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td style={{ padding: "0.4em", width: 416 }}>eGRID Subregion</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>eGRID Subregion</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>
                   <a href="https://www.epa.gov/sites/production/files/styles/large/public/2020-03/2018_egrid_subregions.png">
                     {this.props.table_info.SUBRGN}
@@ -343,91 +343,92 @@ class UpdatedTable extends Component {
                 </td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td style={{ padding: "0.4em", width: 416 }}>Plant Primary Fuel</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>Plant Primary Fuel</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLPRMFL}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td style={{ padding: "0.4em", width: 416 }}>Plant Secondary Fuel</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>Plant Secondary Fuel</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.SECFUEL}</td>
               </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "NUMUNT" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="NUMUNT" ? "bold" : "normal"}}>
-                <td style={{ padding: "0.4em", width: 416 }}>Number of Units</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>Number of Units</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170}}>{this.props.table_info.NUMUNT}</td>
               </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "NUMGEN" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="NUMGEN" ? "bold" : "normal"}}>
-                <td style={{ padding: "0.4em", width: 416}}>Number of Generators</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416}}>Number of Generators</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170}}>{this.props.table_info.NUMGEN}</td>
               </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLNAMEPCAP" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLNAMEPCAP" ? "bold": "normal"}}>
-                <td style={{ padding: "0.4em", width: 416,}}>Nameplate Capacity (MW)</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416,}}>Nameplate Capacity (MW)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLNAMEPCAP}</td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
-                <td style={{ padding: "0.4em", width: 416 }}>Plant Capacity Factor</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>Plant Capacity Factor</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.CAPFAC}</td>
               </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLNGENAN" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLNGENAN" ? "bold" : "normal"}}>
-                <td style={{ padding: "0.4em", width: 416 }}>Generation (MWh)</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>Plant Generation (MWh)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLNGENAN}</td>
               </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLHTIANT" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLHTIANT" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>Heat Input (MMBtu)</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>Heat Input (MMBtu)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLHTIANT}</td>
               </tr>
+
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLNOXAN" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLNOXAN" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416}}>NOₓ Annual Emissions (tons)</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416}}>NOₓ Annual Emissions (tons)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLNOXAN}</td>
               </tr>
-              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLNOXRTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLNOXRTA" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em" , width: 416}}>NOₓ Annual Output Emission Rate (lb/MWh)</td>
-                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLNOXRTA}</td>
-              </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLNOXOZ" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLNOXOZ" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em" , width: 416 }}>NOₓ Ozone Season Emissions (tons)</td>
+                <td style={{ padding: "0.4em" , textAlign: "center", width: 416 }}>NOₓ Ozone Season Emissions (tons)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLNOXOZ}</td>
               </tr>
-              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLNOXRTO" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLNOXRTO" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>NOₓ Ozone Season Output Emission Rate (lb/MWh)</td>
-                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLNOXRTO}</td>
-              </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLSO2AN" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLSO2AN" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>SO₂ Annual Emissions (tons)</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>SO₂ Annual Emissions (tons)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLSO2AN}</td>
               </tr>
-              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLSO2RTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLSO2RTA" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>SO₂ Annual Output Emission Rate (lb/MWh)</td>
-                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLSO2RTA}</td>
-              </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLCO2AN" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLCO2AN" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>CO₂ Annual Emissions (tons)</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>CO₂ Annual Emissions (tons)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLCO2AN}</td>
               </tr>
-              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLCO2RTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLCO2RTA" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>CO₂ Annual Output Emission Rate (lb/MWh)</td>
-                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLCO2RTA}</td>
-              </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLCH4AN" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLCH4AN" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>CH₄ Annual Emissions (lbs)</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>CH₄ Annual Emissions (lbs)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLCH4AN}</td>
               </tr>
-              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLCH4RTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLCH4RTA" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>CH₄ Annual Output Emission Rate (lb/MWh)</td>
-                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLCH4RTA}</td>
-              </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLN2OAN" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLN2OAN" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>N₂O Annual Emissions (lbs)</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>N₂O Annual Emissions (lbs)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLN2OAN}</td>
               </tr>
-              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLN2ORTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLN2ORTA" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>N₂O Annual Output Emission Rate (lb/MWh)</td>
-                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLN2ORTA}</td>
-              </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLCO2EQA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLCO2EQA" ? "bold" : "normal" }}>
-                <td style={{ padding: "0.4em", width: 416 }}>CO₂ equivalent Annual Emissions (tons)</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>CO₂ equivalent Annual Emissions (tons)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLCO2EQA}</td>
               </tr>
+              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLNOXRTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLNOXRTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416}}>NOₓ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLNOXRTA}</td>
+              </tr>
+              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLNOXRTO" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLNOXRTO" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>NOₓ Ozone Season Output Emission Rate (lb/MWh)</td>
+                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLNOXRTO}</td>
+              </tr>
+              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLSO2RTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLSO2RTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>SO₂ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLSO2RTA}</td>
+              </tr>
+              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLCO2RTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLCO2RTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>CO₂ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLCO2RTA}</td>
+              </tr>
+              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLCH4RTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLCH4RTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>CH₄ Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLCH4RTA}</td>
+              </tr>
+              <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLN2ORTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLN2ORTA" ? "bold" : "normal" }}>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>N₂O Annual Output Emission Rate (lb/MWh)</td>
+                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>{this.props.table_info.PLN2ORTA}</td>
+              </tr>
               <tr style={{ lineHeight: 1, backgroundColor: this.props.field === "PLC2ERTA" ?"rgba(0, 113, 188, 0.1)":"rgb(256, 256, 256)", fontWeight: this.props.field==="PLC2ERTA" ? "bold" : "normal"}}>
-                <td style={{ padding: "0.4em", width: 416, borderBottomLeftRadius: "10px" }}>CO₂ equivalent Output Emission Rate (lb/MWh)</td>
+                <td style={{ padding: "0.4em", textAlign: "center", width: 416, borderBottomLeftRadius: "10px" }}>CO₂ equivalent Output Emission Rate (lb/MWh)</td>
                 <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170, borderBottomRightRadius: "10px"}}>{this.props.table_info.PLC2ERTA}</td>
               </tr>
             </tbody>

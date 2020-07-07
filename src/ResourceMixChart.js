@@ -171,14 +171,14 @@ class ResourceMixChart extends Component {
 
       // micromap
       d3.select(this.micromap.current).selectAll("path").remove();
-      let w_micro = d3.select(this.micromap.current).node().clientWidth,
-        h_micro = this.props.filter_height;
+      let w_micro = d3.select(this.micromap.current).node().clientWidth, h_micro = this.props.filter_height;
       let projection = d3_composite
         .geoAlbersUsaTerritories()
         .scale(Math.min(w_micro*0.8, h_micro * 2))
         .translate([w_micro / 2, h_micro / 2]);
       let path = d3.geoPath().projection(projection);
       d3.select(this.micromap.current)
+        .append("g")
         .selectAll("path")
         .data(this.props.layer.features)
         .enter()
@@ -188,6 +188,14 @@ class ResourceMixChart extends Component {
         .style("fill", "transparent")
         .style("stroke", "#000")
         .style("stroke-width", 0.5);
+    
+      d3.select(this.micromap.current)
+      .append('text')
+      .attr("transform", "translate(0,"+h_micro*0.98+")")
+      .style("font-size", "0.7em")
+      .style("stroke", "none")
+      .style("fill", "#000")
+      .text("Open eGRID Subregion Map");
 
       // barchart
       d3.select(this.barchart.current).selectAll("g").remove();
