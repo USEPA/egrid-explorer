@@ -25,11 +25,11 @@ class PlantLevelMapZoom extends Component {
     this.legend_min_radius = 3;
     this.map_layer_load_times = 0;
     this.field_factor_divided_by = 12;
-    this.max_radius = 24;
-    this.zoom_factor = this.max_radius / this.field_factor_divided_by;
+    this.max_radius = 22;
     this.legend_len = 6;
-    this.legend_percentile = [0, 0.2, 0.4, 0.6, 0.8, 1];
 
+    this.zoom_factor = this.max_radius / this.field_factor_divided_by;
+    
     this.filter_text = "Filter by Primary Fuel";
     this.filter_reset_text = "Show All Fuels";
 
