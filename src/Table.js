@@ -1,6 +1,15 @@
 import React, { Component } from "react";
+import Dialog from "./Dialog.js";
+import SubregionMap from "./assets/img/2018_egrid_subregions.png";
 
 class UpdatedTable extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      show_modal: false
+    };
+  }
+
   render() {
     let ggl_table = [];
 
@@ -336,10 +345,8 @@ class UpdatedTable extends Component {
               </tr>
               <tr style={{ lineHeight: 1 }}>
                 <td style={{ padding: "0.4em", textAlign: "center", width: 416 }}>eGRID Subregion</td>
-                <td style={{ padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170 }}>
-                  <a href="https://www.epa.gov/sites/production/files/styles/large/public/2020-03/2018_egrid_subregions.png">
-                    {this.props.table_info.SUBRGN}
-                  </a>
+                <td onClick={()=>{this.setState({ show_modal: true });}} style={{ cursor: "pointer", padding: 0, paddingRight: "0.4em", textAlign: "right", width: 170, color: "rgb(0, 113, 188)", fontWeight: "bold"}}>
+                  {this.props.table_info.SUBRGN}
                 </td>
               </tr>
               <tr style={{ lineHeight: 1 }}>
@@ -435,6 +442,14 @@ class UpdatedTable extends Component {
           </table>
           )
         )}
+        <Dialog
+          is_table="false"
+          has_image="true"
+          title="eGRID Subregion"
+          text={{"text":[], "list":[], "image": SubregionMap}}
+          show={this.state.show_modal}
+          onHide={() => this.setState({ show_modal: false })}
+        />
       </div>
     );
   }

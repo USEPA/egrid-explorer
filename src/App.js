@@ -514,6 +514,7 @@ class App extends Component {
         )}
         <Dialog
           is_table="false"
+          has_image="false"
           title={this.more_info_title}
           text={this.more_info_text}
           show={this.state.show_modal}

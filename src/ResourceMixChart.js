@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import * as d3 from "d3";
 import * as _ from "underscore";
 import * as d3_composite from "d3-composite-projections";
-
+import Dialog from "./Dialog.js";
 import UpdatedTable from "./Table";
+import SubregionMap from "./assets/img/2018_egrid_subregions.png";
 
 class ResourceMixChart extends Component {
   constructor(props) {
@@ -23,6 +24,7 @@ class ResourceMixChart extends Component {
       clicked_on_bar: false,
       selected_region: this.props.region,
       table_info: {},
+      show_modal: false
     };
     this.sort_text = "Reset";
     this.sort_reset_text = "Reset";
@@ -171,7 +173,8 @@ class ResourceMixChart extends Component {
 
       // micromap
       d3.select(this.micromap.current).selectAll("path").remove();
-      let w_micro = d3.select(this.micromap.current).node().clientWidth, h_micro = this.props.filter_height;
+      let w_micro = d3.select(this.micromap.current).node().clientWidth, 
+          h_micro = this.props.filter_height * 0.85;
       let projection = d3_composite
         .geoAlbersUsaTerritories()
         .scale(Math.min(w_micro*0.8, h_micro * 2))
@@ -188,14 +191,10 @@ class ResourceMixChart extends Component {
         .style("fill", "transparent")
         .style("stroke", "#000")
         .style("stroke-width", 0.5);
-    
+      
       d3.select(this.micromap.current)
-      .append('text')
-      .attr("transform", "translate(0,"+h_micro*0.98+")")
-      .style("font-size", "0.7em")
-      .style("stroke", "none")
-      .style("fill", "#000")
-      .text("Open eGRID Subregion Map");
+        .style("cursor", "pointer")
+        .on("click", ()=>{ this.setState({ show_modal: true });});
 
       // barchart
       d3.select(this.barchart.current).selectAll("g").remove();
@@ -537,7 +536,8 @@ class ResourceMixChart extends Component {
         .style("display", "inline-flex")
         .style("cursor", "pointer")
         .style("margin", 0)
-        .style("border-radius", "5px");
+        .style("border-radius", "5px")
+        .style("vertical-align", "bottom");
 
       let fuels_svg = fuels
         .append("svg")
@@ -566,6 +566,7 @@ class ResourceMixChart extends Component {
         .select(".fuels")
         .insert("div", ".fuel")
         .style("display", "inline-flex")
+        .style("vertical-align", "bottom")
         .attr("class", "reset")
         .style("opacity", 0.5)
         .style("cursor", "not-allowed")
@@ -935,6 +936,14 @@ class ResourceMixChart extends Component {
             />
           </div>
         </div>
+        <Dialog
+          is_table="false"
+          has_image="true"
+          title="eGRID Subregion"
+          text={{"text":[], "list":[], "image": SubregionMap}}
+          show={this.state.show_modal}
+          onHide={() => this.setState({ show_modal: false })}
+        />
       </div>
     );
   }

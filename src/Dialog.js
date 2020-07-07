@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 function Dialog(props) {
   let table_rows = [],
     table_header,
-    list = [];
+    list = [], text = [];
 
   if (props.is_table === "true") {
     table_header = (
@@ -30,7 +30,10 @@ function Dialog(props) {
     });
   } else {
     props.text.list.forEach((l, i) => {
-    list.push(<li key={i}>{l}</li>);
+      list.push(<li key={i}>{l}</li>);
+    });
+    props.text.text.forEach((t, i) => {
+      text.push(<p key={i}>{t}</p>);
     });
   }
 
@@ -54,11 +57,12 @@ function Dialog(props) {
           </table>
         ) : (
           <div style={{ fontSize: "1.2em" }}>
-            <p>{props.text.text[0]}</p>
-            <p>{props.text.text[1]}</p>
-            <p>{props.text.text[2]}</p>
+            {text}
             <ul>{list}</ul>
           </div>
+        )}
+        {props.has_image === "true" && (
+          <img src={props.text.image} alt='subregion_map' style={{width:'100%'}}/>
         )}
       </Modal.Body>
       <Modal.Footer>

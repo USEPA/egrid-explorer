@@ -401,7 +401,7 @@ class Visualization extends Component {
           ipad_width={768}
           table_width={400}
           barchart_height={600}
-          filter_height={120}
+          filter_height={130}
           margin_top={20}
           margin_right={10}
           margin_left={region === "state" ? 155 : 60}
@@ -692,6 +692,7 @@ class UpdatedVisualization extends Component {
         </div>
         <Dialog
           is_table="true"
+          has_image="false"
           title={this.glossary_title}
           table_header={this.glossary_table_header}
           table_rows={this.glossary_table_rows}

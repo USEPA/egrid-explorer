@@ -4,7 +4,6 @@ import * as d3 from "d3";
 import * as d3_composite from "d3-composite-projections";
 
 import reset_view_icon from "./assets/img/reset_view_icon.jpg";
-
 import UpdatedTable from "./Table";
 
 mapboxgl.accessToken =
