@@ -155,7 +155,7 @@ class PlantLevelMapZoom extends Component {
 
     legend_cells
       .append("circle")
-      .style("fill", "#ddd")
+      .style("fill", this.props.fuel_background_select_color)
       .style("stroke", "black")
       .attr("r", (d) => d)
       .attr("cx", boxlen / 2)
@@ -260,7 +260,7 @@ class PlantLevelMapZoom extends Component {
 
     legend_cells
       .append("circle")
-      .style("fill", "#ddd")
+      .style("fill", this.props.fuel_background_select_color)
       .style("stroke", "black")
       .attr("r", (d) => d)
       .attr("cx", boxlen / 2)
@@ -365,7 +365,7 @@ class PlantLevelMapZoom extends Component {
       .selectAll(".fuel")
       .filter((d) => this.state.selected_fuel.indexOf(d) !== -1)
       .classed("selected", true)
-      .style("background", "#ddd");
+      .style("background", this.props.fuel_background_select_color);
   }
 
   updateMapWithNOFuelFilter() {
@@ -639,7 +639,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl";
         this._container.innerHTML =
-          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span class='map-zoomable-legend-title'></span></div><div><svg class='map-zoomable-legend' style='width:300px;height:75px;'></svg></div></div>";
+          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span class='map-zoomable-legend-title'></span></div><div><svg class='map-zoomable-legend'></svg></div></div>";
 
         return this._container;
       }
@@ -712,7 +712,7 @@ class PlantLevelMapZoom extends Component {
           d3.select(".fuels")
             .insert("div", ".fuel")
             .style("display", "inline-flex")
-            .attr("class", "reset no-export")
+            .attr("class", "reset no-export-to-pdf")
             .style("opacity", 0.5)
             .style("cursor", "not-allowed")
             .append("svg")
@@ -756,7 +756,7 @@ class PlantLevelMapZoom extends Component {
                 .filter((e) => e === d);
               if (this.map.loaded()) {
                 if (!n.classed("selected")) {
-                  n.style("background", "#eee");
+                  n.style("background", this.props.fuel_background_highlight_color);
                 }
               }
             })
@@ -769,7 +769,7 @@ class PlantLevelMapZoom extends Component {
                 if (!n.classed("selected")) {
                   n.style("background", "none");
                 } else {
-                  n.style("background", "#ddd");
+                  n.style("background", this.props.fuel_background_select_color);
                 }
               }
             });
@@ -1042,54 +1042,42 @@ class PlantLevelMapZoom extends Component {
 
   render() {
     let title = (
-      <p
-        style={{
-          fontSize: "1.2em",
-          fontWeight: "bold",
-          fill: "#000",
-          className: "title",
-          textAnchor: "middle",
-        }}
-      >
+      <p className="title">
         {this.props.title}
       </p>
     );
 
     return (
-      <div
-        id="map-zoomable"
-        style={{ width: "100%", height: "100%", margin: "0 auto" }}
-      >
+      <div id="map-zoomable-wrapper">
         {title}
         <div
           className="fuels-selection"
-          style={{ width: "100%", height: 100, display: "inline-block" }}
+          style={{ width: "100%" }}
           ref={this.fuels}
         ></div>
-        <div style={{ display: "block", width: "100%" }}>
+        <div id="map-zoomable">
           <div
             className="map-container"
             style={{
               width: this.props.window_width < 1024 ? "100%" : "62%",
               height: this.props.window_width < 1024 ? 640 : 850,
-              display: "inline-block",
               verticalAlign: "top",
             }}
             ref={(node) => (this.container = node)}
           />
           <div
+            className="table-wrapper"
             style={{
               width: this.props.window_width < 1024 ? "unset" : "37%",
               marginTop: this.props.window_width < 1024 ? 5 : 0,
-              marginLeft: 5,
-              display: "inline-block",
-              verticalAlign: "top",
+              marginLeft: 5
             }}
           >
             <UpdatedTable
               title={this.props.title}
               field={this.props.field}
               table_info={this.state.table_info}
+              highlight_color={this.props.table_highlight_color}
             />
           </div>
         </div>

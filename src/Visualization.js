@@ -39,7 +39,6 @@ class Visualization extends Component {
       background_layer: {},
       layer: {},
     };
-
     this.init_window_width = window.innerWidth;
     this.plant_avail_fuels = ["COAL", "OIL", "GAS", "NUCLEAR", "HYDRO", "BIOMASS", "WIND", "SOLAR", "GEOTHERMAL", "OFSL", "OTHF"];
   }
@@ -97,7 +96,7 @@ class Visualization extends Component {
     } else if (region === "state") {
       data = this.props.state_data;
       layer = this.props.state_layer;
-    } else if (region === "Plant") {
+    } else if (region === "plant") {
       data = this.props.plant_data;
     }
 
@@ -127,12 +126,12 @@ class Visualization extends Component {
           id: d.id,
           label: d.label,
           unit: this.props.unit,
-          type: region !== "Plant" ? lookup[this.props.tier5] : d.FUEL,
+          type: region !== "plant" ? lookup[this.props.tier5] : d.FUEL,
           value: d[this.props.field],
         };
       });
 
-      if (region === "Plant") {
+      if (region === "plant") {
         const fuel_sentence_code_lookup = this.props.fuel_sentence_code_lookup;
         if (lookup[this.props.tier1]==="total generation (MWh)" & lookup[this.props.tier2]!=="all fuels") {
           this.plant_avail_fuels = fuel_sentence_code_lookup[lookup[this.props.tier2]];
@@ -209,13 +208,13 @@ class Visualization extends Component {
           window.print();
         });
         d3.selectAll("#export-static").on("click", () => {
-          let zoomable_status = d3.select("#map-zoomable").style("display");
-          let static_status = d3.select("#map-static").style("display");
-          d3.select("#map-zoomable").style("display", "none");
-          d3.select("#map-static").style("display", null);
+          let zoomable_status = d3.select("#map-zoomable-wrapper").style("display");
+          let static_status = d3.select("#map-static-wrapper").style("display");
+          d3.select("#map-zoomable-wrapper").style("display", "none");
+          d3.select("#map-static-wrapper").style("display", null);
           window.print();
-          d3.select("#map-zoomable").style("display", zoomable_status);
-          d3.select("#map-static").style("display", static_status);
+          d3.select("#map-zoomable-wrapper").style("display", zoomable_status);
+          d3.select("#map-static-wrapper").style("display", static_status);
         });
         d3.select("#export-table").on("click", () => {
           let export_table,
@@ -315,10 +314,13 @@ class Visualization extends Component {
   render() {
     let category = lookup[this.props.tier1],
       region = lookup[this.props.tier5];
-    const plant_dist_max = this.props.plant_dist_max;
     const plant_dist = this.props.plant_dist;
     const fuel_label_lookup = this.props.fuel_label_lookup;
     const fuel_color_lookup = this.props.fuel_color_lookup;
+    const table_highlight_color = this.props.table_highlight_color;
+    const resourcemix_micromap_highlight_color=this.props.resourcemix_micromap_highlight_color;
+    const fuel_background_highlight_color=this.props.fuel_background_highlight_color;
+    const fuel_background_select_color=this.props.fuel_background_select_color;
     const wrap_long_labels = this.props.wrap_long_labels;
     let fuel_name_lookup = {};
     this.state.fuels.forEach((d) => {
@@ -360,8 +362,8 @@ class Visualization extends Component {
     let vis;
     if (category === "grid gross loss rates") {
       vis = (
-        <div style={{ textAlign: "center" }}>
-          <div style={{ display: "inline-block", verticalAlign: "top" }}>
+        <div className="visualization-wrapper">
+          <div className="wrapper">
             <OtherLevelMap
               title={this.state.name}
               data={this.props.ggl_data}
@@ -381,54 +383,60 @@ class Visualization extends Component {
               map_fill={this.state.map_fill}
             />
           </div>
-          <div style={{ display: "inline-block", verticalAlign: "top" }}>
+          <div className="table-wrapper">
             <UpdatedTable
-              style={{ display: "inline-block", verticalAlign: "top" }}
               title={this.state.name}
               data={this.props.ggl_subrgn_data}
+              highlight_color={this.props.table_highlight_color}
             />
           </div>
         </div>
       );
     } else if (category === "resource mix (%)") {
       vis = (
-        <ResourceMixChart
-          title={this.state.name}
-          data={this.state.resource_mix_data}
-          window_width={this.state.window_width}
-          window_height={this.state.window_height}
-          width={this.init_window_width > 1280 ? 1280 : this.init_window_width}
-          ipad_width={768}
-          table_width={400}
-          barchart_height={600}
-          filter_height={130}
-          margin_top={20}
-          margin_right={10}
-          margin_left={region === "state" ? 155 : 60}
-          layer={this.state.layer}
-          us_data={this.state.us_data}
-          unit={this.props.unit}
-          fuels={this.state.fuels}
-          category={category}
-          region={region}
-          field={this.state.field}
-          layer_type={region}
-          fuel_label_lookup={fuel_label_lookup}
-          fuel_color_lookup={fuel_color_lookup}
-          fuel_name_lookup={fuel_name_lookup}
-          wrap_long_labels={wrap_long_labels}
-        />
+        <div className="visualization-wrapper">
+          <ResourceMixChart
+            title={this.state.name}
+            data={this.state.resource_mix_data}
+            window_width={this.state.window_width}
+            window_height={this.state.window_height}
+            width={this.init_window_width > 1280 ? 1280 : this.init_window_width}
+            ipad_width={768}
+            table_width={400}
+            barchart_height={600}
+            filter_height={130}
+            margin_top={20}
+            margin_right={10}
+            margin_left={region === "state" ? 155 : 60}
+            layer={this.state.layer}
+            us_data={this.state.us_data}
+            unit={this.props.unit}
+            fuels={this.state.fuels}
+            category={category}
+            region={region}
+            field={this.state.field}
+            layer_type={region}
+            fuel_label_lookup={fuel_label_lookup}
+            fuel_color_lookup={fuel_color_lookup}
+            table_highlight_color={table_highlight_color}
+            resourcemix_micromap_highlight_color={resourcemix_micromap_highlight_color}
+            fuel_background_highlight_color={fuel_background_highlight_color}
+            fuel_background_select_color={fuel_background_select_color}
+            fuel_name_lookup={fuel_name_lookup}
+            wrap_long_labels={wrap_long_labels}
+          />
+        </div>
       );
     } else {
-      if (region !== "Plant") {
+      if (region !== "plant") {
         vis =
           this.state.data.length === 0 ? (
             <div className="loading">
               <Spinner animation="grow" variant="success" />
             </div>
           ) : (
-            <div style={{ textAlign: "center" }}>
-              <div style={{ display: "inline-block", verticalAlign: "top" }}>
+            <div className="visualization-wrapper">
+              <div className="wrapper">
                 <OtherLevelMap
                   title={this.state.name}
                   data={this.state.data}
@@ -467,7 +475,7 @@ class Visualization extends Component {
                   unit={this.state.unit}
                 />
               </div>
-              <div style={{ display: "inline-block", verticalAlign: "top" }}>
+              <div className="wrapper">
                 <OtherLevelBarchart
                   title={this.state.name}
                   data={this.state.data}
@@ -493,14 +501,14 @@ class Visualization extends Component {
               </div>
             </div>
           );
-      } else if (region === "Plant") {
+      } else if (region === "plant") {
         vis =
           this.state.data.length === 0 ? (
             <div className="loading">
               <Spinner animation="grow" variant="success" />
             </div>
           ) : (
-            <div style={{ textAlign: "center" }}>
+            <div className="visualization-wrapper">
               <PlantLevelMapZoom
                 title={this.state.name}
                 plant_data={this.state.plant_data_map_only}
@@ -517,10 +525,12 @@ class Visualization extends Component {
                 circle_opacity={0.8}
                 unit={this.state.unit}
                 field={this.state.field}
-                plant_dist_max={plant_dist_max}
                 plant_dist = {plant_dist}
                 fuel_label_lookup={fuel_label_lookup}
                 fuel_color_lookup={fuel_color_lookup}
+                table_highlight_color={table_highlight_color}
+                fuel_background_highlight_color={fuel_background_highlight_color}
+                fuel_background_select_color={fuel_background_select_color}
                 wrap_long_labels={wrap_long_labels}
               />
               <PlantLevelMapStatic
@@ -534,7 +544,7 @@ class Visualization extends Component {
           );
       }
     }
-    return <div style={{ textAlign: "center" }}>{vis}</div>;
+    return <div>{vis}</div>;
   }
 }
 
@@ -572,14 +582,17 @@ class UpdatedVisualization extends Component {
     return (
       <div>
         <Visualization
-          style={{ textAlign: "center" }}
+          className="visualization-wrapper"
           options={this.props.options}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}
-          plant_dist_max={this.props.plant_dist_max}
           plant_dist={this.props.plant_dist}
           fuel_label_lookup={this.props.fuel_label_lookup}
           fuel_color_lookup={this.props.fuel_color_lookup}
+          table_highlight_color={this.props.table_highlight_color}
+          resourcemix_micromap_highlight_color={this.props.resourcemix_micromap_highlight_color}
+          fuel_background_highlight_color={this.props.fuel_background_highlight_color}
+          fuel_background_select_color={this.props.fuel_background_select_color}
           fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
           wrap_long_labels={this.props.wrap_long_labels}
           field={this.props.field}
@@ -602,61 +615,39 @@ class UpdatedVisualization extends Component {
           ggl_layer={this.props.ggl_layer}
         />
         <div
+          className="no-export-to-pdf buttons-wrapper"
           style={{
-            marginTop: "0.5rem",
-            marginLeft: "0.5rem",
             textAlign: this.state.window_width < 1024 ? "center" : "left",
           }}
-          className="no-export"
         >
           <input
-            style={{
-              margin: "5px 0",
-              borderRadius: "4px",
-            }}
             type="button"
             id="export-table"
             value="Export Table"
           />{" "}
-          {lookup[this.props.tier5] !== "Plant" && (
+          {lookup[this.props.tier5] !== "plant" && (
             <input
-              style={{
-                margin: "5px 0",
-                borderRadius: "4px",
-              }}
               type="button"
               className="export-vis"
               value="Export Visualization"
             />
           )}
-          {lookup[this.props.tier5] === "Plant" && (
+          {lookup[this.props.tier5] === "plant" && (
             <input
-              style={{
-                margin: "5px 0",
-                borderRadius: "4px",
-              }}
               type="button"
               className="export-vis"
               value="Export Zoomable Map"
             />
           )}
-          {lookup[this.props.tier5] === "Plant" && " "}
-          {lookup[this.props.tier5] === "Plant" && (
+          {lookup[this.props.tier5] === "plant" && " "}
+          {lookup[this.props.tier5] === "plant" && (
             <input
-              style={{
-                margin: "5px 0",
-                borderRadius: "4px",
-              }}
               type="button"
               id="export-static"
               value="Export Static Map"
             />
           )}{" "}
           <input
-            style={{
-              margin: "5px 0",
-              borderRadius: "4px",
-            }}
             type="button"
             value="Glossary"
             onClick={this.handleOpenDialog}
@@ -667,10 +658,6 @@ class UpdatedVisualization extends Component {
             rel="noopener noreferrer"
           >
             <input
-              style={{
-                margin: "5px 0",
-                borderRadius: "4px",
-              }}
               type="button"
               value="Download eGRID2018 data"
             />
@@ -681,10 +668,6 @@ class UpdatedVisualization extends Component {
             rel="noopener noreferrer"
           >
             <input
-              style={{
-                margin: "5px 0",
-                borderRadius: "4px",
-              }}
               type="button"
               value="Feedback or Questions"
             />

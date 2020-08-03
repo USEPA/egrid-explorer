@@ -18,7 +18,11 @@ class OtherLevelBarchart extends Component {
   }
 
   formatXaxis(d) {
-    if (d >= 1000) {
+    if (d < 1) {
+      return d==0? d:d3.format(".3f")(d);
+    } else if (d >= 1 && d < 10) {
+      return d3.format(".2f")(d);
+    } else if (d >= 1000) {
       let num = d3.format(".2s")(d);
       let abbr = num.slice(-1);
       if (abbr === "G") {
@@ -31,10 +35,6 @@ class OtherLevelBarchart extends Component {
         return num;
       }
       return num;
-    } else if (d >= 1 && d < 10) {
-      return d3.format(".2")(d);
-    } else if (d < 1) {
-      return d3.format(".3")(d);
     } else {
       return d3.format(".0f")(d);
     }
@@ -42,7 +42,7 @@ class OtherLevelBarchart extends Component {
 
   formatNumber(d) {
     if (d < 1) {
-      return d3.format(".3f")(d);
+      return d==0? d : d3.format(".3f")(d);
     } else if (d >= 1000000) {
       return d3.format(",.0f")(d);
     } else {
@@ -51,8 +51,12 @@ class OtherLevelBarchart extends Component {
   }
 
   formatLabel(d) {
-    if (d >= 1000000) {
-      let num = d3.format(".2s")(d);
+    if (d < 1) {
+      return d==0? d : d3.format(".3f")(d);
+    } else if (d >= 1 && d < 10) {
+      return d3.format(".2f")(d);
+    } else if (d >= 1000000) {
+      let num = d3.format(".3s")(d);
       let abbr = num.slice(-1);
       if (abbr === "G") {
         num = num.substring(0, num.length - 1) + "B";
@@ -64,10 +68,6 @@ class OtherLevelBarchart extends Component {
         return num;
       }
       return num;
-    } else if (d >= 1 && d < 10) {
-      return d3.format(".2")(d);
-    } else if (d < 1) {
-      return d3.format(".3")(d);
     } else {
       return isNaN(d) ? "" : d3.format(",.0f")(d);
     }
@@ -78,30 +78,42 @@ class OtherLevelBarchart extends Component {
     let barFillScale = d3.scaleThreshold().range(this.props.map_fill),
       barXScale = d3
         .scaleLinear()
-        .range([0, this.state.width - this.props.margin_left - this.props.margin_right])
+        .range([
+          0,
+          this.state.width - this.props.margin_left - this.props.margin_right,
+        ])
         .domain([0, d3.max(this.props.data, (e) => e.value)]),
       barYScale = d3
         .scaleBand()
-        .range([0, this.state.height - this.props.margin_top - this.props.margin_bottom])
+        .range([
+          0,
+          this.state.height - this.props.margin_top - this.props.margin_bottom,
+        ])
         .domain(this.props.data.map((d) => d.name))
         .paddingInner(0.1)
         .paddingOuter(0.2);
 
     // update scale domain
     let domainArr = this.props.data.map((e) => e.value).sort((a, b) => a - b);
-    domainArr = domainArr.filter((d,i)=>domainArr.indexOf(d)===i);
-    let domain = d3.range(this.props.map_fill.length)
-    .map((d) => {
-      return d3.quantile(domainArr, (d+1) / this.props.map_fill.length);
+    domainArr = domainArr.filter((d, i) => domainArr.indexOf(d) === i);
+    let domain = d3.range(this.props.map_fill.length).map((d) => {
+      return d3.quantile(domainArr, (d + 1) / this.props.map_fill.length);
     });
-    domain = domain.filter((d,i)=>domain.indexOf(d)===i);
+    domain = domain.filter((d, i) => domain.indexOf(d) === i);
     barFillScale.domain(domain);
 
     // bars
     d3.select(this.bars.current).selectAll("g").remove();
     let bars = d3
       .select(this.bars.current)
-      .attr("transform", "translate(" + this.props.margin_left + "," + this.props.margin_top + ")")
+      .attr(
+        "transform",
+        "translate(" +
+          this.props.margin_left +
+          "," +
+          this.props.margin_top +
+          ")"
+      )
       .append("g")
       .selectAll("g")
       .data(this.props.data)
@@ -130,16 +142,33 @@ class OtherLevelBarchart extends Component {
       .attr("dx", 5)
       .attr("dy", barYScale.bandwidth() / 2 + 5)
       .text((d) => this.formatLabel(d.value))
-      .style("font-size", this.props.layer_type==="state"?"0.6em":(this.props.layer_type==="NERC region"?"1em":"0.8em"))
-      .style("fill", "#000")
-      .style("stroke", "none");
+      .style(
+        "font-size",
+        this.props.layer_type === "state"
+          ? "0.6em"
+          : this.props.layer_type === "NERC region"
+          ? "1em"
+          : "0.8em"
+      );
 
     // axis
-    let axis_x = this.state.width/2<160?(this.state.width/2<100?d3.axisTop(barXScale).ticks(1).tickFormat(this.formatXaxis):d3.axisTop(barXScale).ticks(3).tickFormat(this.formatXaxis)):d3.axisTop(barXScale).ticks(5).tickFormat(this.formatXaxis);
+    let axis_x =
+      this.state.width / 2 < 160
+        ? this.state.width / 2 < 100
+          ? d3.axisTop(barXScale).ticks(1).tickFormat(this.formatXaxis)
+          : d3.axisTop(barXScale).ticks(3).tickFormat(this.formatXaxis)
+        : d3.axisTop(barXScale).ticks(5).tickFormat(this.formatXaxis);
     d3.select(this.axis_x.current).selectAll("g").remove();
     d3.select(this.axis_x.current)
       .attr("class", "axis_x")
-      .attr("transform", "translate(" + this.props.margin_left + "," + this.props.margin_top + ")")
+      .attr(
+        "transform",
+        "translate(" +
+          this.props.margin_left +
+          "," +
+          this.props.margin_top +
+          ")"
+      )
       .call(axis_x)
       .selectAll("text")
       .attr("transform", "rotate(-30)")
@@ -164,7 +193,14 @@ class OtherLevelBarchart extends Component {
 
     d3.select(this.axis_y.current).selectAll("g").remove();
     d3.select(this.axis_y.current)
-      .attr("transform", "translate(" + this.props.margin_left + "," + this.props.margin_top + ")")
+      .attr(
+        "transform",
+        "translate(" +
+          this.props.margin_left +
+          "," +
+          this.props.margin_top +
+          ")"
+      )
       .attr("class", "axis_y")
       .call(d3.axisLeft(barYScale))
       .selectAll(".tick")
@@ -175,16 +211,21 @@ class OtherLevelBarchart extends Component {
           this.props.data.filter((e) => e.name === d).map((e) => e.id)[0]
       )
       .selectAll("text")
-      .style("font-size", this.props.layer_type==="state"?"1.1em":(this.props.layer_type==="NERC region"?"1.5em":"1.2em"));
+      .style(
+        "font-size",
+        this.props.layer_type === "state"
+          ? "1.1em"
+          : this.props.layer_type === "NERC region"
+          ? "1.5em"
+          : "1.2em"
+      );
 
     d3.select(this.barchart.current)
-      .on("mouseenter", ()=>{
-        d3.select(this.tooltip.current)
-        .style("display", null);
+      .on("mouseenter", () => {
+        d3.select(this.tooltip.current).style("display", null);
       })
-      .on("mouseleave", ()=>{
-        d3.select(this.tooltip.current)
-        .style("display", "none");
+      .on("mouseleave", () => {
+        d3.select(this.tooltip.current).style("display", "none");
       });
 
     d3.selectAll(".barchart_mouseover_target")
@@ -202,9 +243,9 @@ class OtherLevelBarchart extends Component {
             "<span>The <b>" +
             this.props.title.slice(0, 1).toLowerCase() +
             this.props.title.slice(1).split(" (")[0] +
-            "</b><br>for <b>" +
+            "</b> for <b>" +
             d.name +
-            "</b><br>is <b>" +
+            "</b> is <b>" +
             this.formatNumber(d.value) +
             " " +
             d.unit +
@@ -215,20 +256,21 @@ class OtherLevelBarchart extends Component {
             "<span>The <b>" +
             this.props.title.slice(0, 1).toLowerCase() +
             this.props.title.slice(1).split(" (")[0] +
-            "</b><br>for <b>" +
+            "</b> for <b>" +
             d +
-            "</b><br>is <b>" +
-            this.props.data.filter((e) => e.name === d).map((e) => this.formatNumber(e.value))[0] +
+            "</b> is <b>" +
+            this.props.data
+              .filter((e) => e.name === d)
+              .map((e) => this.formatNumber(e.value))[0] +
             " " +
             this.props.data.filter((e) => e.name === d).map((e) => e.unit)[0] +
             "</b>.</span>";
         }
 
-
         d3.select(this.tooltip.current)
           .html(html)
           .style("position", "absolute")
-          .style("top", d3.event.pageY - 270 + 15 + "px")
+          .style("top", d3.event.pageY + 15 + "px")
           .style("left", d3.event.pageX + 15 + "px")
           .style("opacity", 1);
 
@@ -291,7 +333,7 @@ class OtherLevelBarchart extends Component {
   }
 
   updateView(by) {
-    // update sort buttons 
+    // update sort buttons
     let input_n = d3.select(".sort-buttons").selectAll("input").nodes();
     let selected_input =
       by === "alphabet"
@@ -302,22 +344,18 @@ class OtherLevelBarchart extends Component {
         ? input_n.filter((e) => e.defaultValue === "Sort by Amount")[0]
         : input_n.filter((e) => e.defaultValue === "Sort A to Z")[0];
 
-    d3.select(selected_input)
-      .style("font-weight", "bold")
-      .style("border", "2px solid black")
-      .style("background-color", "#0071bc")
-      .style("color", "#fff");
-
-    d3.select(non_selected_input)
-      .style("font-weight", "normal")
-      .style("border", "none")
-      .style("background-color", "#ddd")
-      .style("color", "#000");
+    d3.selectAll(".selected-button").classed("selected-button", false);
+    d3.selectAll(".not-selected-button").classed("not-selected-button", false);
+    d3.select(selected_input).classed("selected-button", true);
+    d3.select(non_selected_input).classed("not-selected-button", true);
 
     // update chart
     let barYScale = d3
       .scaleBand()
-      .range([0, this.state.height - this.props.margin_top - this.props.margin_bottom])
+      .range([
+        0,
+        this.state.height - this.props.margin_top - this.props.margin_bottom,
+      ])
       .domain(
         this.props.data
           .sort((a, b) =>
@@ -365,76 +403,61 @@ class OtherLevelBarchart extends Component {
 
   resize() {
     if (this.props.window_width < this.props.ipad_width) {
-      this.setState({
-        width: this.props.window_width*0.8
-      }, ()=>{
-        this.initView(this.state.sort_by);
-      });
+      this.setState(
+        {
+          width: this.props.window_width * 0.8,
+        },
+        () => {
+          this.initView(this.state.sort_by);
+        }
+      );
     } else {
-      this.setState({
-        width: 400
-      }, ()=>{
-        this.initView(this.state.sort_by);
-      });
+      this.setState(
+        {
+          width: 400,
+        },
+        () => {
+          this.initView(this.state.sort_by);
+        }
+      );
     }
   }
 
   render() {
     return (
-      <div style={{width: this.state.width, height: "100%", margin: "0 auto"}}>
-        <div className="sort-buttons no-export" style={{height: 40, marginBottom: "5px"}}>
+      <div id="barchart-wrapper" style={{ width: this.state.width }}>
+        <div className="sort-buttons no-export-to-pdf">
           <input
             style={{
-              width: "50%",
-              fontSize: this.state.width/2<160?"0.7em":"1em",
-              padding: "5px",
-              borderTopLeftRadius: "4px",
-              borderBottomLeftRadius: "4px",
-              borderTopRightRadius: 0,
-              borderBottomRightRadius: 0,
+              fontSize: this.state.width / 2 < 160 ? "0.7em" : "1em",
             }}
             type="button"
-            value={this.state.width/2<100?"Alphabet":"Sort A to Z"}
+            value={this.state.width / 2 < 100 ? "Alphabet" : "Sort A to Z"}
             onClick={(e) => this.setState({ sort_by: "alphabet" })}
           />
           <input
             style={{
-              width: "50%",
-              fontSize: this.state.width/2<160?"0.7em":"1em",
-              padding: "5px",
-              marginLeft: 0,
-              borderTopLeftRadius: 0,
-              borderBottomLeftRadius: 0,
-              borderTopRightRadius: "4px",
-              borderBottomRightRadius: "4px",
+              fontSize: this.state.width / 2 < 160 ? "0.7em" : "1em",
             }}
             type="button"
-            value={this.state.width/2<100?"Amount":"Sort by Amount"}
+            value={this.state.width / 2 < 100 ? "Amount" : "Sort by Amount"}
             onClick={(e) => this.setState({ sort_by: "amount" })}
           />
         </div>
-        <div id="vertical-barchart">
+        <div id="barchart">
           <p
             style={{
-              fontSize: this.state.width/2<100?"0.8em":"1em",
-              fontWeight: "bold",
-              height: 27,
-              fill: "#000",
-              className: "title",
-              textAnchor: "middle",
-              margin: 0,
-              padding: 0,
+              fontSize: this.state.width / 2 < 100 ? "0.8em" : "1em",
             }}
           >
             {"US: " +
               this.formatNumber(this.props.us_data[0][this.props.field]) +
-              "(" +
+              " (" +
               this.props.unit +
               ")"}
           </p>
           <svg
             ref={this.barchart}
-            style={{ display: "block", margin: "0 auto" }}
             width={this.state.width}
             height={this.state.height}
           >
@@ -447,19 +470,9 @@ class OtherLevelBarchart extends Component {
             <g ref={this.bars}></g>
           </svg>
         </div>
-        <div
-          ref={this.tooltip}
-          style={{
-            opacity: 0,
-            maxWidth: 400,
-            maxHeight: 520,
-            padding: 5,
-            overflow: "auto",
-            backgroundColor: "rgba(255,255,255,0.95)",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
-            borderRadius: "4px",
-          }}
-        ></div>
+        <div>
+          <p className="tooltip" ref={this.tooltip}></p>
+        </div>
       </div>
     );
   }

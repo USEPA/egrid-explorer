@@ -28,7 +28,6 @@ class ResourceMixChart extends Component {
     };
     this.sort_text = "Reset";
     this.sort_reset_text = "Reset";
-
     this.micromap_width_pct = 0.15;
     this.fuels_filter_pct = 0.85;
     this.barchart_pct = 0.7;
@@ -187,7 +186,7 @@ class ResourceMixChart extends Component {
         .enter()
         .append("path")
         .attr("d", path)
-        .attr("class", (d) => "paths mouseover_target region_" + d.id)
+        .attr("class", (d) => "map-path mouseover_target region_" + d.id)
         .style("fill", "transparent")
         .style("stroke", "#000")
         .style("stroke-width", 0.5);
@@ -234,7 +233,7 @@ class ResourceMixChart extends Component {
                 }
               });
 
-            d3.selectAll("path.region_" + d.id).style("fill", "#aaa");
+            d3.selectAll("path.region_" + d.id).style("fill", this.props.resourcemix_micromap_highlight_color);
             d3.selectAll(".region_" + d.id + " text").style(
               "font-weight",
               "bold"
@@ -259,7 +258,7 @@ class ResourceMixChart extends Component {
               .classed("selected", false)
               .style("stroke", "none");
 
-            d3.selectAll(".paths").style("fill", "none");
+            d3.selectAll(".map-path").style("fill", "none");
             d3.selectAll(".tick text").style("font-weight", "normal");
 
             this.setState({
@@ -281,7 +280,7 @@ class ResourceMixChart extends Component {
               .style("stroke", "none");
             d3.selectAll("rect").style("opacity", 1);
 
-            d3.selectAll(".paths").style("fill", "none");
+            d3.selectAll(".map-path").style("fill", "none");
             d3.selectAll(".tick text").style("font-weight", "normal");
 
             this.setState({
@@ -302,9 +301,9 @@ class ResourceMixChart extends Component {
                 }
               });
 
-            d3.selectAll(".paths").style("fill", "none");
+            d3.selectAll(".map-path").style("fill", "none");
             d3.selectAll(".tick text").style("font-weight", "normal");
-            d3.selectAll("path.region_" + d.id).style("fill", "#aaa");
+            d3.selectAll("path.region_" + d.id).style("fill", this.props.resourcemix_micromap_highlight_color);
             d3.selectAll(".region_" + d.id + " text").style(
               "font-weight",
               "bold"
@@ -388,7 +387,7 @@ class ResourceMixChart extends Component {
                 }
               });
 
-            d3.selectAll("path.region_" + id).style("fill", "#aaa");
+            d3.selectAll("path.region_" + id).style("fill", this.props.resourcemix_micromap_highlight_color);
             d3.selectAll(".region_" + id + " text").style(
               "font-weight",
               "bold"
@@ -413,7 +412,7 @@ class ResourceMixChart extends Component {
               .classed("selected", false)
               .style("stroke", "none");
 
-            d3.selectAll(".paths").style("fill", "none");
+            d3.selectAll(".map-path").style("fill", "none");
             d3.selectAll(".tick text").style("font-weight", "normal");
 
             this.setState({
@@ -436,7 +435,7 @@ class ResourceMixChart extends Component {
               .style("stroke", "none");
             d3.selectAll("rect").style("opacity", 1);
 
-            d3.selectAll(".paths").style("fill", "none");
+            d3.selectAll(".map-path").style("fill", "none");
             d3.selectAll(".tick text").style("font-weight", "normal");
 
             this.setState({
@@ -457,9 +456,9 @@ class ResourceMixChart extends Component {
                 }
               });
 
-            d3.selectAll(".paths").style("fill", "none");
+            d3.selectAll(".map-path").style("fill", "none");
             d3.selectAll(".tick text").style("font-weight", "normal");
-            d3.selectAll("path.region_" + id).style("fill", "#aaa");
+            d3.selectAll("path.region_" + id).style("fill", this.props.resourcemix_micromap_highlight_color);
             d3.selectAll(".region_" + id + " text").style(
               "font-weight",
               "bold"
@@ -605,7 +604,7 @@ class ResourceMixChart extends Component {
             .selectAll(".fuel")
             .filter((e) => e === d);
           if (!n.classed("selected")) {
-            n.style("background", "#eee");
+            n.style("background", this.props.fuel_background_highlight_color);
           }
         })
         .on("mouseout", (d) => {
@@ -616,7 +615,7 @@ class ResourceMixChart extends Component {
           if (!n.classed("selected")) {
             n.style("background", "none");
           } else {
-            n.style("background", "#ddd");
+            n.style("background", this.props.fuel_background_select_color);
           }
         });
 
@@ -653,7 +652,7 @@ class ResourceMixChart extends Component {
       .style("background", "none")
       .filter((e) => e === fuel)
       .classed("selected", true)
-      .style("background", "#ddd");
+      .style("background", this.props.fuel_background_select_color);
 
     let fuel_svg = fuels
       .select("svg")
@@ -700,7 +699,7 @@ class ResourceMixChart extends Component {
 
     if (fuel === null) {
       // micromap
-      d3.selectAll(".paths").style("fill", "none");
+      d3.selectAll(".map-path").style("fill", "none");
 
       // remove highlight
       d3.selectAll("rect.highlighted").classed("highlighted", false).style("stroke", "none");
@@ -851,21 +850,13 @@ class ResourceMixChart extends Component {
 
   render() {
     let title = (
-      <p
-        style={{
-          fontSize: "1.2em",
-          fontWeight: "bold",
-          fill: "#000",
-          className: "title",
-          textAnchor: "middle",
-        }}
-      >
+      <p className="title">
         {this.props.title + ", by " + this.props.layer_type}
       </p>
     );
 
     return (
-      <div id="resource-mix-chart" ref={this.wrapper} style={{width: this.state.width, height: "100%", margin: "0 auto"}}>
+      <div id="resourcemix-wrapper" ref={this.wrapper} style={{width: this.state.width}}>
         {title}
         <div>
           <svg
@@ -875,11 +866,9 @@ class ResourceMixChart extends Component {
                   ? this.state.width * 0.9
                   : this.state.width * this.micromap_width_pct,
               height: this.props.filter_height,
-              display: "inline-block",
-              verticalAlign: "top",
             }}
             ref={this.micromap}
-            id="resource-mix-micromap"
+            id="resourcemix-micromap"
           ></svg>
           <div
             className="fuels-selection"
@@ -888,13 +877,12 @@ class ResourceMixChart extends Component {
                 this.state.width < this.props.ipad_width
                   ? this.state.width * 0.9
                   : this.state.width * this.fuels_filter_pct,
-              display: "inline-block",
               verticalAlign: "top",
             }}
             ref={this.fuels}
           ></div>
         </div>
-        <div>
+        <div id="resourcemix-chart">
           <svg
             style={{
               width:
@@ -902,8 +890,6 @@ class ResourceMixChart extends Component {
                   ? this.state.width * 0.9
                   : this.state.width * 0.95 - this.props.table_width,
               height: this.props.barchart_height,
-              display: "inline-block",
-              verticalAlign: "bottom",
             }}
             ref={this.barchart_wrapper}
           >
@@ -912,7 +898,7 @@ class ResourceMixChart extends Component {
             <g ref={this.axis_x} className={"axis axis_x"}></g>
           </svg>
           <div
-            id="resource-mix-table"
+            className="table-wrapper"
             style={{
               width:
                 this.state.width < this.props.ipad_width
@@ -924,8 +910,6 @@ class ResourceMixChart extends Component {
                   ? this.props.margin_top
                   : 5,
               marginLeft: 0,
-              display: "inline-block",
-              verticalAlign: "bottom",
             }}
           >
             <UpdatedTable
@@ -933,6 +917,7 @@ class ResourceMixChart extends Component {
               region={this.state.selected_region}
               type={this.state.mouseover_fuel}
               table_info={this.state.table_info}
+              highlight_color={this.props.table_highlight_color}
             />
           </div>
         </div>

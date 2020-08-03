@@ -26,6 +26,7 @@ import us from "./assets/data/csv/US.csv";
 import Main from "./Main";
 import Dialog from "./Dialog.js";
 
+import "./EPAStyle.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -33,6 +34,7 @@ import "./App.css";
 class App extends Component {
   constructor(props) {
     super(props);
+    // state controls
     this.state = {
       show_modal: false,
       options: [],
@@ -45,16 +47,56 @@ class App extends Component {
       ggl_subrgn_data: [],
       us_data: [],
     };
+    // placeholder
+    this.plant_dist_lookup = {};
 
+    // popup open close
+    this.handleCloseDialog = this.handleCloseDialog.bind(this);
+    this.handleOpenDialog = this.handleOpenDialog.bind(this);
+
+    // colors
+    this.table_highlight_color = "rgba(0, 113, 188, 0.1)";
+    this.resourcemix_micromap_highlight_color = "#aaa";
+    this.fuel_background_highlight_color="#eee";
+    this.fuel_background_select_color="#ddd";
+
+    this.choropleth_map_fill = {
+      emission: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"],
+      generation: ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"],
+      others: ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"],
+    };
+
+    this.fuel_color_lookup = {
+      COAL: "rgb(135,135,135)",
+      OIL: "rgb(253,191,111)",
+      GAS: "rgb(255,127,0)",
+      NUCLEAR: "rgb(106,61,154)",
+      HYDRO: "rgb(31,120,180)",
+      BIOMASS: "rgb(51,160,44)",
+      WIND: "rgb(178,223,138)",
+      SOLAR: "rgb(227,26,28)",
+      GEOTHERMAL: "rgb(251,154,153)",
+      OFSL: "rgb(202,178,214)",
+      OTHF: "rgb(140,81,10)",
+      HYPR: "rgb(31,120,180)",
+      THPR: "rgb(255, 187, 120)",
+      TNPR: "rgb(255, 127, 14)",
+      CYPR: "rgb(31, 119, 180)",
+      CNPR: "rgb(255, 187, 120)",
+    };
+
+    // header data
+    this.year = 2018;
+    this.more_info_title = "Use Instruction";
     this.more_info_text = {
       text: ["To explore the data, change the wording of the sentence by selecting different variables from the drop-downs (underlined words). The graphs will immediately change according to the selected variables.", 
             "In the plant view, you can select a specific plant to get more information displayed in the accompanying table or you can filter by one or more fuels by clicking on the fuel types immediately above the map.",
             "In the resource mix view, clicking on the fuel types will sort the bar graph accordingly, and you can select one of the bars to get more information displayed in the accompanying table."],
       list: []
     };
-    this.more_info_title = "Use Instruction";
+    this.logo_link = "https://www.epa.gov/energy/emissions-generation-resource-integrated-database-egrid";
 
-    this.year = 2018;
+    // sentence query
     this.conjunction = {
       tier1_0: {
         conjunct1: "for",
@@ -112,11 +154,8 @@ class App extends Component {
       },
       tier1_9: { conjunct1: "", conjunct2: "", conjunct3: "", conjunct4: "" },
     };
-    this.choropleth_map_fill = {
-      emission: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"],
-      generation: ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"],
-      others: ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"],
-    };
+
+    // labels
     this.plant_fuels = [
       "COAL",
       "OIL",
@@ -130,47 +169,7 @@ class App extends Component {
       "OFSL",
       "OTHF",
     ];
-    this.plant_dist_max = {
-      PLNOXRTA: 2000,
-      PLNOXRTO: 1000,
-      PLSO2RTA: 800,
-      PLCO2RTA: 10000,
-      PLCH4RTA: 20,
-      PLN2ORTA: 3,
-      PLC2ERTA: 10000,
-      PLNOXRA: 7,
-      PLNOXRO: 7,
-      PLSO2RA: 6,
-      PLCO2RA: 300,
-      PLNGENAN: 20000000,
-      PLNGENOZ: 10000000,
-      PLGENACL: undefined,
-      PLGENAOL: undefined,
-      PLGENAGS: 13000000,
-      PLGENANC: 27000000,
-      PLGENAHY: 16000000,
-      PLGENABM: undefined,
-      PLGENAWI: 2000000,
-      PLGENASO: 1000000,
-      PLGENAGT: 1000000,
-      PLGENAOF: 1000000,
-      PLGENAOP: undefined,
-      PLGENATN: 20000000,
-      PLGENATR: 20000000,
-      PLGENATH: 2000000,
-      PLGENACY: 20000000,
-      PLGENACN: 20000000,
-      PLHTIAN: 165000000,
-      PLHTIOZ: 75000000,
-      PLNOXAN: undefined,
-      PLNOXOZ: undefined,
-      PLSO2AN: 30000,
-      PLCO2AN: 17000000,
-      PLCH4AN: undefined,
-      PLN2OAN: undefined,
-      PLCO2EQA: 17000000,
-    };
-    this.plant_dist = {};
+
     this.fuel_label_lookup = {
       COAL: "Coal",
       OIL: "Oil",
@@ -188,25 +187,6 @@ class App extends Component {
       TNPR: "All Non Renewables",
       CYPR: "All Combustion",
       CNPR: "All Non Combustion",
-    };
-
-    this.fuel_color_lookup = {
-      COAL: "rgb(135,135,135)",
-      OIL: "rgb(253,191,111)",
-      GAS: "rgb(255,127,0)",
-      NUCLEAR: "rgb(106,61,154)",
-      HYDRO: "rgb(31,120,180)",
-      BIOMASS: "rgb(51,160,44)",
-      WIND: "rgb(178,223,138)",
-      SOLAR: "rgb(227,26,28)",
-      GEOTHERMAL: "rgb(251,154,153)",
-      OFSL: "rgb(202,178,214)",
-      OTHF: "rgb(140,81,10)",
-      HYPR: "rgb(31,120,180)",
-      THPR: "rgb(255, 187, 120)",
-      TNPR: "rgb(255, 127, 14)",
-      CYPR: "rgb(31, 119, 180)",
-      CNPR: "rgb(255, 187, 120)",
     };
 
     this.fuel_sentence_code_lookup = {
@@ -228,6 +208,32 @@ class App extends Component {
       "all non-combustion fuels": ["NUCLEAR", "HYDRO", "WIND", "SOLAR", "GEOTHERMAL"],
     };
 
+    // geo layers
+    this.ggl_layer = topojson.feature(ggl_topo, "GGL");
+    this.subrgn_layer = topojson.feature(subrgn_topo, "subregion");
+    this.nerc_layer = topojson.feature(nerc_topo, "NERC");
+    this.state_layer = topojson.feature(us_topo, "states");
+
+    this.ggl_layer.features.map((d) => {
+      d.id = null;
+      d.name = d.properties.GGL;
+    });
+    this.subrgn_layer.features.map((d) => {
+      d.id = null;
+      d.name = d.properties.Subregions;
+    });
+    this.nerc_layer.features = this.nerc_layer.features
+      .filter((d) => d.properties.NERC !== "-" && d.properties.NERC !== "SPP") // no data for "-" and "SPP"
+      .map((d) => {
+        d.id = null;
+        d.name = d.properties.NERC;
+        return d;
+      });
+    this.state_layer.features = this.state_layer.features.filter(
+      (d) => d.id !== 72 && d.id !== 78
+    ); // no data for state 72 and state 78
+
+    // wrap svg text labels
     this.wrap_long_labels = function (text, width) {
       text.each(function () {
         let text = d3.select(this),
@@ -263,32 +269,6 @@ class App extends Component {
       });
     };
 
-    this.ggl_layer = topojson.feature(ggl_topo, "GGL");
-    this.subrgn_layer = topojson.feature(subrgn_topo, "subregion");
-    this.nerc_layer = topojson.feature(nerc_topo, "NERC");
-    this.state_layer = topojson.feature(us_topo, "states");
-
-    this.ggl_layer.features.map((d) => {
-      d.id = null;
-      d.name = d.properties.GGL;
-    });
-    this.subrgn_layer.features.map((d) => {
-      d.id = null;
-      d.name = d.properties.Subregions;
-    });
-    this.nerc_layer.features = this.nerc_layer.features
-      .filter((d) => d.properties.NERC !== "-" && d.properties.NERC !== "SPP") // no data for "-" and "SPP"
-      .map((d) => {
-        d.id = null;
-        d.name = d.properties.NERC;
-        return d;
-      });
-    this.state_layer.features = this.state_layer.features.filter(
-      (d) => d.id !== 72 && d.id !== 78
-    ); // no data for state 72 and state 78
-
-    this.handleCloseDialog = this.handleCloseDialog.bind(this);
-    this.handleOpenDialog = this.handleOpenDialog.bind(this);
   }
 
   componentDidMount() {
@@ -356,7 +336,7 @@ class App extends Component {
         });
 
         plant_dist.map((d,i)=>{
-          this.plant_dist[d.Field] = {
+          this.plant_dist_lookup[d.Field] = {
             min: +d.Threshold1,
             t2: +d.Threshold2,
             t3: +d.Threshold3,
@@ -407,6 +387,7 @@ class App extends Component {
           d.id = i;
           d.unit = "%";
           d.value = +d.percentage;
+          d.region = d.region;
         });
         this.ggl_layer.features.map((d) => {
           d.id = ggl.filter((e) => e.name === d.name).map((e) => e.id)[0];
@@ -465,20 +446,14 @@ class App extends Component {
         this.state.ggl_subrgn_data.length > 0 &&
         this.state.us_data.length > 0 ? (
           <div className="app">
-            <header className="no-export">
-              <div style={{display:"inline-block",textAlign: "right", width:"100%", verticalAlign: "middle"}}>
+            <header className="no-export-to-pdf">
+              <div>
                 <input
-                  style={{
-                    fontSize: "0.8em",
-                    margin: "5px 0",
-                    borderRadius: "4px",
-                    verticalAlign: "bottom"
-                  }}
                   type="button"
                   value="Use Instruction"
                   onClick={this.handleOpenDialog}
                 />
-                <a href="https://www.epa.gov/energy/emissions-generation-resource-integrated-database-egrid" target="_blank" rel="noopener noreferrer"><img id="logo" src={logo} alt="eGrid Logo"/></a>
+                <a href={this.logo_link} target="_blank" rel="noopener noreferrer"><img id="logo" src={logo} alt="eGrid Logo"/></a>
               </div>
             </header>
             <Main
@@ -486,10 +461,13 @@ class App extends Component {
               conjunction={this.conjunction}
               choropleth_map_fill={this.choropleth_map_fill}
               plant_fuels={this.plant_fuels}
-              plant_dist_max={this.plant_dist_max}
-              plant_dist={this.plant_dist}
+              plant_dist={this.plant_dist_lookup}
               fuel_label_lookup={this.fuel_label_lookup}
               fuel_color_lookup={this.fuel_color_lookup}
+              table_highlight_color={this.table_highlight_color}
+              resourcemix_micromap_highlight_color={this.resourcemix_micromap_highlight_color}
+              fuel_background_highlight_color={this.fuel_background_highlight_color}
+              fuel_background_select_color={this.fuel_background_select_color}
               fuel_sentence_code_lookup={this.fuel_sentence_code_lookup}
               wrap_long_labels={this.wrap_long_labels}
               options={this.state.options}

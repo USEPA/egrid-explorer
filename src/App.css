@@ -1,50 +1,24 @@
+/* remove EPA transition styles */
+* {
+  -moz-transition: unset;
+  -ms-transition: unset;
+  -o-transition: unset;
+  -webkit-transition: unset;
+  transition: unset;
+}
+
+/* app overall */
 .app {
-  font-size: 20px;
+  font-size: 20px !important;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
 }
 
-.app header {
-  min-height: 80px;
-}
-
-.app h2 {
-  display: inline-block;
-  max-width: 64%;
-  vertical-align: middle;
-}
-
-.app p {
+p {
   display: block;
   font-weight: bold;
   font-size: 1em;
-}
-
-.app #logo {
-  width: 20%;
-  vertical-align: bottom;
-}
-
-.app table, .app th, .app td, .modal-body table, .modal-body th, .modal-body td {
-  border: 1px solid black;
-}
-
-.app th, .modal-body th{
-  background-color: #f1f1f1;
-  font-weight: 700;
-}
-
-.app select {
-  background: #0071bc;
-  color: #fff;
-  word-wrap: break-word !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.app fuel {
-  padding: 0 1px 5px 1px;
 }
 
 .loading div{
@@ -58,12 +32,387 @@
   left: 50%;
 }
 
-.h4 {
+input {
+  margin:5px 0 !important;
+  border-radius:4px !important;
+}
+
+/* header */
+header {
+  min-height: 80px;
+}
+
+header div {
+  display:inline-block;
+  text-align: right !important;
+  width:100%;
+  vertical-align: middle;
+}
+
+header input {
+  font-size: 0.8em;
+  vertical-align: bottom;
+}
+
+#logo {
+  width: 20%;
+  vertical-align: bottom;
+}
+
+
+/* popup */
+.modal-content {
+  font-size: 1.6em !important;
+}
+
+.modal-content .modal-title {
   font-size: 1.5em !important;
 }
 
+.modal-content table {
+  font-size: 1em !important;
+}
+
+.modal-content table tr th:nth-of-type(1){
+  width:250px;
+}
+
+.modal-content p {
+  font-weight: normal;
+}
+
+.modal-content input {
+  margin: 0;
+}
+
+.modal-content th {
+  text-align: center;
+}
+
+.modal-content td {
+  text-align: center;
+  font-weight: normal;
+}
+
+.modal-content img {
+  width:100%;
+}
+
+/* sentence query panel */
+#sentence{
+  background: #0071bc;
+  color: #fff;
+  padding: .5rem;
+  border-radius: 4px;
+}
+
+select {
+  font-size: 1em;
+  font-weight:bold;
+  border:none;
+  border-bottom:1.2px dashed #fff;
+  padding-left:5px;
+  padding-right:17px;
+  margin-right:6px;
+  background-repeat:no-repeat;
+  background-size:14px 14px;
+  background-position:100% 90%;
+  outline:none;
+  background: #0071bc;
+  color: #fff;
+  word-wrap: break-word;
+}
+
+/* export panel */
+.buttons-wrapper {
+  margin-top: 0.5rem;
+  margin-left:0.5rem;
+}
+
+/* visualization panel */
+#visualization {
+  padding: .8rem 0;
+}
+
+.visualization-wrapper {
+  text-align:center;
+}
+
+/* element class (used across visualizations) */
+.wrapper {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.tooltip {
+  font-size: 0.8em;
+  opacity:0;
+  max-width:300px;
+  max-height:520px;
+  padding:5px;
+  overflow:auto;
+  background-color:rgba(255,255,255,0.95);
+  box-shadow:0 2px 8px rgba(0,0,0,0.5);
+  border-radius:4px;
+}
+
+.title {
+  font-size: 1.2em;
+  text-anchor:middle;
+}
+
+.map-container {
+  display: inline-block;
+}
+
+.fuels-selection {
+  display:inline-block;
+  height:100px;
+}
+
+.fuel {
+  padding: 0 1px 5px 1px;
+}
+
+.table-wrapper {
+  display:inline-block;
+  vertical-align: top;
+}
+
+/* vertical barchrt */
+#barchart-wrapper {
+  height:100%;
+  margin: 0 auto;
+}
+
+.sort-buttons {
+  font-size:0.8em;
+}
+
+.sort-buttons input:nth-of-type(1){
+  width: 50%;
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.sort-buttons input:nth-of-type(2) {
+  width:50%;
+  margin-left:0 !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+}
+
+.sort-buttons .selected-button {
+  font-weight: bold;
+  border: 2px solid black !important;
+  background-color: #0071bc;
+  color: #fff;
+}
+
+.sort-buttons .not-selected-button {
+  font-weight: normal;
+  border: none !important;
+  background-color: #ddd;
+  color: #000;
+}
+
+#barchart p {
+  height: 27px;
+  fill: #000;
+  text-anchor: middle;
+  margin:0;
+  padding:0
+}
+
+#barchart svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* static map legend */
+#map-legend-wrapper {
+  display:block;
+  margin:0 auto;
+}
+
+#map-legend {
+  width:75%;
+  display:inline-block;
+  vertical-align:top;
+}
+
+#map-legend-title {
+  width:15%;
+  display:inline-block;
+  vertical-align:top;
+  font-weight: bold;
+}
+
+/* static map (export for zoomable) */
+#map-static-wrapper {
+  width:100%;
+  margin: 0 auto;
+}
+
+#map-static-legend {
+  width:400px;
+  height:75px;
+  display:inline-block;
+}
+
+/* zoomable map */
+#map-zoomable-wrapper {
+  width:100%;
+  height:100%;
+  margin:0 auto;
+}
+
+#map-zoomable {
+  display:block;
+  width:100%;
+}
+
+.map-zoomable-legend {
+  width:300px;
+  height:75px;
+}
+
+.map-zoomable-legend-title, .map-static-legend-title {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* resource mix */
+#resourcemix-wrapper {
+  height:100%;
+  margin:0 auto;
+}
+
+#resourcemix-micromap {
+  display:inline-block;
+  vertical-align:top;
+}
+
+#resourcemix-chart div, #resourcemix-chart svg{
+  display:inline-block;
+  vertical-align:bottom;
+}
+
+/* tables */
+table {
+  font-size:0.8em;
+  border-radius:10px;
+  border-collapse: separate;
+  border-style:hidden;
+  box-shadow: 0 0 0 1px;
+  margin:0 auto;
+}
+
+tr {
+  line-height: 1 !important;
+}
+
+th {
+  padding: 0.5em;
+}
+
+.first-row th:nth-of-type(1) {
+  border-top-left-radius: 10px;
+}
+
+.first-row th:nth-last-of-type(1){
+  border-top-right-radius: 10px;
+}
+
+.last-row td:nth-of-type(1) {
+  border-bottom-left-radius: 10px;
+}
+
+.last-row td:nth-last-of-type(1){
+  border-bottom-right-radius: 10px;
+}
+
+.clickable-cell {
+  cursor:pointer;
+  color:rgb(0, 113, 188);
+  font-weight:bold;
+}
+
+/* 1. resource-mix table */
+#resourcemix-table {
+  max-width:400px;
+}
+
+#resourcemix-table td {
+  padding: 0.6em;
+}
+
+#resourcemix-table .first-row {
+  height: 100px;
+}
+
+#resourcemix-table tr td:nth-of-type(1), #resourcemix-table tr th:nth-of-type(1){
+  text-align:left;
+}
+
+#resourcemix-table tr td:nth-of-type(2), #resourcemix-table tr th:nth-of-type(2),
+#resourcemix-table tr td:nth-of-type(3), #resourcemix-table tr th:nth-of-type(3){
+  text-align:center;
+}
+
+/* 2. ggl table */
+#ggl-table td {
+  padding: 0.1em;
+}
+
+#ggl-table tr td{
+  text-align:center;
+}
+
+#ggl-table tr td:nth-of-type(2), #ggl-table tr th:nth-of-type(2){
+  text-align:right;
+}
+
+#ggl-table tr:nth-last-of-type(1){
+  font-weight: bold;
+  background: #f1f1f1;
+}
+
+/* 3. plant table */
+#plant-table th {
+  height:50px;
+}
+
+#plant-table tr td:nth-of-type(1), #plant-table tr th:nth-of-type(1){
+  padding:0.4em;
+  text-align:center;
+  width:416px;
+}
+
+#plant-table tr td:nth-of-type(2), #plant-table tr th:nth-of-type(2){
+  text-align:right;
+  width:170px;
+  padding:0;
+  padding-right:0.4em;
+}
+
+/* d3 */
+.map-path {
+  fill: transparent;
+  stroke: rgb(221,221,221);
+}
+
+.labels {
+  fill: #000;
+  stroke: none;
+}
+
 /* mapbox */
-.app .mapboxgl-ctrl-group button {
+.mapboxgl-ctrl-group button {
   width: 29px !important;
   height: 29px !important;
   padding: 0 !important;
@@ -71,53 +420,50 @@
   background-color: transparent !important;
 }
 
-.app .mapboxgl-popup-content {
+.mapboxgl-popup-content {
   font-size: 1.2em;
   font-weight: bold;
 }
 
-.app .mapboxgl-popup-close-button {
+.mapboxgl-popup-close-button {
   color: #000 !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.app .map-zoomable-legend-title, .map-static-legend-title {
-  font-size: 1.2em;
-  font-weight: bold;
-}
 
+/* export visualization */
 @media print {
-  .app .no-export, .app .no-export svg, .app .mapboxgl-ctrl{
+  .no-export-to-pdf, .no-export-to-pdf svg, .mapboxgl-ctrl{
     display: none;
   }
 
-  .app .fuel.selected circle {
+  .fuel.selected circle {
     stroke: #000;
     stroke-width: 2px;
   }
 
-  .app .fuel.selected text {
+  .fuel.selected text {
     font-weight: "bold";
     font-size: 1.2em;
   }
 
-  .app #map-zoomable .fuel {
+  #map-zoomable-wrapper .fuel {
     width: 90px;
     height: 10px;
   }
 
-  .app #vertical-barchart {
+  #barchart {
     margin-top: 40px;
   }
   
-  .app table {
+  table {
     border-style: unset;
     border: 1px solid black;
     display: block;
   }
 
-  .app .map-container {
+  .map-container {
     width: 800px;
     display: block;
   }

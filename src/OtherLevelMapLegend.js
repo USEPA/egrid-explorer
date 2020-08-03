@@ -13,16 +13,18 @@ class OtherLevelMapLegend extends Component {
     };
   }
 
-  formatLegendLabel(t) {
-    if (t >= 1000) {
-      let num = d3.format(".2s")(t);
+  formatLegendLabel(d) {
+    if (d >= 1000) {
+      let num = d3.format(".3s")(d);
       let abbr = num.slice(-1);
       if (abbr === "G") {
         num = num.substring(0, num.length - 1) + "B";
       }
       return num;
+    } else if (d<1){
+      return d==0? d : d3.format(".4")(d);
     } else {
-      return d3.format(".3")(t);
+      return d3.format(".3")(d);
     }
   }
 
@@ -110,37 +112,31 @@ class OtherLevelMapLegend extends Component {
     d3.select(this.legend_title.current).selectAll("span").remove();
     d3.select(this.legend_title.current)
       .append("span")
-      .html(this.props.unit)
-      .style("font-weight", "bold");
+      .html(this.props.unit);
   }
 
   render() {
     return (
       <div
+        id="map-legend-wrapper"
         style={{
-          display: "block",
-          margin: "0 auto",
           width: this.state.width,
           height: this.state.height,
         }}
       >
         <div>
           <div
+            id="map-legend"
             ref={this.legend}
             style={{
-              width: "75%",
-              height: this.state.height,
-              display: "inline-block",
-              verticalAlign: "top",
+              height: this.state.height
             }}
           />
           <div
+            id="map-legend-title"
             ref={this.legend_title}
             style={{
-              width: "15%",
-              height: this.state.height,
-              display: "inline-block",
-              verticalAlign: "top",
+              height: this.state.height
             }}
           />
         </div>

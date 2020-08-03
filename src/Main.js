@@ -332,17 +332,7 @@ class Main extends Component {
       tier5_options = _.uniq(all_options.map((op) => lookup[op.tier5]));
     return (
       <div>
-        <p
-          className="no-export"
-          style={{
-            background: "#0071bc",
-            color: "#fff",
-            fontSize: "1em",
-            fontWeight: "bold",
-            padding: ".5rem",
-            borderRadius: "4px"
-          }}
-        >
+        <p className="no-export-to-pdf" id="sentence">
           I want to explore
           <span> </span>
           <SentenceDropdown
@@ -451,20 +441,19 @@ class Main extends Component {
             <Spinner animation="grow" variant="success" />
           </div>
         ) : (
-          <div>
+          <div id="visualization">
             <UpdatedVisualization
               options={this.props.options}
               glossary={this.props.glossary}
-              style={{
-                padding: ".8rem 0",
-                borderBottom: "1px solid rgba(0, 0, 0, 0.5)",
-              }}
               choropleth_map_fill={this.props.choropleth_map_fill}
               plant_fuels={this.props.plant_fuels}
-              plant_dist_max={this.props.plant_dist_max}
               plant_dist={this.props.plant_dist}
               fuel_label_lookup={this.props.fuel_label_lookup}
               fuel_color_lookup={this.props.fuel_color_lookup}
+              table_highlight_color={this.props.table_highlight_color}
+              resourcemix_micromap_highlight_color={this.props.resourcemix_micromap_highlight_color}
+              fuel_background_highlight_color={this.props.fuel_background_highlight_color}
+              fuel_background_select_color={this.props.fuel_background_select_color}
               fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
               wrap_long_labels={this.props.wrap_long_labels}
               field={this.state.field}

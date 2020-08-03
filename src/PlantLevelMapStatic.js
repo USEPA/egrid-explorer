@@ -38,11 +38,9 @@ class PlantLevelMapStatic extends Component {
       .enter()
       .append("path")
       .attr("d", path)
-      .attr("class", "paths")
-      .style("fill", "transparent")
-      .style("stroke", "rgb(221, 221, 221)");
+      .attr("class", "map-path");
 
-    d3.select("#map-static").style("display", "none");
+    d3.select("#map-static-wrapper").style("display", "none");
   }
 
   componentDidMount() {
@@ -52,37 +50,27 @@ class PlantLevelMapStatic extends Component {
   render() {
     let title = (
       <div>
-        <p
-          style={{
-            fontSize: "1.2em",
-            fontWeight: "bold",
-            fill: "#000",
-            className: "title",
-            textAnchor: "middle",
-          }}
-        >
+        <p className="title">
           {this.props.title}
         </p>
       </div>
     );
 
     return (
-      <div id="map-static" style={{ width: "100%", margin: "0 auto" }}>
+      <div id="map-static-wrapper">
         {title}
         <div
           className="fuels-selection"
-          style={{ width: "100%", height: 100, marginBottom: 5, display: "inline-block" }}
+          style={{ width: "100%", marginBottom: 5}}
         ></div>
         <div
           className="map-container"
-          style={{ width: "100%", height: 500, display: "inline-block" }}
+          style={{ width: "100%", height: 500 }}
           ref={this.container}
         ></div>
         <div>
           <div><span className="map-static-legend-title"></span></div>
-          <div className="map-static-legend"
-            style={{ width: 400, height: 75, display: "inline-block" }}
-            ref={this.legend}
+          <div className="map-static-legend" ref={this.legend}
           ></div>
         </div>
       </div>

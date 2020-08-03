@@ -137,7 +137,7 @@ class OtherLevelMap extends Component {
       .enter()
       .append("path")
       .attr("d", path)
-      .attr("class", (d) => "paths mouseover_target region_" + d.properties.id)
+      .attr("class", (d) => "map-path mouseover_target region_" + d.properties.id)
       .style("fill", (d) =>
         this.props.layer_type !== "grid gross loss rates"
           ? fill_scale(d.properties.value)
@@ -156,16 +156,16 @@ class OtherLevelMap extends Component {
           "<span>The <b>" +
           this.props.title.slice(0, 1).toLowerCase() +
           this.props.title.slice(1).split(" (")[0] +
-          "</b><br>for <b>" +
+          "</b> for <b>" +
           d.properties.name +
-          "</b><br>is <b>" +
+          "</b> is <b>" +
           this.formatNumber(d.properties.value) +
           (d.properties.unit === "%" ? "%" : " " + d.properties.unit) +
           "</b>.</span>";
         d3.select(this.tooltip.current)
           .html(html)
           .style("position", "absolute")
-          .style("top", d3.event.pageY - 270 + 15 + "px")
+          .style("top", d3.event.pageY + 15 + "px")
           .style("left", d3.event.pageX + 15 + "px")
           .style("opacity", 1);
 
@@ -264,16 +264,16 @@ class OtherLevelMap extends Component {
           "<span>The <b>" +
           this.props.title.slice(0, 1).toLowerCase() +
           this.props.title.slice(1).split(" (")[0] +
-          "</b><br>for <b>" +
+          "</b> for <b>" +
           d.properties.name +
-          "</b><br>is <b>" +
+          "</b> is <b>" +
           this.formatNumber(d.properties.value) +
           (d.properties.unit === "%" ? "%" : " " + d.properties.unit) +
           "</b>.</span>";
         d3.select(this.tooltip.current)
           .html(html)
           .style("position", "absolute")
-          .style("top", d3.event.pageY - 270 + 15 + "px")
+          .style("top", d3.event.pageY + 15 + "px")
           .style("left", d3.event.pageX + 15 + "px")
           .style("opacity", 1);
 
@@ -335,9 +335,7 @@ class OtherLevelMap extends Component {
         .enter()
         .append("path")
         .attr("d", path)
-        .attr("class", "paths")
-        .style("fill", "transparent")
-        .style("stroke", "rgb(221, 221, 221)");
+        .attr("class", "map-path");
     }
   }
 
@@ -385,17 +383,7 @@ class OtherLevelMap extends Component {
   render() {
     let title = (
       <div>
-        <p
-          style={{
-            fontSize: "1.2em",
-            fontWeight: "bold",
-            fill: "#000",
-            className: "title",
-            textAnchor: "middle",
-          }}
-        >
-          {this.props.title}
-        </p>
+        <p className="title">{this.props.title}</p>
       </div>
     );
 
@@ -416,19 +404,9 @@ class OtherLevelMap extends Component {
             </svg>
           </div>
         </div>
-        <div
-          ref={this.tooltip}
-          style={{
-            opacity: 0,
-            maxWidth: 400,
-            maxHeight: 520,
-            padding: 5,
-            overflow: "auto",
-            backgroundColor: "rgba(255,255,255,0.95)",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
-            borderRadius: "4px",
-          }}
-        ></div>
+        <div>
+          <p ref={this.tooltip} className="tooltip"></p>
+        </div>
       </div>
     );
   }

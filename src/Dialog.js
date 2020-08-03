@@ -1,6 +1,5 @@
 import React from "react";
 import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
 
 function Dialog(props) {
   let table_rows = [],
@@ -9,23 +8,34 @@ function Dialog(props) {
 
   if (props.is_table === "true") {
     table_header = (
-      <tr>
-        <th style={{ fontSize: "1.1em", width: 250, textAlign: "center" }}>
+      <tr className="first-row">
+        <th>
           {props.table_header[0]}
         </th>
-        <th style={{ fontSize: "1.1em", textAlign: "center" }}>
+        <th>
           {props.table_header[1]}
         </th>
       </tr>
     );
 
-    props.table_rows.forEach((r) => {
-      let row = (
-        <tr key={r[0]}>
-          <td style={{ textAlign: "center" }}>{r[0]}</td>
-          <td style={{ fontWeight: "normal", textAlign: "center" }}>{r[1]}</td>
-        </tr>
-      );
+    props.table_rows.forEach((r,i) => {
+      let row;
+      if (i!=props.table_rows.length-1) {
+        row = (
+          <tr key={r[0]}>
+            <td>{r[0]}</td>
+            <td>{r[1]}</td>
+          </tr>
+        );
+      } else {
+        row = (
+          <tr className="last-row" key={r[0]}>
+            <td>{r[0]}</td>
+            <td>{r[1]}</td>
+          </tr>
+        );
+      }
+
       table_rows.push(row);
     });
   } else {
@@ -51,24 +61,22 @@ function Dialog(props) {
       </Modal.Header>
       <Modal.Body>
         {props.is_table === "true" ? (
-          <table style={{ fontSize: "1.2em" }}>
+          <table>
             <thead>{table_header}</thead>
             <tbody>{table_rows}</tbody>
           </table>
         ) : (
-          <div style={{ fontSize: "1.2em" }}>
+          <div>
             {text}
             <ul>{list}</ul>
           </div>
         )}
         {props.has_image === "true" && (
-          <img src={props.text.image} alt='subregion_map' style={{width:'100%'}}/>
+          <img src={props.text.image} alt='subregion_map'/>
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={props.onHide}>
-          Close
-        </Button>
+        <input type="button" onClick={props.onHide} value="Close"/>
       </Modal.Footer>
     </Modal>
   );
