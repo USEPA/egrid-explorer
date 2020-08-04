@@ -37,9 +37,11 @@ class SentenceDropdown extends Component {
     });
 
     return (
-      <select value={selected_option} onChange={this.props.change}>
-        {opts}
-      </select>
+      <div class="select-wrapper">
+        <select value={selected_option} onChange={this.props.change}>
+          {opts}
+        </select>
+      </div>
     );
   }
 }

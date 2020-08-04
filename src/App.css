@@ -59,45 +59,6 @@ header input {
   vertical-align: bottom;
 }
 
-
-/* popup */
-.modal-content {
-  font-size: 1.6em !important;
-}
-
-.modal-content .modal-title {
-  font-size: 1.5em !important;
-}
-
-.modal-content table {
-  font-size: 1em !important;
-}
-
-.modal-content table tr th:nth-of-type(1){
-  width:250px;
-}
-
-.modal-content p {
-  font-weight: normal;
-}
-
-.modal-content input {
-  margin: 0;
-}
-
-.modal-content th {
-  text-align: center;
-}
-
-.modal-content td {
-  text-align: center;
-  font-weight: normal;
-}
-
-.modal-content img {
-  width:100%;
-}
-
 /* sentence query panel */
 #sentence{
   background: #0071bc;
@@ -114,13 +75,50 @@ select {
   padding-left:5px;
   padding-right:17px;
   margin-right:6px;
-  background-repeat:no-repeat;
-  background-size:14px 14px;
-  background-position:100% 90%;
   outline:none;
   background: #0071bc;
   color: #fff;
   word-wrap: break-word;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+.select-wrapper {
+  display: inline-block;
+  position: relative;
+}
+
+.select-wrapper:after {
+  pointer-events:auto;
+  position: absolute;
+  content: '>';
+  font: 22px "Consolas", monospace;
+  font-weight: bold;
+  color: #fff;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  transform: rotate(90deg);
+  right: 5px;
+  top: 5px;
+  padding: 0;
+  pointer-events: none;
+}
+
+.select-wrapper:before {
+  position: absolute;
+  content: '';
+  right: 5px;
+  top: 5px;
+  width: 20px;
+  height: 20px;
+  background: #0071bc;
+  pointer-events: none;
 }
 
 /* export panel */
@@ -374,7 +372,7 @@ th {
 }
 
 #ggl-table tr td:nth-of-type(2), #ggl-table tr th:nth-of-type(2){
-  text-align:right;
+  text-align: right;
 }
 
 #ggl-table tr:nth-last-of-type(1){
@@ -409,6 +407,48 @@ th {
 .labels {
   fill: #000;
   stroke: none;
+}
+
+/* popup */
+.modal-content {
+  font-size: 1.6em !important;
+}
+
+.modal-content .modal-title {
+  font-size: 1.5em !important;
+}
+
+.modal-content table {
+  font-size: 0.9em !important;
+}
+
+.modal-content table tr th:nth-of-type(1){
+  width:250px;
+}
+
+.modal-content p {
+  font-weight: normal;
+}
+
+.modal-content input {
+  margin: 0;
+}
+
+.modal-content tr {
+  line-height: unset !important;
+}
+
+.modal-content th {
+  text-align: center;
+}
+
+.modal-content td {
+  text-align: center;
+  font-weight: normal;
+}
+
+.modal-content img {
+  width:100%;
 }
 
 /* mapbox */
