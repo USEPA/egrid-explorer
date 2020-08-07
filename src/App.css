@@ -61,28 +61,40 @@ header input {
 
 /* sentence query panel */
 #sentence{
-  background: #0071bc;
-  color: #fff;
-  padding: .5rem;
-  border-radius: 4px;
+  background: #efefef;
+  border: 2px solid #2e8540;
+  padding: 1.6rem;
+  font-weight: 500;
+  margin: 16px 0 36px 0;
+  line-height:1.6em;
 }
 
 select {
   font-size: 1em;
-  font-weight:bold;
+  font-weight:500;
   border:none;
-  border-bottom:1.2px dashed #fff;
+  border-bottom:1.3px dashed #212529;
+  background-color: #efefef;
   padding-left:5px;
   padding-right:17px;
   margin-right:6px;
   outline:none;
-  background: #0071bc;
-  color: #fff;
+  color: #212529;  
   word-wrap: break-word;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   cursor: pointer;
+}
+
+.app select {
+  word-wrap: break-word !important;
+  margin: 0 !important;
+  padding: 0 1.2em 0 0 !important;
+}
+
+.app select option {
+  background:white;
 }
 
 select::-ms-expand {
@@ -98,9 +110,9 @@ select::-ms-expand {
   pointer-events:auto;
   position: absolute;
   content: '>';
-  font: 22px "Consolas", monospace;
+  font:24px "Consolas", monospace;
   font-weight: bold;
-  color: #fff;
+  color: #212529;
   -webkit-transform: rotate(90deg);
   -moz-transform: rotate(90deg);
   transform: rotate(90deg);
@@ -113,11 +125,11 @@ select::-ms-expand {
 .select-wrapper:before {
   position: absolute;
   content: '';
-  right: 5px;
-  top: 5px;
-  width: 20px;
-  height: 20px;
-  background: #0071bc;
+  right: 3px;
+  top: 3px;
+  width: 22px;
+  height: 22px;
+  background: #efefef;
   pointer-events: none;
 }
 
