@@ -18,11 +18,12 @@ class OtherLevelBarchart extends Component {
   }
 
   formatXaxis(d) {
-    if (d < 1) {
-      return d==0? d:d3.format(".3f")(d);
-    } else if (d >= 1 && d < 10) {
+    let num = Math.abs(d);
+    if (num < 1) {
+      return d===0? d:d3.format(".3f")(d);
+    } else if (num >= 1 && num < 10) {
       return d3.format(".2f")(d);
-    } else if (d >= 1000) {
+    } else if (num >= 1000) {
       let num = d3.format(".2s")(d);
       let abbr = num.slice(-1);
       if (abbr === "G") {
@@ -41,21 +42,21 @@ class OtherLevelBarchart extends Component {
   }
 
   formatNumber(d) {
-    if (d < 1) {
-      return d==0? d : d3.format(".3f")(d);
-    } else if (d >= 1000000) {
-      return d3.format(",.0f")(d);
+    let num = Math.abs(d);
+    if (num < 1) {
+      return d===0? d : d3.format(".3f")(d);
     } else {
-      return isNaN(d) ? "" : d3.format(",.2f")(Math.floor(d * 100) / 100);
+      return isNaN(d) ? "" : d3.format(",.2f")(d);
     }
   }
 
   formatLabel(d) {
-    if (d < 1) {
-      return d==0? d : d3.format(".3f")(d);
-    } else if (d >= 1 && d < 10) {
+    let num = Math.abs(d);
+    if (num < 1) {
+      return d===0? d : d3.format(".3f")(d);
+    } else if (num >= 1 && num < 10) {
       return d3.format(".2f")(d);
-    } else if (d >= 1000000) {
+    } else if (num >= 1000000) {
       let num = d3.format(".3s")(d);
       let abbr = num.slice(-1);
       if (abbr === "G") {

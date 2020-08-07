@@ -26,7 +26,7 @@ class ResourceMixChart extends Component {
       table_info: {},
       show_modal: false
     };
-    this.sort_text = "Reset";
+    this.sort_text = "Sort by Primary Fuel";
     this.sort_reset_text = "Reset";
     this.micromap_width_pct = 0.15;
     this.fuels_filter_pct = 0.85;
@@ -85,7 +85,8 @@ class ResourceMixChart extends Component {
             .style("opacity", 0.5)
             .style("cursor", "not-allowed")
             .select("text")
-            .text(this.sort_text);
+            .text(this.sort_text)
+            .call(this.props.wrap_long_labels, 88);
           }
         }
       }
@@ -518,9 +519,8 @@ class ResourceMixChart extends Component {
         h_legend = this.props.filter_height;
       let nbox = fuel_names.length + 2;
       let boxlen = w_legend / nbox > 100 ? 100 : Math.max(w_legend / nbox, 75);
-      let boxlen_filter = boxlen,
-        boxlen_reset = boxlen;
-
+      let boxlen_filter = boxlen, boxlen_reset = boxlen;
+      
       d3.select(this.fuels.current).selectAll("div").remove();
       let fuels = d3
         .select(this.fuels.current)
@@ -579,14 +579,14 @@ class ResourceMixChart extends Component {
       reset
         .append("text")
         .attr("x", boxlen_reset / 2)
-        .attr("y", h_legend / 2)
+        .attr("y", h_legend / 3)
         .attr("dx", 0)
         .attr("dy", 0)
         .text(this.sort_text)
         .style("text-anchor", "middle")
         .style("font-size", "0.9em")
         .style("font-weight", "bold")
-        .call(this.props.wrap_long_labels, boxlen_reset);
+        .call(this.props.wrap_long_labels, 88);
 
       d3.selectAll(".fuel")
         .on("click", (d) => {
@@ -716,7 +716,7 @@ class ResourceMixChart extends Component {
         .select("text")
         .text(this.sort_text)
         .attr("x", boxlen_reset / 2)
-        .attr("y", h_legend / 2)
+        .attr("y", h_legend / 3)
         .attr("dx", 0)
         .attr("dy", 0)
         .call(this.props.wrap_long_labels, boxlen_reset);

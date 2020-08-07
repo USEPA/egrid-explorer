@@ -637,7 +637,7 @@ class PlantLevelMapZoom extends Component {
       onAdd(map) {
         this._map = map;
         this._container = document.createElement("div");
-        this._container.className = "mapboxgl-ctrl";
+        this._container.className = "mapboxgl-ctrl mapbox-legend";
         this._container.innerHTML =
           "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span class='map-zoomable-legend-title'></span></div><div><svg class='map-zoomable-legend'></svg></div></div>";
 
@@ -669,9 +669,8 @@ class PlantLevelMapZoom extends Component {
             h = d3.select(this.fuels.current).node().clientHeight;
           let nbox = this.props.fuels.length + 2;
           let boxlen = w / nbox > 100 ? 100 : Math.max(w / nbox, 90);
-          let boxlen_filter = boxlen,
-            boxlen_reset = boxlen * 1.5;
-
+          let boxlen_filter = boxlen, boxlen_reset = boxlen * 1.5;
+          
           d3.selectAll(".fuels-selection").selectAll("div").remove();
           let fuels = d3
             .selectAll(".fuels-selection")

@@ -474,10 +474,19 @@ th {
 
 /* export visualization */
 @media print {
-  .no-export-to-pdf, .no-export-to-pdf svg, .mapboxgl-ctrl{
+  .no-export-to-pdf, .no-export-to-pdf svg, .mapboxgl-ctrl, .table-wrapper {
     display: none;
   }
 
+  .mapbox-legend, .mapboxgl-popup-content {
+    display: inline !important;
+    background: #fff !important;
+  }
+
+  .map-container {
+    width: 90% !important;
+  }
+  
   .fuel.selected circle {
     stroke: #000;
     stroke-width: 2px;
@@ -500,11 +509,6 @@ th {
   table {
     border-style: unset;
     border: 1px solid black;
-    display: block;
-  }
-
-  .map-container {
-    width: 800px;
     display: block;
   }
 }
