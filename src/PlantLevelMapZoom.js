@@ -68,8 +68,11 @@ class PlantLevelMapZoom extends Component {
   }
 
   formatLegend(d) {
-    if (d >= 1000) {
-      let num = d3.format(".2s")(d);
+    let num = Math.abs(d);
+    if (num < 1) {
+      return d===0? d : d3.format(".3f")(d);
+    } else if (num >= 1000) {
+      let num = d3.format(".3s")(d);
       let abbr = num.slice(-1);
       if (abbr === "G") {
         num = num.substring(0, num.length - 1) + "B";
@@ -81,12 +84,8 @@ class PlantLevelMapZoom extends Component {
         return num;
       }
       return num;
-    } else if (d >= 1 && d < 10) {
-      return d3.format(".2")(d);
-    } else if (d < 1) {
-      return d3.format(".3")(d);
     } else {
-      return d3.format(".0f")(d);
+      return d3.format('.3')(d);
     }
   }
 
@@ -542,7 +541,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl-group mapboxgl-ctrl";
         this._container.innerHTML =
-          "<button><span class='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src=" + reset_view_icon + " alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
+          "<button><span className='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src=" + reset_view_icon + " alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
         this._container.style.borderRadius = "4px";
         this._container.style.boxShadow = "0 0 0 2px rgba(0,0,0,.1)";
         this._container.style.cursor = "pointer";
@@ -639,7 +638,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl mapbox-legend";
         this._container.innerHTML =
-          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span class='map-zoomable-legend-title'></span></div><div><svg class='map-zoomable-legend'></svg></div></div>";
+          "<div className='mapboxgl-ctrl-group' aria-haspopup='true'><div><span className='map-zoomable-legend-title'></span></div><div><svg className='map-zoomable-legend'></svg></div></div>";
 
         return this._container;
       }

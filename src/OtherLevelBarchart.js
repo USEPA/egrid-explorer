@@ -83,7 +83,7 @@ class OtherLevelBarchart extends Component {
           0,
           this.state.width - this.props.margin_left - this.props.margin_right,
         ])
-        .domain([0, d3.max(this.props.data, (e) => e.value)]),
+        .domain([Math.min(0,d3.min(this.props.data, (e) => e.value)), d3.max(this.props.data, (e) => e.value)]),
       barYScale = d3
         .scaleBand()
         .range([

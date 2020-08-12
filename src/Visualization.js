@@ -23,6 +23,7 @@ class Visualization extends Component {
       window_height: window.innerHeight,
       field: this.props.field,
       name: this.props.name,
+      title: this.props.title,
       unit: this.props.unit,
       tier1: this.props.tier1,
       tier2: this.props.tier2,
@@ -187,6 +188,7 @@ class Visualization extends Component {
       {
         field: this.props.field,
         name: this.props.name,
+        title: this.props.title,
         unit: this.props.unit,
         tier1: this.props.tier1,
         tier2: this.props.tier2,
@@ -230,7 +232,7 @@ class Visualization extends Component {
             } else {
               export_table = this.state.data;
             }
-            csv += "Region, Units(" + this.state.unit + ")\r\n";
+            csv += "Region, " + this.state.title.replace(/,/g, '') + "\r\n";
             export_table.forEach((r) => {
               csv +=
                 r.name.toString().replace(/,/g, " ") + "," + r.value + "\r\n";
@@ -299,6 +301,7 @@ class Visualization extends Component {
               csv += r.name + "," + r.value.toString() + "%" + "\r\n";
             });
           }
+
           let encodedUri = encodeURI(csv);
           let link = document.createElement("a");
           link.setAttribute("href", encodedUri);
@@ -596,6 +599,7 @@ class UpdatedVisualization extends Component {
           fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
           wrap_long_labels={this.props.wrap_long_labels}
           field={this.props.field}
+          title={this.props.title}
           name={this.props.name}
           unit={this.props.unit}
           tier1={this.props.tier1}

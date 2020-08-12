@@ -18,6 +18,7 @@ class Main extends Component {
       tier4: init_options.tier4,
       tier5: init_options.tier5,
       field: init_options["Final field name in eGRID"],
+      title: init_options["Table Export Title"],
       unit: init_options.Units,
       name: init_options["Full Name"],
       all_options: this.props.options.filter(
@@ -121,6 +122,7 @@ class Main extends Component {
                   field: opt["Final field name in eGRID"],
                   unit: opt.Units,
                   name: opt["Full Name"],
+                  title: opt["Table Export Title"],
                   dropdown_changing: false,
                 },
                 () => {
@@ -189,6 +191,7 @@ class Main extends Component {
                 field: opt["Final field name in eGRID"],
                 unit: opt.Units,
                 name: opt["Full Name"],
+                title: opt["Table Export Title"],
                 dropdown_changing: false,
               },
               () => {
@@ -254,6 +257,7 @@ class Main extends Component {
                 field: opt["Final field name in eGRID"],
                 unit: opt.Units,
                 name: opt["Full Name"],
+                title: opt["Table Export Title"],
                 dropdown_changing: false,
               },
               () => {
@@ -313,6 +317,7 @@ class Main extends Component {
                 field: opt["Final field name in eGRID"],
                 unit: opt.Units,
                 name: opt["Full Name"],
+                title: opt["Table Export Title"],
                 dropdown_changing: false,
               },
               () => {
@@ -332,7 +337,7 @@ class Main extends Component {
       tier5_options = _.uniq(all_options.map((op) => lookup[op.tier5]));
     return (
       <div>
-        <p className="no-export-to-pdf" id="sentence">
+        <div className="no-export-to-pdf" id="sentence">
           I want to explore
           <span> </span>
           <SentenceDropdown
@@ -435,7 +440,7 @@ class Main extends Component {
           />
           <span> for </span>
           <SentenceMiscellaneous value={this.props.year} />.<span> </span>
-        </p>
+        </div>
         {this.props.plant_data.length === 0 || this.state.dropdown_changing ? (
           <div className="loading">
             <Spinner animation="grow" variant="success" />
@@ -457,6 +462,7 @@ class Main extends Component {
               fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
               wrap_long_labels={this.props.wrap_long_labels}
               field={this.state.field}
+              title={this.state.title}
               name={this.state.name}
               unit={this.state.unit}
               tier1={this.state.tier1}

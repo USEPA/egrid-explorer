@@ -878,6 +878,7 @@ class ResourceMixChart extends Component {
                   ? this.state.width * 0.9
                   : this.state.width * this.fuels_filter_pct,
               verticalAlign: "top",
+              height: "100%"
             }}
             ref={this.fuels}
           ></div>

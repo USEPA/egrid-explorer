@@ -14,17 +14,24 @@ class OtherLevelMapLegend extends Component {
   }
 
   formatLegendLabel(d) {
-    if (d >= 1000) {
+    let num = Math.abs(d);
+    if (num < 1) {
+      return d===0? d : d3.format(".3f")(d);
+    } else if (num >= 1000) {
       let num = d3.format(".3s")(d);
       let abbr = num.slice(-1);
       if (abbr === "G") {
         num = num.substring(0, num.length - 1) + "B";
       }
+      let chars1 = num.slice(-3);
+      let chars2 = chars1.substring(0, 2);
+      if (chars2 === ".0") {
+        num = num.slice(0, -3) + num.slice(-1);
+        return num;
+      }
       return num;
-    } else if (d<1){
-      return d==0? d : d3.format(".4")(d);
     } else {
-      return d3.format(".3")(d);
+      return d3.format('.3')(d);
     }
   }
 
@@ -93,7 +100,7 @@ class OtherLevelMapLegend extends Component {
       .labelAlign("start")
       .labels((d) => {
         if (d.i===0) {
-          return 0;
+          return Math.min(0,d3.min(domainArr));
         } else {
           let label_str = d.generatedLabels[d.i].split(" ");
           return label_str[0];

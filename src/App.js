@@ -89,9 +89,9 @@ class App extends Component {
     this.year = 2018;
     this.more_info_title = "Use Instruction";
     this.more_info_text = {
-      text: ["To explore the data, change the wording of the sentence by selecting different variables from the drop-downs (underlined words). The graphs will immediately change according to the selected variables.", 
-            "In the plant view, you can select a specific plant to get more information displayed in the accompanying table or you can filter by one or more fuels by clicking on the fuel types immediately above the map.",
-            "In the resource mix view, clicking on the fuel types will sort the bar graph accordingly, and you can select one of the bars to get more information displayed in the accompanying table."],
+      text: ["The sentence wording is created through combinations of options from four dropdowns: 1) an environmental characteristic, 2) a pollutant, 3) a fuel type, and 4) a geographic level. To explore the data, change the wording of the sentence by selecting different options from the drop-downs (underlined words). The graphs will immediately change according to the selected variables.", 
+            "When selecting the Plant geographic level in the fourth dropdown, you can select a specific plant to get more information displayed in the accompanying table or you can filter by one or more fuels by clicking on the fuel types immediately above the map.",
+            "When selecting the Resource Mix environmental characteristic in the first dropdown, clicking on the fuel types will sort the bar graph accordingly, and you can select one of the bars to get more information displayed in the accompanying table."],
       list: []
     };
     this.logo_link = "https://www.epa.gov/energy/emissions-generation-resource-integrated-database-egrid";
