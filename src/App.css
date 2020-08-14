@@ -71,9 +71,9 @@ header input {
 
 select {
   font-size: 1em;
-  font-weight:500;
+  font-weight: bold;
   border:none;
-  border-bottom:1.3px dashed #212529;
+  border-bottom:1.5px dashed #212529;
   background-color: #efefef;
   padding-left:5px;
   padding-right:17px;
@@ -376,7 +376,7 @@ th {
 }
 
 #resourcemix-table tr td:nth-of-type(1), #resourcemix-table tr th:nth-of-type(1){
-  text-align:left;
+  text-align:center;
 }
 
 #resourcemix-table tr td:nth-of-type(2), #resourcemix-table tr th:nth-of-type(2),
@@ -385,12 +385,20 @@ th {
 }
 
 /* 2. ggl table */
+#ggl-table {
+  white-space: pre;
+}
+
 #ggl-table td {
-  padding: 0.1em;
+  padding: 0.6em;
 }
 
 #ggl-table tr td{
   text-align:center;
+}
+
+#ggl-table tr td:nth-of-type(1), #ggl-table tr th:nth-of-type(1){
+  text-align: center;
 }
 
 #ggl-table tr td:nth-of-type(2), #ggl-table tr th:nth-of-type(2){
@@ -433,7 +441,7 @@ th {
 
 /* popup */
 .modal-content {
-  font-size: 1.6em !important;
+  /* font-size: 1.6em !important; */
 }
 
 .modal-content .modal-title {

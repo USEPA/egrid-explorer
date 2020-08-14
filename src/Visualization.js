@@ -11,8 +11,8 @@ import OtherLevelBarchart from "./OtherLevelBarchart";
 import PlantLevelMapZoom from "./PlantLevelMapZoom";
 import PlantLevelMapStatic from "./PlantLevelMapStatic";
 import ResourceMixChart from "./ResourceMixChart";
+import GGLChart from "./GGLChart";
 import Dialog from "./Dialog";
-import UpdatedTable from "./Table";
 
 class Visualization extends Component {
   constructor(props) {
@@ -296,9 +296,9 @@ class Visualization extends Component {
             });
           } else if (+this.state.tier1 === 9) {
             export_table = this.state.data;
-            csv += "Region, Percentage\r\n";
+            csv += "eGRID Subregion, Grid Gross Loss Rates (%)\r\n";
             export_table.forEach((r) => {
-              csv += r.name + "," + r.value.toString() + "%" + "\r\n";
+              csv += "\"" + r.subregion + "\"" + "," + r.value + "\r\n";
             });
           }
 
@@ -324,6 +324,7 @@ class Visualization extends Component {
     const resourcemix_micromap_highlight_color=this.props.resourcemix_micromap_highlight_color;
     const fuel_background_highlight_color=this.props.fuel_background_highlight_color;
     const fuel_background_select_color=this.props.fuel_background_select_color;
+    const ggl_fill_color = this.props.ggl_fill_color;
     const wrap_long_labels = this.props.wrap_long_labels;
     let fuel_name_lookup = {};
     this.state.fuels.forEach((d) => {
@@ -367,30 +368,24 @@ class Visualization extends Component {
       vis = (
         <div className="visualization-wrapper">
           <div className="wrapper">
-            <OtherLevelMap
+            <GGLChart
               title={this.state.name}
               data={this.props.ggl_data}
               window_width={this.state.window_width}
               window_height={this.state.window_height}
-              width={
-                this.init_window_width < 768 ? this.init_window_width * 0.8 : 600
-              }
-              ipad_width={768}
-              height={550}
-              scale={this.init_window_width < 768 ? this.init_window_width : 750}
+              width={this.init_window_width > 1280 ? 1280 : this.init_window_width}
+              map_width={this.init_window_width > 1280 ? 650 : this.init_window_width}
+              table_width={400}
+              scale={this.init_window_width > 1280 ? 812.5 : this.init_window_width*0.78}
+              height={this.init_window_width > 1280 ? 607 : 550}
               layer={this.props.ggl_layer}
               us_data={this.state.us_data}
               background_layer={this.props.state_layer}
               field={this.state.field}
               layer_type={category}
               map_fill={this.state.map_fill}
-            />
-          </div>
-          <div className="table-wrapper">
-            <UpdatedTable
-              title={this.state.name}
-              data={this.props.ggl_subrgn_data}
-              highlight_color={this.props.table_highlight_color}
+              ggl_fill_color={ggl_fill_color}
+              table_highlight_color={this.props.table_highlight_color}
             />
           </div>
         </div>
@@ -596,6 +591,7 @@ class UpdatedVisualization extends Component {
           resourcemix_micromap_highlight_color={this.props.resourcemix_micromap_highlight_color}
           fuel_background_highlight_color={this.props.fuel_background_highlight_color}
           fuel_background_select_color={this.props.fuel_background_select_color}
+          ggl_fill_color={this.props.ggl_fill_color}
           fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
           wrap_long_labels={this.props.wrap_long_labels}
           field={this.props.field}
@@ -611,7 +607,6 @@ class UpdatedVisualization extends Component {
           subrgn_data={this.props.subrgn_data}
           nerc_data={this.props.nerc_data}
           ggl_data={this.props.ggl_data}
-          ggl_subrgn_data={this.props.ggl_subrgn_data}
           us_data={this.props.us_data}
           state_layer={this.props.state_layer}
           subrgn_layer={this.props.subrgn_layer}

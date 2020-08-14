@@ -19,8 +19,8 @@ import state from "./assets/data/csv/state.csv";
 import statefullname from "./assets/data/csv/eGRID state fullname.csv";
 import plant from "./assets/data/csv/plant.csv";
 import plant_legend from "./assets/data/csv/eGRID plant legend values.csv";
-import ggl from "./assets/data/csv/GGL.csv";
-import ggl_subrgn from "./assets/data/csv/eGRID GGL subregion.csv";
+
+import ggl from "./assets/data/csv/eGRID GGL subregion.csv";
 import us from "./assets/data/csv/US.csv";
 
 import Main from "./Main";
@@ -44,7 +44,6 @@ class App extends Component {
       subrgn_data: [],
       nerc_data: [],
       ggl_data: [],
-      ggl_subrgn_data: [],
       us_data: [],
     };
     // placeholder
@@ -59,6 +58,7 @@ class App extends Component {
     this.resourcemix_micromap_highlight_color = "#aaa";
     this.fuel_background_highlight_color="#eee";
     this.fuel_background_select_color="#ddd";
+    this.ggl_fill_color = "rgba(186, 228, 179, 0.6)";
 
     this.choropleth_map_fill = {
       emission: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"],
@@ -87,7 +87,7 @@ class App extends Component {
 
     // header data
     this.year = 2018;
-    this.more_info_title = "Use Instruction";
+    this.more_info_title = "Instructions";
     this.more_info_text = {
       text: ["The sentence wording is created through combinations of options from four dropdowns: 1) an environmental characteristic, 2) a pollutant, 3) a fuel type, and 4) a geographic level. To explore the data, change the wording of the sentence by selecting different options from the drop-downs (underlined words). The graphs will immediately change according to the selected variables.", 
             "When selecting the Plant geographic level in the fourth dropdown, you can select a specific plant to get more information displayed in the accompanying table or you can filter by one or more fuels by clicking on the fuel types immediately above the map.",
@@ -286,7 +286,6 @@ class App extends Component {
       d3.csv(plant),
       d3.csv(plant_legend),
       d3.csv(ggl),
-      d3.csv(ggl_subrgn),
       d3.csv(us),
     ]).then(
       ([
@@ -299,7 +298,6 @@ class App extends Component {
         plant,
         plant_dist,
         ggl,
-        ggl_subrgn,
         us,
       ]) => {
         // process data
@@ -374,20 +372,13 @@ class App extends Component {
           d.id = nerc.filter((e) => e.name === d.name).map((e) => e.id)[0];
         });
 
-        ggl.map((d, i) => {
-          d.label = d.GGL;
-          d.name = d.GGL;
+        ggl.map((d,i)=>{
+          d.label = d.Region;
+          d.name = d.Region;
           d.id = i;
           d.unit = "%";
-          d.value = +d.percentage;
-        });
-        ggl_subrgn.map((d,i)=>{
-          d.label = d.SUBRGN;
-          d.name = d.SUBRGN;
-          d.id = i;
-          d.unit = "%";
-          d.value = +d.percentage;
-          d.region = d.region;
+          d.value = d['Grid Gross Loss Rate (%)'];
+          d.subregion = d.Subregion;
         });
         this.ggl_layer.features.map((d) => {
           d.id = ggl.filter((e) => e.name === d.name).map((e) => e.id)[0];
@@ -408,7 +399,6 @@ class App extends Component {
         this.subrgn_data = subrgn;
         this.nerc_data = nerc;
         this.ggl_data = ggl;
-        this.ggl_subrgn_data = ggl_subrgn;
         this.us_data = us;
 
         this.setState({
@@ -419,7 +409,6 @@ class App extends Component {
           subrgn_data: subrgn,
           nerc_data: nerc,
           ggl_data: ggl,
-          ggl_subrgn_data: ggl_subrgn,
           us_data: us,
         });
       }
@@ -443,14 +432,13 @@ class App extends Component {
         this.state.subrgn_data.length > 0 &&
         this.state.nerc_data.length > 0 &&
         this.state.ggl_data.length > 0 &&
-        this.state.ggl_subrgn_data.length > 0 &&
         this.state.us_data.length > 0 ? (
           <div className="app">
             <header className="no-export-to-pdf">
               <div>
                 <input
                   type="button"
-                  value="Use Instruction"
+                  value="Instructions"
                   onClick={this.handleOpenDialog}
                 />
                 <a href={this.logo_link} target="_blank" rel="noopener noreferrer"><img id="logo" src={logo} alt="eGrid Logo"/></a>
@@ -468,6 +456,7 @@ class App extends Component {
               resourcemix_micromap_highlight_color={this.resourcemix_micromap_highlight_color}
               fuel_background_highlight_color={this.fuel_background_highlight_color}
               fuel_background_select_color={this.fuel_background_select_color}
+              ggl_fill_color={this.ggl_fill_color}
               fuel_sentence_code_lookup={this.fuel_sentence_code_lookup}
               wrap_long_labels={this.wrap_long_labels}
               options={this.state.options}
@@ -477,7 +466,6 @@ class App extends Component {
               subrgn_data={this.state.subrgn_data}
               nerc_data={this.state.nerc_data}
               ggl_data={this.state.ggl_data}
-              ggl_subrgn_data={this.state.ggl_subrgn_data}
               us_data={this.state.us_data}
               state_layer={this.state_layer}
               subrgn_layer={this.subrgn_layer}

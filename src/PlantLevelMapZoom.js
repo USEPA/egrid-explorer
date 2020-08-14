@@ -638,7 +638,7 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl mapbox-legend";
         this._container.innerHTML =
-          "<div className='mapboxgl-ctrl-group' aria-haspopup='true'><div><span className='map-zoomable-legend-title'></span></div><div><svg className='map-zoomable-legend'></svg></div></div>";
+          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span class='map-zoomable-legend-title'></span></div><div><svg class='map-zoomable-legend'></svg></div></div>";
 
         return this._container;
       }

@@ -459,6 +459,7 @@ class Main extends Component {
               resourcemix_micromap_highlight_color={this.props.resourcemix_micromap_highlight_color}
               fuel_background_highlight_color={this.props.fuel_background_highlight_color}
               fuel_background_select_color={this.props.fuel_background_select_color}
+              ggl_fill_color={this.props.ggl_fill_color}
               fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
               wrap_long_labels={this.props.wrap_long_labels}
               field={this.state.field}
@@ -474,7 +475,6 @@ class Main extends Component {
               subrgn_data={this.props.subrgn_data}
               nerc_data={this.props.nerc_data}
               ggl_data={this.props.ggl_data}
-              ggl_subrgn_data={this.props.ggl_subrgn_data}
               us_data={this.props.us_data}
               state_layer={this.props.state_layer}
               subrgn_layer={this.props.subrgn_layer}

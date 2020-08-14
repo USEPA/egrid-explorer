@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import * as d3 from "d3";
 import * as d3_composite from "d3-composite-projections";
+import UpdatedTable from "./Table";
 
-class OtherLevelMap extends Component {
+class GGLChart extends Component {
   constructor(props) {
     super(props);
     this.tooltip = React.createRef();
@@ -12,26 +13,19 @@ class OtherLevelMap extends Component {
     this.labels = React.createRef();
     this.state = {
       width: this.props.width,
+      map_width: this.props.map_width,
       height: this.props.height,
       scale: this.props.scale,
+      mouseover_region: null
     };
   }
 
-  formatNumber(d) {
-    let num = Math.abs(d);
-    if (num < 1) {
-      return d===0? 0 : d3.format(".3f")(d);
-    } else {
-      return isNaN(d) ? "" : d3.format(",.0f")(d);
-    }
-  }
-
   initView() {
-    const layer = this.props.layer, label_width = this.props.layer_type === "state" ? 22 : 50, label_height = 15;
+    const layer = this.props.layer, label_width = 115, label_height = 20;
     let projection = d3_composite
       .geoAlbersUsaTerritories()
       .scale(this.state.scale)
-      .translate([this.state.width / 2, this.state.height / 2.5]);
+      .translate([this.state.map_width / 2, this.state.height / 2.5]);
     let path = d3.geoPath().projection(projection);
     const map_fill = this.props.map_fill;
 
@@ -40,51 +34,6 @@ class OtherLevelMap extends Component {
       if (this.props.data.filter((e) => e.name === d.name)[0]) {
         let prop = this.props.data.filter((e) => e.name === d.name)[0];
         prop.centroid = path.centroid(d);
-
-        // special cases of centroid to edit
-        switch (d.name) {
-          case "AKMS":
-            prop.centroid[1] = prop.centroid[1] - 25;
-            break;
-          case "NYUP":
-            prop.centroid[1] = prop.centroid[1] - 5;
-            break;
-          case "NYLI":
-            prop.centroid[0] = prop.centroid[0] + 25;
-            prop.centroid[1] = prop.centroid[1] + 10;
-            break;
-          case "NYCW":
-            prop.centroid[0] = prop.centroid[0] + 30;
-            prop.centroid[1] = prop.centroid[1] - 15;
-            break;
-          case "MARYLAND":
-            prop.centroid[1] = prop.centroid[1] - 10;
-            break;
-          case "DISTRICT OF COLUMBIA":
-            prop.centroid[0] = prop.centroid[0] + 5;
-            prop.centroid[1] = prop.centroid[1] + 10;
-            break;
-          case "DELAWARE":
-            prop.centroid[0] = prop.centroid[0] + 15;
-            break;
-          case "RHODE ISLAND":
-            prop.centroid[0] = prop.centroid[0] + 10;
-            break;
-          case "CONNECTICUT":
-            prop.centroid[1] = prop.centroid[1] + 5;
-            break;
-          case "MASSACHUSETTS":
-            prop.centroid[0] = prop.centroid[0] + 5;
-            prop.centroid[1] = prop.centroid[1] - 15;
-            break;
-          case "NEW HAMPSHIRE":
-            prop.centroid[0] = prop.centroid[0] + 10;
-            prop.centroid[1] = prop.centroid[1] - 10;
-            break;
-          default:
-            break;
-        }
-
         d.properties = prop;
       } else {
         d.properties = {
@@ -103,12 +52,11 @@ class OtherLevelMap extends Component {
     let domainArr = layer.features
       .map((e) => e.properties.value)
       .sort((a, b) => a - b);
-    domainArr = domainArr.filter((d,i)=>domainArr.indexOf(d)===i);
-    let domain = d3.range(map_fill.length)
-    .map((d) => {
-      return d3.quantile(domainArr, (d+1) / map_fill.length);
+    domainArr = domainArr.filter((d, i) => domainArr.indexOf(d) === i);
+    let domain = d3.range(map_fill.length).map((d) => {
+      return d3.quantile(domainArr, (d + 1) / map_fill.length);
     });
-    domain = domain.filter((d,i)=>domain.indexOf(d)===i);
+    domain = domain.filter((d, i) => domain.indexOf(d) === i);
     fill_scale.domain(domain);
 
     // add layers
@@ -127,8 +75,11 @@ class OtherLevelMap extends Component {
       .enter()
       .append("path")
       .attr("d", path)
-      .attr("class", (d) => "map-path mouseover_target region_" + d.properties.id)
-      .style("fill", (d) => fill_scale(d.properties.value))
+      .attr(
+        "class",
+        (d) => "map-path mouseover_target region_" + d.properties.id
+      )
+      .style("fill", this.props.ggl_fill_color)
       .style("stroke", "#000")
       .style("stroke-width", 0.5)
       .on("mouseover", (d) => {
@@ -145,8 +96,7 @@ class OtherLevelMap extends Component {
           "</b> for <b>" +
           d.properties.name +
           "</b> is <b>" +
-          this.formatNumber(d.properties.value) +
-          (d.properties.unit === "%" ? "%" : " " + d.properties.unit) +
+          d.properties.value +
           "</b>.</span>";
         d3.select(this.tooltip.current)
           .html(html)
@@ -181,6 +131,8 @@ class OtherLevelMap extends Component {
           .classed("selected", true)
           .style("stroke-width", 1)
           .style("opacity", 1);
+          
+        this.setState({mouseover_region: d.properties.name});
       })
       .on("mouseout", (d) => {
         d3.select(this.tooltip.current)
@@ -202,6 +154,8 @@ class OtherLevelMap extends Component {
         d3.selectAll("path.region_" + d.properties.id)
           .classed("selected", true)
           .style("stroke-width", 0.5);
+        
+        this.setState({mouseover_region: null});
       });
 
     // add labels
@@ -216,21 +170,21 @@ class OtherLevelMap extends Component {
     labels
       .append("rect")
       .attr("x", (d) => d.properties.centroid[0] - label_width / 2)
-      .attr("y", (d) => d.properties.centroid[1] - label_height*0.5)
+      .attr("y", (d) => d.properties.centroid[1] - label_height * 0.5)
       .attr("width", label_width)
       .attr("height", label_height)
       .attr("rx", 4)
       .style("fill", "#fff")
-      .style("stroke", (d) =>"none");
+      .style("stroke", "#000");
 
     labels
       .append("text")
       .attr("x", (d) => d.properties.centroid[0])
       .attr("y", (d) => d.properties.centroid[1] + label_height * 0.3)
       .style("text-anchor", "middle")
-      .style("font-size", (d) => "0.7em")
+      .style("font-size", "0.8em")
       .style("font-weight", "bold")
-      .text((d) => d.properties.label)
+      .text((d) => d.properties.label + ": " + d.properties.value)
       .on("mouseover", (d) => {
         d3.select(this.tooltip.current)
           .transition()
@@ -245,8 +199,7 @@ class OtherLevelMap extends Component {
           "</b> for <b>" +
           d.properties.name +
           "</b> is <b>" +
-          this.formatNumber(d.properties.value) +
-          (d.properties.unit === "%" ? "%" : " " + d.properties.unit) +
+          d.properties.value +
           "</b>.</span>";
         d3.select(this.tooltip.current)
           .html(html)
@@ -303,6 +256,16 @@ class OtherLevelMap extends Component {
           .classed("selected", false)
           .style("stroke-width", 0.5);
       });
+
+    // background
+    d3.select(this.background.current).selectAll("path").remove();
+    d3.select(this.background.current)
+      .selectAll("path")
+      .data(this.props.background_layer.features)
+      .enter()
+      .append("path")
+      .attr("d", path)
+      .attr("class", "map-path");
   }
 
   componentDidMount() {
@@ -321,12 +284,13 @@ class OtherLevelMap extends Component {
   }
 
   resize() {
-    if (this.props.window_width < this.props.ipad_width) {
+    if (this.props.window_width > 1280) {
       this.setState(
         {
-          width: this.props.window_width * 0.8,
-          height: 450,
-          scale: this.props.window_width,
+          width: 1280,
+          map_width: 650,
+          height: 607,
+          scale: 812.5,
         },
         () => {
           this.initView();
@@ -335,9 +299,10 @@ class OtherLevelMap extends Component {
     } else {
       this.setState(
         {
-          width: 650,
-          height: 607,
-          scale: 812.5,
+          width: this.props.window_width,
+          height: 550,
+          map_width: this.props.window_width,
+          scale: this.props.window_width*0.78
         },
         () => {
           this.initView();
@@ -351,24 +316,37 @@ class OtherLevelMap extends Component {
       <div>
         <p className="title">{this.props.title}</p>
       </div>
-    );
+    ); 
 
     return (
-      <div style={{width: this.state.width}}>
-        <div
-        >
+      <div style={{ width: this.state.width }}>
+        <div>
           {title}
-          <div>
-            <svg
+          <svg
               ref={this.map}
-              width={this.state.width}
-              height={this.state.height}
+              style={{
+                width: this.state.map_width,
+                height: this.state.height,
+              }}
             >
               <g ref={this.background} />
               <g ref={this.paths} />
               <g ref={this.labels} />
             </svg>
-          </div>
+            <div
+              className="table-wrapper"
+              style={{
+                width: this.props.table_width,
+                height: this.props.height,
+              }}
+            >
+              <UpdatedTable
+                title={this.props.title}
+                data={this.props.data}
+                region={this.state.mouseover_region}
+                highlight_color={this.props.table_highlight_color}
+              />
+            </div>
         </div>
         <div>
           <p ref={this.tooltip} className="tooltip"></p>
@@ -378,4 +356,4 @@ class OtherLevelMap extends Component {
   }
 }
 
-export default OtherLevelMap;
+export default GGLChart;

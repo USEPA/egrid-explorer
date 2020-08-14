@@ -15,14 +15,19 @@ class UpdatedTable extends Component {
 
     if (this.props.data !== undefined) {
       this.props.data.forEach((d, i) => {
-        console.log(d);
         let row;
         if (i < this.props.data.length - 1) {
           row = (
-            <tr key={i}>
-              <td>{d.name}</td>
+            <tr 
+            style={{
+              backgroundColor:
+                this.props.region === d.name
+                  ? this.props.highlight_color
+                  : "#fff",
+              fontWeight: this.props.region === d.name ? "bold" : "normal",
+            }} key={i}>
+              <td>{d.subregion}</td>
               <td>{d.value}</td>
-              <td>{d.region}</td>
             </tr>
           );
         } else {
@@ -30,7 +35,6 @@ class UpdatedTable extends Component {
             <tr className="last-row" key={i}>
               <td>{d.name}</td>
               <td>{d.value}</td>
-              <td>{d.region}</td>
             </tr>
           );
         }
@@ -321,8 +325,7 @@ class UpdatedTable extends Component {
             <thead>
               <tr className="first-row">
                 <th>eGRID Subregion</th>
-                <th>Grid Gross Loss Rates</th>
-                <th>Region</th>
+                <th>Grid Gross Loss Rates (%)</th>
               </tr>
             </thead>
             <tbody>{ggl_table}</tbody>

@@ -1,28 +1,18 @@
-SUBRGN,percentage,region
-AKGD,5.12,Alaska
-AKMS,5.12,Alaska
-AZNM,4.80,Western
-CAMX,4.80,Western
-ERCT,4.87,ERCOT
-FRCC,4.88,Eastern
-HIMS,5.14,Hawaii
-HIOA,5.14,Hawaii
-MROE,4.88,Eastern
-MROW,4.88,Eastern
-NEWE,4.88,Eastern
-NWPP,4.80,Western
-NYCW,4.88,Eastern
-NYLI,4.88,Eastern
-NYUP,4.88,Eastern
-RFCE,4.88,Eastern
-RFCM,4.88,Eastern
-RFCW,4.88,Eastern
-RMPA,4.80,Western
-SPNO,4.88,Eastern
-SPSO,4.88,Eastern
-SRMV,4.88,Eastern
-SRMW,4.88,Eastern
-SRSO,4.88,Eastern
-SRTV,4.88,Eastern
-SRVC,4.88,Eastern
-US,4.87, 
+Region,Subregion,Grid Gross Loss Rate (%)
+Alaska,"Alaska
+includes AKGD, AKMS",5.12%
+Eastern,"Eastern
+includes FRCC, MROE, 
+MROW, NEWE, NYCW, 
+NYLI, NYUP, RFCE, 
+RFCM, RFCW, SPNO, 
+SPSO, SRMV, SRMW, 
+SRSO, SRTV, SRVC",4.88%
+ERCOT,"ERCOT
+includes ERCT",4.87%
+Hawaii,"Hawaii
+includes HIMS, HIOA",5.14%
+Western,"Western
+includes AZNM, CAMX, 
+NWPP, RMPA",4.80%
+U.S.,U.S.,4.87%
