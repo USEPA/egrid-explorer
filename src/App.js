@@ -19,9 +19,8 @@ import state from "./assets/data/csv/state.csv";
 import statefullname from "./assets/data/csv/eGRID state fullname.csv";
 import plant from "./assets/data/csv/plant.csv";
 import plant_legend from "./assets/data/csv/eGRID plant legend values.csv";
-
-import ggl from "./assets/data/csv/eGRID GGL subregion.csv";
 import us from "./assets/data/csv/US.csv";
+import ggl from "./assets/data/csv/GGL.csv";
 
 import Main from "./Main";
 import Dialog from "./Dialog.js";

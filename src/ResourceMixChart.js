@@ -851,7 +851,7 @@ class ResourceMixChart extends Component {
   render() {
     let title = (
       <p className="title">
-        {this.props.title + ", by " + this.props.layer_type}
+        {this.props.title.replace(',', '\n')}
       </p>
     );
 

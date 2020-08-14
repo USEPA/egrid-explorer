@@ -349,7 +349,7 @@ class OtherLevelMap extends Component {
   render() {
     let title = (
       <div>
-        <p className="title">{this.props.title}</p>
+        <p className="title">{this.props.title.replace(',', '\n')}</p>
       </div>
     );
 

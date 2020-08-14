@@ -1041,7 +1041,7 @@ class PlantLevelMapZoom extends Component {
   render() {
     let title = (
       <p className="title">
-        {this.props.title}
+        {this.props.title.replace(',', '\n')}
       </p>
     );
 

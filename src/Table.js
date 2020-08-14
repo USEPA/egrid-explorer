@@ -13,7 +13,7 @@ class UpdatedTable extends Component {
   render() {
     let ggl_table = [];
 
-    if (this.props.data !== undefined) {
+    if (this.props.title.startsWith("Grid gross loss rates")) {
       this.props.data.forEach((d, i) => {
         let row;
         if (i < this.props.data.length - 1) {
@@ -61,7 +61,7 @@ class UpdatedTable extends Component {
                 </th>
               </tr>
             </thead>
-            {this.props.title === "Resource Mix by all fuel types" && (
+            {this.props.title.startsWith("Resource Mix by all fuel types") && (
               <tbody>
                 <tr
                   style={{
@@ -212,8 +212,7 @@ class UpdatedTable extends Component {
                 </tr>
               </tbody>
             )}
-            {this.props.title ===
-              "Resource Mix by renewable vs. non-renewable fuels" && (
+            {this.props.title.startsWith("Resource Mix by renewable vs. non-renewable fuels") && (
               <tbody>
                 <tr
                   className="first-row"
@@ -272,8 +271,7 @@ class UpdatedTable extends Component {
                 </tr>
               </tbody>
             )}
-            {this.props.title ===
-              "Resource Mix by combustible vs. non-combustible fuels" && (
+            {this.props.title.startsWith("Resource Mix by combustible vs. non-combustible fuels") && (
               <tbody>
                 <tr
                   className="first-row"
