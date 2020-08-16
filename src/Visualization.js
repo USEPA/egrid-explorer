@@ -623,18 +623,19 @@ class UpdatedVisualization extends Component {
             type="button"
             id="export-table"
             value="Export Table"
+            className="btn-primary"
           />{" "}
           {lookup[this.props.tier5] !== "plant" && (
             <input
               type="button"
-              className="export-vis"
+              className="export-vis btn-primary"
               value="Export Visualization"
             />
           )}
           {lookup[this.props.tier5] === "plant" && (
             <input
               type="button"
-              className="export-vis"
+              className="export-vis btn-primary"
               value="Export Zoomable Map"
             />
           )}
@@ -644,13 +645,9 @@ class UpdatedVisualization extends Component {
               type="button"
               id="export-static"
               value="Export Static Map"
+              className="btn-primary"
             />
           )}{" "}
-          <input
-            type="button"
-            value="Glossary"
-            onClick={this.handleOpenDialog}
-          />{" "}
           <a
             href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx"
             target="_blank"
@@ -659,6 +656,7 @@ class UpdatedVisualization extends Component {
             <input
               type="button"
               value="Download eGRID2018 data"
+              className="btn-primary"
             />
           </a>{" "}
           <a
@@ -669,6 +667,7 @@ class UpdatedVisualization extends Component {
             <input
               type="button"
               value="Feedback or Questions"
+              className="btn-primary"
             />
           </a>
         </div>

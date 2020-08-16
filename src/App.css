@@ -133,6 +133,79 @@ select::-ms-expand {
   pointer-events: none;
 }
 
+/* buttons */
+input[type="button"].btn-primary {
+  background-color: #0071bc;
+  border: 2px solid #0071bc;
+  color:#ffffff;
+}
+
+input[type="button"].btn-primary:hover {
+  background-color: #205493;
+  border: 2px solid #205493;
+  color:#ffffff;
+}
+
+input[type="button"].btn-primary-outline {
+  background-color: #ffffff;
+  border: 2px solid #0071bc;
+  color:#0071bc;
+}
+
+input[type="button"].btn-primary-outline:hover {
+  background-color: #ffffff;
+  border: 2px solid #205493;
+  color:#205493;
+}
+
+input[type="button"].btn-secondary {
+  background-color: #2E8540;
+  border: 2px solid #2E8540;
+  color:#ffffff;
+}
+
+input[type="button"].btn-secondary:hover {
+  background-color: #256a34;
+  border: 2px solid #256a34;
+  color:#ffffff;
+}
+
+input[type="button"].btn-secondary-outline {
+  background-color: #ffffff;
+  border: 2px solid #2E8540;
+  color:#2E8540;
+}
+
+input[type="button"].btn-secondary-outline:hover {
+  background-color: #ffffff;
+  border: 2px solid #256a34;
+  color:#256a34;
+}
+
+input[type="button"].btn-tertiary {
+  background-color: #5B616B;
+  border: 2px solid #5B616B;
+  color:#ffffff;
+}
+
+input[type="button"].btn-tertiary:hover {
+  background-color: #323a45;
+  border: 2px solid #323a45;
+  color:#ffffff;
+}
+
+input[type="button"].btn-tertiary-outline {
+  background-color: #ffffff;
+  border: 2px solid #5B616B;
+  color:#5B616B;
+}
+
+input[type="button"].btn-tertiary-outline:hover {
+  background-color: #ffffff;
+  border: 2px solid #323a45;
+  color:#323a45;
+}
+
 /* export panel */
 .buttons-wrapper {
   margin-top: 0.5rem;
