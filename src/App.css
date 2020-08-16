@@ -140,9 +140,15 @@ input[type="button"].btn-primary {
   color:#ffffff;
 }
 
-input[type="button"].btn-primary:hover {
+input[type="button"].btn-primary:hover, input[type="button"].btn-primary:active {
   background-color: #205493;
   border: 2px solid #205493;
+  color:#ffffff;
+}
+
+input[type="button"].btn-primary:focus {
+  background-color: #112E51;
+  border: 2px solid #112E51;
   color:#ffffff;
 }
 
@@ -152,10 +158,16 @@ input[type="button"].btn-primary-outline {
   color:#0071bc;
 }
 
-input[type="button"].btn-primary-outline:hover {
+input[type="button"].btn-primary-outline:hover, input[type="button"].btn-primary-outline:active {
   background-color: #ffffff;
   border: 2px solid #205493;
   color:#205493;
+}
+
+input[type="button"].btn-primary-outline:focus {
+  background-color: #ffffff;
+  border: 2px solid #112E51;
+  color:#112E51;
 }
 
 input[type="button"].btn-secondary {
@@ -164,9 +176,15 @@ input[type="button"].btn-secondary {
   color:#ffffff;
 }
 
-input[type="button"].btn-secondary:hover {
+input[type="button"].btn-secondary:hover, input[type="button"].btn-secondary:active {
   background-color: #256a34;
   border: 2px solid #256a34;
+  color:#ffffff;
+}
+
+input[type="button"].btn-secondary:focus {
+  background-color: #1e542a;
+  border: 2px solid #1e542a;
   color:#ffffff;
 }
 
@@ -176,10 +194,16 @@ input[type="button"].btn-secondary-outline {
   color:#2E8540;
 }
 
-input[type="button"].btn-secondary-outline:hover {
+input[type="button"].btn-secondary-outline:hover, input[type="button"].btn-secondary-outline:active {
   background-color: #ffffff;
   border: 2px solid #256a34;
   color:#256a34;
+}
+
+input[type="button"].btn-secondary-outline:focus {
+  background-color: #ffffff;
+  border: 2px solid #1e542a;
+  color:#1e542a;
 }
 
 input[type="button"].btn-tertiary {
@@ -188,9 +212,15 @@ input[type="button"].btn-tertiary {
   color:#ffffff;
 }
 
-input[type="button"].btn-tertiary:hover {
+input[type="button"].btn-tertiary:hover, input[type="button"].btn-tertiary:active {
   background-color: #323a45;
   border: 2px solid #323a45;
+  color:#ffffff;
+}
+
+input[type="button"].btn-tertiary:focus {
+  background-color: #262c35;
+  border: 2px solid #262c35;
   color:#ffffff;
 }
 
@@ -200,10 +230,16 @@ input[type="button"].btn-tertiary-outline {
   color:#5B616B;
 }
 
-input[type="button"].btn-tertiary-outline:hover {
+input[type="button"].btn-tertiary-outline:hover, input[type="button"].btn-tertiary-outline:active {
   background-color: #ffffff;
   border: 2px solid #323a45;
   color:#323a45;
+}
+
+input[type="button"].btn-tertiary-outline:focus {
+  background-color: #ffffff;
+  border: 2px solid #262c35;
+  color:#262c35;
 }
 
 /* export panel */

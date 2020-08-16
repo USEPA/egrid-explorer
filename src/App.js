@@ -440,12 +440,6 @@ class App extends Component {
                   value="Instructions"
                   className="btn-secondary"
                   onClick={this.handleOpenDialog}
-                />{" "}
-                <input
-                  type="button"
-                  value="Glossary"
-                  className="btn-secondary"
-                  onClick={this.handleOpenDialog}
                 />
                  <a href={this.logo_link} target="_blank" rel="noopener noreferrer"><img id="logo" src={logo} alt="eGrid Logo"/></a>
               </div>

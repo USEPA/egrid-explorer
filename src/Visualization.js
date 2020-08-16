@@ -659,6 +659,12 @@ class UpdatedVisualization extends Component {
               className="btn-primary"
             />
           </a>{" "}
+          <input
+            type="button"
+            value="Glossary"
+            className="btn-primary"
+            onClick={this.handleOpenDialog}
+          />{" "}
           <a
             href="https://www.epa.gov/energy/forms/egrid-and-power-profiler-feedback-and-questions"
             target="_blank"
