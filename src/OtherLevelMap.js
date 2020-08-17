@@ -336,7 +336,7 @@ class OtherLevelMap extends Component {
       this.setState(
         {
           width: 650,
-          height: 607,
+          height: 550,
           scale: 812.5,
         },
         () => {

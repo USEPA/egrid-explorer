@@ -20,7 +20,7 @@ class Main extends Component {
       field: init_options["Final field name in eGRID"],
       title: init_options["Table Export Title"],
       unit: init_options.Units,
-      name: init_options["Full Name"],
+      name: init_options["Visual Title (for Export and Webpage)"],
       all_options: this.props.options.filter(
         (d) => d.tier1 === init_options.tier1
       ),
@@ -121,7 +121,7 @@ class Main extends Component {
                 {
                   field: opt["Final field name in eGRID"],
                   unit: opt.Units,
-                  name: opt["Full Name"],
+                  name: opt["Visual Title (for Export and Webpage)"],
                   title: opt["Table Export Title"],
                   dropdown_changing: false,
                 },
@@ -190,7 +190,7 @@ class Main extends Component {
               {
                 field: opt["Final field name in eGRID"],
                 unit: opt.Units,
-                name: opt["Full Name"],
+                name: opt["Visual Title (for Export and Webpage)"],
                 title: opt["Table Export Title"],
                 dropdown_changing: false,
               },
@@ -256,7 +256,7 @@ class Main extends Component {
               {
                 field: opt["Final field name in eGRID"],
                 unit: opt.Units,
-                name: opt["Full Name"],
+                name: opt["Visual Title (for Export and Webpage)"],
                 title: opt["Table Export Title"],
                 dropdown_changing: false,
               },
@@ -316,7 +316,7 @@ class Main extends Component {
               {
                 field: opt["Final field name in eGRID"],
                 unit: opt.Units,
-                name: opt["Full Name"],
+                name: opt["Visual Title (for Export and Webpage)"],
                 title: opt["Table Export Title"],
                 dropdown_changing: false,
               },
@@ -449,7 +449,6 @@ class Main extends Component {
           <div id="visualization">
             <UpdatedVisualization
               options={this.props.options}
-              glossary={this.props.glossary}
               choropleth_map_fill={this.props.choropleth_map_fill}
               plant_fuels={this.props.plant_fuels}
               plant_dist={this.props.plant_dist}

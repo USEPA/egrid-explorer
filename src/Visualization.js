@@ -296,9 +296,9 @@ class Visualization extends Component {
             });
           } else if (+this.state.tier1 === 9) {
             export_table = this.state.data;
-            csv += "eGRID Subregion, Grid Gross Loss Rates (%)\r\n";
+            csv += "Region, Associated eGRID Subregions, Grid Gross Loss Rates (%)\r\n";
             export_table.forEach((r) => {
-              csv += "\"" + r.subregion + "\"" + "," + r.value + "\r\n";
+              csv += r.name + ",\"" + r.subregion + "\"," + r.value + "\r\n";
             });
           }
 
@@ -375,9 +375,10 @@ class Visualization extends Component {
               window_height={this.state.window_height}
               width={this.init_window_width > 1280 ? 1280 : this.init_window_width}
               map_width={this.init_window_width > 1280 ? 650 : this.init_window_width}
-              table_width={400}
+              table_width={450}
+              margin_top={5}
               scale={this.init_window_width > 1280 ? 812.5 : this.init_window_width*0.78}
-              height={this.init_window_width > 1280 ? 607 : 550}
+              height={550}
               layer={this.props.ggl_layer}
               us_data={this.state.us_data}
               background_layer={this.props.state_layer}
@@ -446,7 +447,7 @@ class Visualization extends Component {
                       : 650
                   }
                   ipad_width={768}
-                  height={607}
+                  height={550}
                   scale={
                     this.init_window_width < 768 ? this.init_window_width : 812.5
                   }
@@ -551,21 +552,7 @@ class UpdatedVisualization extends Component {
     super(props);
     this.state = {
       window_width: window.innerWidth,
-      show_dialog: false,
     };
-
-    this.handleOpenDialog = this.handleOpenDialog.bind(this);
-    this.glossary_table_header = Object.keys(this.props.glossary[0]);
-    this.glossary_table_rows = this.props.glossary.map((d) => Object.values(d));
-    this.glossary_title = "Glossary";
-  }
-
-  handleCloseDialog() {
-    this.setState({ show_dialog: false });
-  }
-
-  handleOpenDialog() {
-    this.setState({ show_dialog: true });
   }
 
   componentDidMount() {
@@ -646,11 +633,6 @@ class UpdatedVisualization extends Component {
               value="Export Static Map"
             />
           )}{" "}
-          <input
-            type="button"
-            value="Glossary"
-            onClick={this.handleOpenDialog}
-          />{" "}
           <a
             href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx"
             target="_blank"
@@ -672,15 +654,6 @@ class UpdatedVisualization extends Component {
             />
           </a>
         </div>
-        <Dialog
-          is_table="true"
-          has_image="false"
-          title={this.glossary_title}
-          table_header={this.glossary_table_header}
-          table_rows={this.glossary_table_rows}
-          show={this.state.show_dialog}
-          onHide={() => this.setState({ show_dialog: false })}
-        />
       </div>
     );
   }

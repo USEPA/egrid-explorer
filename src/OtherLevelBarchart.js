@@ -347,8 +347,8 @@ class OtherLevelBarchart extends Component {
 
     d3.selectAll(".selected-button").classed("selected-button", false);
     d3.selectAll(".not-selected-button").classed("not-selected-button", false);
-    d3.select(selected_input).classed("selected-button", true);
-    d3.select(non_selected_input).classed("not-selected-button", true);
+    d3.select(selected_input).classed("selected-button", true).classed("blue-outline-button", false);
+    d3.select(non_selected_input).classed("not-selected-button", true).classed("blue-outline-button", true);
 
     // update chart
     let barYScale = d3
@@ -427,7 +427,7 @@ class OtherLevelBarchart extends Component {
   render() {
     return (
       <div id="barchart-wrapper" style={{ width: this.state.width }}>
-        <div className="sort-buttons no-export-to-pdf">
+        <div className="sort-buttons no-export-to-pdf blue-segmented-buttongroup">
           <input
             style={{
               fontSize: this.state.width / 2 < 160 ? "0.7em" : "1em",

@@ -21,7 +21,7 @@ class GGLChart extends Component {
   }
 
   initView() {
-    const layer = this.props.layer, label_width = 115, label_height = 20;
+    const layer = this.props.layer, label_width = 120, label_height = 20;
     let projection = d3_composite
       .geoAlbersUsaTerritories()
       .scale(this.state.scale)
@@ -289,7 +289,7 @@ class GGLChart extends Component {
         {
           width: 1280,
           map_width: 650,
-          height: 607,
+          height: 550,
           scale: 812.5,
         },
         () => {
@@ -337,7 +337,10 @@ class GGLChart extends Component {
               className="table-wrapper"
               style={{
                 width: this.props.table_width,
-                height: this.props.height,
+                marginTop:
+                this.state.width < 1280
+                  ? this.props.margin_top
+                  : "5%",
               }}
             >
               <UpdatedTable

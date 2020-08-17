@@ -35,9 +35,9 @@ class App extends Component {
     super(props);
     // state controls
     this.state = {
-      show_modal: false,
+      show_instruction: false,
+      show_glossary: false,
       options: [],
-      glossary: [],
       plant_data: [],
       state_data: [],
       subrgn_data: [],
@@ -48,15 +48,11 @@ class App extends Component {
     // placeholder
     this.plant_dist_lookup = {};
 
-    // popup open close
-    this.handleCloseDialog = this.handleCloseDialog.bind(this);
-    this.handleOpenDialog = this.handleOpenDialog.bind(this);
-
     // colors
     this.table_highlight_color = "rgba(0, 113, 188, 0.1)";
     this.resourcemix_micromap_highlight_color = "#aaa";
-    this.fuel_background_highlight_color="#eee";
-    this.fuel_background_select_color="#ddd";
+    this.fuel_background_highlight_color = "#eee";
+    this.fuel_background_select_color = "#ddd";
     this.ggl_fill_color = "rgba(186, 228, 179, 0.6)";
 
     this.choropleth_map_fill = {
@@ -88,12 +84,15 @@ class App extends Component {
     this.year = 2018;
     this.more_info_title = "Instructions";
     this.more_info_text = {
-      text: ["The sentence wording is created through combinations of options from four dropdowns: 1) an environmental characteristic, 2) a pollutant, 3) a fuel type, and 4) a geographic level. To explore the data, change the wording of the sentence by selecting different options from the drop-downs (underlined words). The graphs will immediately change according to the selected variables.", 
-            "When selecting the Plant geographic level in the fourth dropdown, you can select a specific plant to get more information displayed in the accompanying table or you can filter by one or more fuels by clicking on the fuel types immediately above the map.",
-            "When selecting the Resource Mix environmental characteristic in the first dropdown, clicking on the fuel types will sort the bar graph accordingly, and you can select one of the bars to get more information displayed in the accompanying table."],
-      list: []
+      text: [
+        "The sentence wording is created through combinations of options from four dropdowns: 1) an environmental characteristic, 2) a pollutant, 3) a fuel type, and 4) a geographic level. To explore the data, change the wording of the sentence by selecting different options from the drop-downs (underlined words). The graphs will immediately change according to the selected variables.",
+        "When selecting the Plant geographic level in the fourth dropdown, you can select a specific plant to get more information displayed in the accompanying table or you can filter by one or more fuels by clicking on the fuel types immediately above the map.",
+        "When selecting the Resource Mix environmental characteristic in the first dropdown, clicking on the fuel types will sort the bar graph accordingly, and you can select one of the bars to get more information displayed in the accompanying table.",
+      ],
+      list: [],
     };
-    this.logo_link = "https://www.epa.gov/energy/emissions-generation-resource-integrated-database-egrid";
+    this.logo_link =
+      "https://www.epa.gov/energy/emissions-generation-resource-integrated-database-egrid";
 
     // sentence query
     this.conjunction = {
@@ -189,22 +188,46 @@ class App extends Component {
     };
 
     this.fuel_sentence_code_lookup = {
-      "coal": ["COAL"],
-      "oil": ["OIL"],
+      coal: ["COAL"],
+      oil: ["OIL"],
       "natural gas": ["GAS"],
-      "nuclear": ["NUCLEAR"],
-      "hydro": ["HYDRO"],
-      "biomass": ["BIOMASS"],
-      "wind": ["WIND"],
-      "solar": ["SOLAR"],
-      "geothermal": ["GEOTHERMAL"],
+      nuclear: ["NUCLEAR"],
+      hydro: ["HYDRO"],
+      biomass: ["BIOMASS"],
+      wind: ["WIND"],
+      solar: ["SOLAR"],
+      geothermal: ["GEOTHERMAL"],
       "other fossil fuels": ["OFSL"],
       "other unknown/purchased fuels": ["OTHF"],
-      "all non-renewable fuels": ["COAL", "OIL", "GAS", "OFSL", "NUCLEAR", "OTHF"],
-      "all renewable fuels": ["BIOMASS", "WIND", "SOLAR", "GEOTHERMAL", "HYDRO"],
-      "all non-hydro renewable fuels": ["BIOMASS", "WIND", "SOLAR", "GEOTHERMAL"],
+      "all non-renewable fuels": [
+        "COAL",
+        "OIL",
+        "GAS",
+        "OFSL",
+        "NUCLEAR",
+        "OTHF",
+      ],
+      "all renewable fuels": [
+        "BIOMASS",
+        "WIND",
+        "SOLAR",
+        "GEOTHERMAL",
+        "HYDRO",
+      ],
+      "all non-hydro renewable fuels": [
+        "BIOMASS",
+        "WIND",
+        "SOLAR",
+        "GEOTHERMAL",
+      ],
       "all combustion fuels": ["COAL", "OIL", "GAS", "OFSL", "BIOMASS", "OTHF"],
-      "all non-combustion fuels": ["NUCLEAR", "HYDRO", "WIND", "SOLAR", "GEOTHERMAL"],
+      "all non-combustion fuels": [
+        "NUCLEAR",
+        "HYDRO",
+        "WIND",
+        "SOLAR",
+        "GEOTHERMAL",
+      ],
     };
 
     // geo layers
@@ -267,7 +290,6 @@ class App extends Component {
         }
       });
     };
-
   }
 
   componentDidMount() {
@@ -332,14 +354,15 @@ class App extends Component {
           d.id = i;
         });
 
-        plant_dist.map((d,i)=>{
+        plant_dist.map((d, i) => {
           this.plant_dist_lookup[d.Field] = {
             min: +d.Threshold1,
             t2: +d.Threshold2,
             t3: +d.Threshold3,
             t4: +d.Threshold4,
             t5: +d.Threshold5,
-            max: +d.Threshold6};
+            max: +d.Threshold6,
+          };
         });
 
         subrgn.map((d, i) => {
@@ -371,12 +394,12 @@ class App extends Component {
           d.id = nerc.filter((e) => e.name === d.name).map((e) => e.id)[0];
         });
 
-        ggl.map((d,i)=>{
+        ggl.map((d, i) => {
           d.label = d.Region;
           d.name = d.Region;
           d.id = i;
           d.unit = "%";
-          d.value = d['Grid Gross Loss Rate (%)'];
+          d.value = d["Grid Gross Loss Rate (%)"];
           d.subregion = d.Subregion;
         });
         this.ggl_layer.features.map((d) => {
@@ -400,9 +423,12 @@ class App extends Component {
         this.ggl_data = ggl;
         this.us_data = us;
 
+        this.glossary_table_header = Object.keys(glossary[0]);
+        this.glossary_table_rows = glossary.map((d) => Object.values(d));
+        this.glossary_title = "Glossary";
+
         this.setState({
           options: options.filter((e) => e.tier5 !== "52"),
-          glossary: glossary,
           state_data: state,
           plant_data: plant,
           subrgn_data: subrgn,
@@ -412,14 +438,6 @@ class App extends Component {
         });
       }
     );
-  }
-
-  handleCloseDialog() {
-    this.setState({ show_modal: false });
-  }
-
-  handleOpenDialog() {
-    this.setState({ show_modal: true });
   }
 
   render() {
@@ -434,13 +452,26 @@ class App extends Component {
         this.state.us_data.length > 0 ? (
           <div className="app">
             <header className="no-export-to-pdf">
+              <a
+                href={this.logo_link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img id="logo" src={logo} alt="eGrid Logo" />
+              </a>
               <div>
                 <input
+                  className="green-button"
                   type="button"
                   value="Instructions"
-                  onClick={this.handleOpenDialog}
+                  onClick={()=>this.setState({ show_instruction: true })}
+                />{" "}
+                <input
+                  className="green-button"
+                  type="button"
+                  value="Glossary"
+                  onClick={()=>this.setState({ show_glossary: true })}
                 />
-                <a href={this.logo_link} target="_blank" rel="noopener noreferrer"><img id="logo" src={logo} alt="eGrid Logo"/></a>
               </div>
             </header>
             <Main
@@ -452,14 +483,17 @@ class App extends Component {
               fuel_label_lookup={this.fuel_label_lookup}
               fuel_color_lookup={this.fuel_color_lookup}
               table_highlight_color={this.table_highlight_color}
-              resourcemix_micromap_highlight_color={this.resourcemix_micromap_highlight_color}
-              fuel_background_highlight_color={this.fuel_background_highlight_color}
+              resourcemix_micromap_highlight_color={
+                this.resourcemix_micromap_highlight_color
+              }
+              fuel_background_highlight_color={
+                this.fuel_background_highlight_color
+              }
               fuel_background_select_color={this.fuel_background_select_color}
               ggl_fill_color={this.ggl_fill_color}
               fuel_sentence_code_lookup={this.fuel_sentence_code_lookup}
               wrap_long_labels={this.wrap_long_labels}
               options={this.state.options}
-              glossary={this.state.glossary}
               plant_data={this.state.plant_data}
               state_data={this.state.state_data}
               subrgn_data={this.state.subrgn_data}
@@ -477,14 +511,23 @@ class App extends Component {
             <Spinner animation="grow" variant="success" />
           </div>
         )}
-        <Dialog
+        {this.state.show_instruction && <Dialog
           is_table="false"
           has_image="false"
           title={this.more_info_title}
           text={this.more_info_text}
-          show={this.state.show_modal}
-          onHide={() => this.setState({ show_modal: false })}
-        />
+          show={this.state.show_instruction}
+          onHide={() => this.setState({ show_instruction: false })}
+        />}
+        {this.state.show_glossary && <Dialog
+          is_table="true"
+          has_image="false"
+          title={this.glossary_title}
+          table_header={this.glossary_table_header}
+          table_rows={this.glossary_table_rows}
+          show={this.state.show_glossary}
+          onHide={() => this.setState({ show_glossary: false })}
+        />}
       </div>
     );
   }

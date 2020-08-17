@@ -26,6 +26,7 @@ class UpdatedTable extends Component {
                   : "#fff",
               fontWeight: this.props.region === d.name ? "bold" : "normal",
             }} key={i}>
+              <td>{d.name}</td>
               <td>{d.subregion}</td>
               <td>{d.value}</td>
             </tr>
@@ -34,6 +35,7 @@ class UpdatedTable extends Component {
           row = (
             <tr className="last-row" key={i}>
               <td>{d.name}</td>
+              <td>{d.subregion}</td>
               <td>{d.value}</td>
             </tr>
           );
@@ -322,7 +324,8 @@ class UpdatedTable extends Component {
           <table id="ggl-table">
             <thead>
               <tr className="first-row">
-                <th>eGRID Subregion</th>
+                <th>Region</th>
+                <th>Associated eGRID Subregions</th>
                 <th>Grid Gross Loss Rates (%)</th>
               </tr>
             </thead>
