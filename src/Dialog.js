@@ -76,7 +76,7 @@ function Dialog(props) {
         )}
       </Modal.Body>
       <Modal.Footer>
-        <input type="button" onClick={props.onHide} value="Close"/>
+        <input type="button" onClick={props.onHide} value="Close" className="btn-tertiary" />
       </Modal.Footer>
     </Modal>
   );
