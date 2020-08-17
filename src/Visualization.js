@@ -9,7 +9,7 @@ import OtherLevelMap from "./OtherLevelMap";
 import OtherLevelMapLegend from "./OtherLevelMapLegend";
 import OtherLevelBarchart from "./OtherLevelBarchart";
 import PlantLevelMapZoom from "./PlantLevelMapZoom";
-import PlantLevelMapStatic from "./PlantLevelMapStatic";
+
 import ResourceMixChart from "./ResourceMixChart";
 import GGLChart from "./GGLChart";
 import Dialog from "./Dialog";
@@ -208,15 +208,6 @@ class Visualization extends Component {
         // update export
         d3.selectAll(".export-vis").on("click", () => {
           window.print();
-        });
-        d3.selectAll("#export-static").on("click", () => {
-          let zoomable_status = d3.select("#map-zoomable-wrapper").style("display");
-          let static_status = d3.select("#map-static-wrapper").style("display");
-          d3.select("#map-zoomable-wrapper").style("display", "none");
-          d3.select("#map-static-wrapper").style("display", null);
-          window.print();
-          d3.select("#map-zoomable-wrapper").style("display", zoomable_status);
-          d3.select("#map-static-wrapper").style("display", static_status);
         });
         d3.select("#export-table").on("click", () => {
           let export_table,
@@ -511,7 +502,6 @@ class Visualization extends Component {
               <PlantLevelMapZoom
                 title={this.state.name}
                 plant_data={this.state.plant_data_map_only}
-                static_map_scale={900}
                 data={this.state.data}
                 window_width={this.state.window_width}
                 window_height={this.state.window_height}
@@ -531,13 +521,6 @@ class Visualization extends Component {
                 fuel_background_highlight_color={fuel_background_highlight_color}
                 fuel_background_select_color={fuel_background_select_color}
                 wrap_long_labels={wrap_long_labels}
-              />
-              <PlantLevelMapStatic
-                title={this.state.name}
-                scale={900}
-                window_width={this.state.window_width}
-                window_height={this.state.window_height}
-                background_layer={this.props.state_layer}
               />
             </div>
           );
@@ -625,14 +608,7 @@ class UpdatedVisualization extends Component {
               value="Export Zoomable Map"
             />
           )}
-          {lookup[this.props.tier5] === "plant" && " "}
-          {lookup[this.props.tier5] === "plant" && (
-            <input
-              type="button"
-              id="export-static"
-              value="Export Static Map"
-            />
-          )}{" "}
+          {" "}
           <a
             href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx"
             target="_blank"

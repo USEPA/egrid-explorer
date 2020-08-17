@@ -338,7 +338,7 @@ select::-ms-expand {
   height:75px;
 }
 
-.map-zoomable-legend-title, .map-static-legend-title {
+.map-zoomable-legend-title {
   font-size: 1.2em;
   font-weight: bold;
 }

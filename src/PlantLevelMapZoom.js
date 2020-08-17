@@ -175,111 +175,6 @@ class PlantLevelMapZoom extends Component {
       .style("text-anchor", "middle");
   }
 
-  updateStaticMap(features, factor) {
-    // add plants
-    let field_values, radius_values, scale;
-
-    // set up scale
-    field_values = features
-      .map((d) => d.properties[this.props.field + '_trimmed'])
-      .sort((a, b) => a - b);
-    radius_values = field_values
-      .map((d) =>
-        d3
-          .scaleLinear()
-          .domain([this.props.min_zoom, this.props.max_zoom])
-          .range([d / factor, (d / factor) * this.zoom_factor])(
-          this.props.init_zoom
-        )
-      )
-      .sort((a, b) => a - b);
-    scale = d3
-      .scaleLinear()
-      .domain(d3.extent(field_values))
-      .range(d3.extent(radius_values));
-
-    // draw plants on static map
-    let w = d3.select(this.fuels.current).node().clientWidth,
-      h = 500;
-    let projection = d3_composite
-      .geoAlbersUsaTerritories()
-      .scale(this.props.static_map_scale)
-      .translate([w / 2, h / 2]);
-
-    d3.select(".map-static-svg").selectAll("circle").remove();
-    d3.select(".map-static-svg")
-      .selectAll("circle")
-      .data(features)
-      .enter()
-      .append("circle")
-      .filter((d) => projection(d.geometry.coordinates) !== null)
-      .attr("cx", (d) => projection(d.geometry.coordinates)[0])
-      .attr("cy", (d) => projection(d.geometry.coordinates)[1])
-      .attr("r", (d) => scale(d.properties[this.props.field + '_trimmed']))
-      .style("opacity", this.props.circle_opacity)
-      .style("fill", (d) => this.props.fuel_color_lookup[d.properties.FUEL])
-      .style("stroke", (d) => this.props.fuel_color_lookup[d.properties.FUEL]);
-
-    d3.select(".map-static-legend").select("svg").remove();
-    d3.select(".map-static-legend-title").html(this.props.unit);
-
-    // draw legend
-    w = 400;
-    h = 75;
-    let nbox = this.legend_len;
-    let boxlen = w / nbox;
-
-    // get features from visible layer
-    let thresholds = Object.values(this.props.plant_dist[this.props.field]).slice(0,this.props.plant_dist[this.props.field].length);
-
-    if (scale.domain()[1] < thresholds.slice(thresholds.length-1)[0]) {
-      thresholds = [thresholds.slice(0)[0],
-      thresholds.slice(0)[0]+(scale.domain()[1]-thresholds.slice(0)[0])/5,
-      thresholds.slice(0)[0]+(scale.domain()[1]-thresholds.slice(0)[0])*2/5,
-      thresholds.slice(0)[0]+(scale.domain()[1]-thresholds.slice(0)[0])*3/5,
-      thresholds.slice(0)[0]+(scale.domain()[1]-thresholds.slice(0)[0])*4/5,
-      scale.domain()[1]];
-
-      if (scale.domain()[1] <= thresholds.slice(0)[0]) {
-        thresholds = [thresholds.slice(0)[0]];
-      }
-    }
-
-    let legend_values = thresholds.map((d) => scale(d)).sort((a, b) => a - b);
-    let legend_cells = d3
-      .select(".map-static-legend")
-      .append("svg")
-      .attr("width", w)
-      .attr("height", h)
-      .selectAll("g")
-      .data(legend_values)
-      .enter()
-      .append("g")
-      .attr("transform", (d, i) => "translate(" + i * boxlen + "," + 5 + ")");
-
-    legend_cells
-      .append("circle")
-      .style("fill", this.props.fuel_background_select_color)
-      .style("stroke", "black")
-      .attr("r", (d) => d)
-      .attr("cx", boxlen / 2)
-      .attr("cy", Math.min(boxlen, h * 0.5) / 2);
-
-    legend_cells
-      .append("text")
-      .attr("x", boxlen / 2)
-      .attr(
-        "y",
-        Math.min(boxlen, h * 0.5) / 2 +
-          legend_values[legend_values.length - 1] +
-          20
-      )
-      .attr("dx", 0)
-      .attr("dy", 0)
-      .text((d,i) => i===0 ? "<=" + this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_dist[this.props.field].max? ">=" + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
-      .style("text-anchor", "middle");
-  }
-
   updateMapWithFuelFilter() {
     const data = {
       type: "FeatureCollection",
@@ -333,9 +228,6 @@ class PlantLevelMapZoom extends Component {
         factor
       );
     });
-
-    // update static map
-    this.updateStaticMap(data.features, factor);
 
     // update fuel filter
     d3.selectAll(".selected")
@@ -421,9 +313,6 @@ class PlantLevelMapZoom extends Component {
         factor
       );
     });
-
-    // update static map
-    this.updateStaticMap(data.features, factor);
 
     // update fuel filter
     d3.selectAll(".fuels-selection")
