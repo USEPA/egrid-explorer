@@ -461,13 +461,13 @@ class App extends Component {
               </a>
               <div>
                 <input
-                  className="green-button"
+                  className="btn-secondary"
                   type="button"
                   value="Instructions"
                   onClick={()=>this.setState({ show_instruction: true })}
                 />{" "}
                 <input
-                  className="green-button"
+                  className="btn-secondary"
                   type="button"
                   value="Glossary"
                   onClick={()=>this.setState({ show_glossary: true })}

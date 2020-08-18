@@ -12,7 +12,6 @@ import PlantLevelMapZoom from "./PlantLevelMapZoom";
 
 import ResourceMixChart from "./ResourceMixChart";
 import GGLChart from "./GGLChart";
-import Dialog from "./Dialog";
 
 class Visualization extends Component {
   constructor(props) {
@@ -41,7 +40,19 @@ class Visualization extends Component {
       layer: {},
     };
     this.init_window_width = window.innerWidth;
-    this.plant_avail_fuels = ["COAL", "OIL", "GAS", "NUCLEAR", "HYDRO", "BIOMASS", "WIND", "SOLAR", "GEOTHERMAL", "OFSL", "OTHF"];
+    this.plant_avail_fuels = [
+      "COAL",
+      "OIL",
+      "GAS",
+      "NUCLEAR",
+      "HYDRO",
+      "BIOMASS",
+      "WIND",
+      "SOLAR",
+      "GEOTHERMAL",
+      "OFSL",
+      "OTHF",
+    ];
   }
 
   componentDidMount() {
@@ -134,8 +145,12 @@ class Visualization extends Component {
 
       if (region === "plant") {
         const fuel_sentence_code_lookup = this.props.fuel_sentence_code_lookup;
-        if (lookup[this.props.tier1]==="total generation (MWh)" & lookup[this.props.tier2]!=="all fuels") {
-          this.plant_avail_fuels = fuel_sentence_code_lookup[lookup[this.props.tier2]];
+        if (
+          (lookup[this.props.tier1] === "total generation (MWh)") &
+          (lookup[this.props.tier2] !== "all fuels")
+        ) {
+          this.plant_avail_fuels =
+            fuel_sentence_code_lookup[lookup[this.props.tier2]];
         }
         fuels = this.props.plant_fuels;
         data.forEach((d) => {
@@ -168,7 +183,7 @@ class Visualization extends Component {
                     "PLNAMEPCAP",
                     "FUEL",
                     "NUMUNT",
-                    "NUMGEN"
+                    "NUMGEN",
                   ],
                   this.props.options
                     .map((d) => d["Final field name in eGRID"])
@@ -215,15 +230,15 @@ class Visualization extends Component {
 
           if (+this.state.tier1 !== 7 && +this.state.tier1 !== 9) {
             if (+this.state.tier5 === 99) {
-              export_table = this.state.plant_data.features.filter(
-                d=>this.plant_avail_fuels.indexOf(d.properties.FUEL)>-1
-              ).map(
-                (d) => d.properties
-              );
+              export_table = this.state.plant_data.features
+                .filter(
+                  (d) => this.plant_avail_fuels.indexOf(d.properties.FUEL) > -1
+                )
+                .map((d) => d.properties);
             } else {
               export_table = this.state.data;
             }
-            csv += "Region, " + this.state.title.replace(/,/g, '') + "\r\n";
+            csv += "Region, " + this.state.title.replace(/,/g, "") + "\r\n";
             export_table.forEach((r) => {
               csv +=
                 r.name.toString().replace(/,/g, " ") + "," + r.value + "\r\n";
@@ -287,9 +302,10 @@ class Visualization extends Component {
             });
           } else if (+this.state.tier1 === 9) {
             export_table = this.state.data;
-            csv += "Region, Associated eGRID Subregions, Grid Gross Loss Rates (%)\r\n";
+            csv +=
+              "Region, Associated eGRID Subregions, Grid Gross Loss Rates (%)\r\n";
             export_table.forEach((r) => {
-              csv += r.name + ",\"" + r.subregion + "\"," + r.value + "\r\n";
+              csv += r.name + ',"' + r.subregion + '",' + r.value + "\r\n";
             });
           }
 
@@ -312,9 +328,12 @@ class Visualization extends Component {
     const fuel_label_lookup = this.props.fuel_label_lookup;
     const fuel_color_lookup = this.props.fuel_color_lookup;
     const table_highlight_color = this.props.table_highlight_color;
-    const resourcemix_micromap_highlight_color=this.props.resourcemix_micromap_highlight_color;
-    const fuel_background_highlight_color=this.props.fuel_background_highlight_color;
-    const fuel_background_select_color=this.props.fuel_background_select_color;
+    const resourcemix_micromap_highlight_color = this.props
+      .resourcemix_micromap_highlight_color;
+    const fuel_background_highlight_color = this.props
+      .fuel_background_highlight_color;
+    const fuel_background_select_color = this.props
+      .fuel_background_select_color;
     const ggl_fill_color = this.props.ggl_fill_color;
     const wrap_long_labels = this.props.wrap_long_labels;
     let fuel_name_lookup = {};
@@ -364,11 +383,19 @@ class Visualization extends Component {
               data={this.props.ggl_data}
               window_width={this.state.window_width}
               window_height={this.state.window_height}
-              width={this.init_window_width > 1280 ? 1280 : this.init_window_width}
-              map_width={this.init_window_width > 1280 ? 650 : this.init_window_width}
+              width={
+                this.init_window_width > 1280 ? 1280 : this.init_window_width
+              }
+              map_width={
+                this.init_window_width > 1280 ? 650 : this.init_window_width
+              }
               table_width={450}
               margin_top={5}
-              scale={this.init_window_width > 1280 ? 812.5 : this.init_window_width*0.78}
+              scale={
+                this.init_window_width > 1280
+                  ? 812.5
+                  : this.init_window_width * 0.78
+              }
               height={550}
               layer={this.props.ggl_layer}
               us_data={this.state.us_data}
@@ -390,7 +417,9 @@ class Visualization extends Component {
             data={this.state.resource_mix_data}
             window_width={this.state.window_width}
             window_height={this.state.window_height}
-            width={this.init_window_width > 1280 ? 1280 : this.init_window_width}
+            width={
+              this.init_window_width > 1280 ? 1280 : this.init_window_width
+            }
             ipad_width={768}
             table_width={400}
             barchart_height={600}
@@ -409,7 +438,9 @@ class Visualization extends Component {
             fuel_label_lookup={fuel_label_lookup}
             fuel_color_lookup={fuel_color_lookup}
             table_highlight_color={table_highlight_color}
-            resourcemix_micromap_highlight_color={resourcemix_micromap_highlight_color}
+            resourcemix_micromap_highlight_color={
+              resourcemix_micromap_highlight_color
+            }
             fuel_background_highlight_color={fuel_background_highlight_color}
             fuel_background_select_color={fuel_background_select_color}
             fuel_name_lookup={fuel_name_lookup}
@@ -440,7 +471,9 @@ class Visualization extends Component {
                   ipad_width={768}
                   height={550}
                   scale={
-                    this.init_window_width < 768 ? this.init_window_width : 812.5
+                    this.init_window_width < 768
+                      ? this.init_window_width
+                      : 812.5
                   }
                   layer={this.state.layer}
                   us_data={this.state.us_data}
@@ -514,11 +547,13 @@ class Visualization extends Component {
                 circle_opacity={0.8}
                 unit={this.state.unit}
                 field={this.state.field}
-                plant_dist = {plant_dist}
+                plant_dist={plant_dist}
                 fuel_label_lookup={fuel_label_lookup}
                 fuel_color_lookup={fuel_color_lookup}
                 table_highlight_color={table_highlight_color}
-                fuel_background_highlight_color={fuel_background_highlight_color}
+                fuel_background_highlight_color={
+                  fuel_background_highlight_color
+                }
                 fuel_background_select_color={fuel_background_select_color}
                 wrap_long_labels={wrap_long_labels}
               />
@@ -558,8 +593,12 @@ class UpdatedVisualization extends Component {
           fuel_label_lookup={this.props.fuel_label_lookup}
           fuel_color_lookup={this.props.fuel_color_lookup}
           table_highlight_color={this.props.table_highlight_color}
-          resourcemix_micromap_highlight_color={this.props.resourcemix_micromap_highlight_color}
-          fuel_background_highlight_color={this.props.fuel_background_highlight_color}
+          resourcemix_micromap_highlight_color={
+            this.props.resourcemix_micromap_highlight_color
+          }
+          fuel_background_highlight_color={
+            this.props.fuel_background_highlight_color
+          }
           fuel_background_select_color={this.props.fuel_background_select_color}
           ggl_fill_color={this.props.ggl_fill_color}
           fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
@@ -589,55 +628,39 @@ class UpdatedVisualization extends Component {
             textAlign: this.state.window_width < 1024 ? "center" : "left",
           }}
         >
-          <input
-            type="button"
-            id="export-table"
-            value="Export Table"
-            className="btn-primary"
-          />{" "}
-          {lookup[this.props.tier5] !== "plant" && (
+          <div>
+            <b>Export view as: </b>
+            {lookup[this.props.tier5] !== "plant" && (
+              <input
+                type="button"
+                className="export-vis btn-primary-outline graphics-icon"
+                value="Graphics"
+              />
+            )}
+            {lookup[this.props.tier5] === "plant" && (
+              <input
+                type="button"
+                className="export-vis btn-primary-outline graphics-icon"
+                value="Graphics"
+              />
+            )}{" "}
             <input
               type="button"
-              className="export-vis btn-primary"
-              value="Export Visualization"
+              id="export-table"
+              value="Data"
+              className="btn-primary-outline data-icon"
             />
-          )}
-          {lookup[this.props.tier5] === "plant" && (
-            <input
-              type="button"
-              className="export-vis btn-primary"
-              value="Export Zoomable Map"
-            />
-          )}
-          {" "}
-          <a
-            href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <input
-              type="button"
-              value="Download eGRID2018 data"
-              className="btn-primary"
-            />
-          </a>{" "}
-          <input
-            type="button"
-            value="Glossary"
-            className="btn-primary"
-            onClick={this.handleOpenDialog}
-          />{" "}
-          <a
-            href="https://www.epa.gov/energy/forms/egrid-and-power-profiler-feedback-and-questions"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <input
-              type="button"
-              value="Feedback or Questions"
-              className="btn-primary"
-            />
-          </a>
+          </div>
+          <div>
+            <b>Download complete eGRID data: </b>
+            <a
+              href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <input type="button" value="eGRID2018" className="btn-primary-outline download-icon" />
+            </a>
+          </div>
         </div>
       </div>
     );

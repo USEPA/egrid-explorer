@@ -347,8 +347,8 @@ class OtherLevelBarchart extends Component {
 
     d3.selectAll(".selected-button").classed("selected-button", false);
     d3.selectAll(".not-selected-button").classed("not-selected-button", false);
-    d3.select(selected_input).classed("selected-button", true).classed("blue-outline-button", false);
-    d3.select(non_selected_input).classed("not-selected-button", true).classed("blue-outline-button", true);
+    d3.select(selected_input).classed("selected-button", true).classed("btn-primary", true).classed("btn-primary-outline", false);
+    d3.select(non_selected_input).classed("not-selected-button", true).classed("btn-primary-outline", true).classed("btn-primary", false);
 
     // update chart
     let barYScale = d3

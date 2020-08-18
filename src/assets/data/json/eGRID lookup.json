@@ -1,7 +1,7 @@
 {
     "0": "output emission rates (lb/MWh)",
     "1": "input emission rates (lb/MMBtu)",
-    "2": "non-baseload emission rates (lb/MWh)",
+    "2": "non-baseload output emission rates (lb/MWh)",
     "3": "total emissions",
     "4": "total generation (MWh)",
     "5": "non-baseload generation (MWh)",

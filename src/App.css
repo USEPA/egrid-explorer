@@ -37,65 +37,6 @@ input {
   border-radius:4px !important;
 }
 
-/* buttons */
-button, input[type=button]{
-  outline: none !important;
-}
-
-/* green button */
-.green-button {
-  min-width: 120px !important;
-  background-color: #4aa564 !important;
-  border: 0 !important;
-  font-weight: bold !important;
-}
-
-.green-button:not([disabled]):focus, .green-button:not([disabled]):hover{
-  background-color: #2e8540 !important;
-}
-
-/* blue outline button */
-.blue-outline-button{  
-  min-width: 180px !important;
-  background-color: #ffffff !important;
-  box-shadow: inset 0 0 0 2px #0071bc !important;
-  color: #0071bc !important;
-  font-weight: bold !important;
-}
-
-.blue-outline-button :not([disabled]):focus, .blue-outline-button:not([disabled]):hover{
-  background-color: transparent;
-  box-shadow: inset 0 0 0 2px #205493 !important;
-  color: #205493 !important;
-}
-
-/* green outline button */
-.green-outline-button {
-  min-width: 180px !important;
-  background-color: #ffffff !important;
-  box-shadow: inset 0 0 0 2px #4aa564 !important;
-  color: #4aa564 !important;
-  font-weight: bold !important;
-}
-
-.green-outline-button:not([disabled]):focus, .green-outline-button:not([disabled]):hover{
-  background-color: transparent;
-  box-shadow: inset 0 0 0 2px #2e8540 !important;
-  color: #2e8540 !important;
-}
-
-/* gray button */
-.gray-button {
-  min-width: 180px !important;
-  background-color: #5b616b !important;
-  border: 0 !important;
-  font-weight: bold !important;
-}
-
-.gray-button:not([disabled]):focus, .gray-button:not([disabled]):hover{
-  background-color: #323a45 !important;
-}
-
 /* header */
 header {
   min-height: 80px;
@@ -193,6 +134,38 @@ select::-ms-expand {
 }
 
 /* buttons */
+button, input[type=button]{
+  outline: none !important;
+}
+
+.download-icon {
+  background-image: url("assets/img/download-solid.svg");
+  background-repeat: no-repeat;
+  background-position: 5%;
+  padding-left: 30px !important;
+  padding-right: 10px !important;
+  background-size: 18%; 
+  text-align: right !important;
+}
+
+.graphics-icon {
+  background-image: url("assets/img/file-image-solid.svg");
+  background-repeat: no-repeat;
+  background-position: 5%;
+  padding-left: 25px !important;
+  padding-right: 10px !important;
+  background-size: 17%; 
+}
+
+.data-icon {
+  background-image: url("assets/img/file-csv-solid.svg");
+  background-repeat: no-repeat;
+  background-position: 5%;
+  padding-left: 25px !important;
+  padding-right: 10px !important;
+  background-size: 25%; 
+}
+
 input[type="button"].btn-primary {
   background-color: #0071bc;
   border: 2px solid #0071bc;
