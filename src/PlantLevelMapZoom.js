@@ -45,8 +45,9 @@ class PlantLevelMapZoom extends Component {
       Object.keys(this.state.table_info).forEach((e) => {
         table_info[e] = "-";
       });
+      this.updateTable(table_info);
       this.setState({ table_info: table_info, selected_plant_id: null });
-
+      
       if (this.hoveredPlantId) {
         this.map.setFeatureState(
           { source: "plants", id: this.hoveredPlantId },
@@ -55,6 +56,12 @@ class PlantLevelMapZoom extends Component {
       }
       this.hoveredPlantId = null;
     });
+
+    this.updateTable = this.updateTable.bind(this);
+  }
+
+  updateTable(table) {
+    this.props.getPlantData(table);
   }
 
   formatNumber(d) {
@@ -377,6 +384,7 @@ class PlantLevelMapZoom extends Component {
             Object.keys(this.state.table_info).forEach((e) => {
               table_info[e] = "-";
             });
+            this.updateTable(table_info);
             this.setState({ table_info: table_info });
 
             this.tooltip.remove();
@@ -838,6 +846,7 @@ class PlantLevelMapZoom extends Component {
                       ? "-"
                       : d.features[0].properties[e];
                 });
+                this.updateTable(table_info);
                 this.setState({ table_info: table_info });
               }
             }
@@ -908,6 +917,7 @@ class PlantLevelMapZoom extends Component {
                       : d.features[0].properties[e];
                 });
 
+                this.updateTable(table_info);
                 this.setState({
                   table_info: table_info,
                   selected_plant_id: this.hoveredPlantId,

@@ -4,23 +4,20 @@ import Modal from "react-bootstrap/Modal";
 function Dialog(props) {
   let table_rows = [],
     table_header,
-    list = [], text = [];
+    list = [],
+    text = [];
 
   if (props.is_table === "true") {
     table_header = (
       <tr className="first-row">
-        <th>
-          {props.table_header[0]}
-        </th>
-        <th>
-          {props.table_header[1]}
-        </th>
+        <th>{props.table_header[0]}</th>
+        <th>{props.table_header[1]}</th>
       </tr>
     );
 
-    props.table_rows.forEach((r,i) => {
+    props.table_rows.forEach((r, i) => {
       let row;
-      if (i!=props.table_rows.length-1) {
+      if (i != props.table_rows.length - 1) {
         row = (
           <tr key={r[0]}>
             <td>{r[0]}</td>
@@ -55,9 +52,11 @@ function Dialog(props) {
       centered
     >
       <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          {props.title}
-        </Modal.Title>
+        {props.title !== "" && (
+          <Modal.Title id="contained-modal-title-vcenter">
+            {props.title}
+          </Modal.Title>
+        )}
       </Modal.Header>
       <Modal.Body>
         {props.is_table === "true" ? (
@@ -72,11 +71,16 @@ function Dialog(props) {
           </div>
         )}
         {props.has_image === "true" && (
-          <img src={props.text.image} alt='subregion_map'/>
+          <img src={props.text.image} alt="subregion_map" />
         )}
       </Modal.Body>
       <Modal.Footer>
-        <input type="button" onClick={props.onHide} value="Close" className="btn-tertiary" />
+        <input
+          type="button"
+          onClick={props.onHide}
+          value="Close"
+          className="btn-tertiary"
+        />
       </Modal.Footer>
     </Modal>
   );
