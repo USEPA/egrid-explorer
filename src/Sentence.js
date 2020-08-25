@@ -39,6 +39,7 @@ class SentenceDropdown extends Component {
     return (
       <div className="select-wrapper">
         <select value={selected_option} onChange={this.props.change}>
+          {/* <optgroup>{opts}</optgroup> */}
           {opts}
         </select>
       </div>

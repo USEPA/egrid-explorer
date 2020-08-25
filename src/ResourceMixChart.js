@@ -573,7 +573,7 @@ class ResourceMixChart extends Component {
         .attr("width", boxlen_reset)
         .attr("height", h_legend)
         .on("click", (d) => {
-          this.setState({ sort_fuel: null, clicked_on_bar: false });
+          this.setState({ sort_fuel: null, clicked_on_bar: false, mouseover_fuel: null,});
         });
 
       reset

@@ -61,7 +61,7 @@ class PlantLevelMapZoom extends Component {
   }
 
   updateTable(table) {
-    this.props.getPlantData(table);
+    this.props.get_plant_data(table);
   }
 
   formatNumber(d) {
@@ -406,6 +406,7 @@ class PlantLevelMapZoom extends Component {
   }
 
   componentDidMount() {
+    // console.log(this.props.table_rows);
     let init_zoom =
         this.props.window_width < 768
           ? this.props.min_zoom + 0.1

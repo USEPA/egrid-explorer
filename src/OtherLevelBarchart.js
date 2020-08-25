@@ -50,6 +50,15 @@ class OtherLevelBarchart extends Component {
     }
   }
 
+  formatUSNumber(d) {
+    let num = Math.abs(d);
+    if (num < 1) {
+      return d===0? d : d3.format(".3f")(d);
+    } else {
+      return isNaN(d) ? "" : d3.format(",.0f")(d);
+    }
+  }
+
   formatLabel(d) {
     let num = Math.abs(d);
     if (num < 1) {
@@ -452,7 +461,7 @@ class OtherLevelBarchart extends Component {
             }}
           >
             {"US: " +
-              this.formatNumber(this.props.us_data[0][this.props.field]) +
+              this.formatUSNumber(this.props.us_data[0][this.props.field]) +
               " (" +
               this.props.unit +
               ")"}

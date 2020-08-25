@@ -56,8 +56,36 @@ class Visualization extends Component {
       "OFSL",
       "OTHF",
     ];
+    this.columns_dict = {
+      PNAME: "Plant Name",
+      ORISPL: "Facility ID",
+      PSTATABB: "Plant State",
+      SUBRGN: "eGRID Subregion",
+      PLPRMFL: "Plant Primary Fuel",
+      SECFUEL: "Plant Secondary Fuel",
+      NUMUNT: "Number of Units",
+      NUMGEN: "Number of Generators",
+      PLNAMEPCAP: "Nameplate Capacity (MW)",
+      CAPFAC: "Plant Capacity Factor",
+      PLNGENAN: "Plant Generation (MWh)",
+      PLHTIANT: "Heat Input (MMBtu)",
+      PLNOXAN: "NOx Annual Emissions (tons)",
+      PLNOXOZ: "NOx Ozone Season Emissions (tons)",
+      PLSO2AN: "SO2 Annual Emissions (tons)",
+      PLCO2AN: "CO2 Annual Emissions (tons)",
+      PLCH4AN: "CH4 Annual Emissions (lbs)",
+      PLN2OAN: "N2O Annual Emissions (lbs)",
+      PLCO2EQA: "CO2 equivalent Annual Emissions (tons)",
+      PLNOXRTA: "NOx Annual Output Emission Rate (lb/MWh)",
+      PLNOXRTO: "NOx Ozone Season Output Emission Rate (lb/MWh)",
+      PLSO2RTA: "SO2 Annual Output Emission Rate (lb/MWh)",
+      PLCO2RTA: "CO2 Annual Output Emission Rate (lb/MWh)",
+      PLCH4RTA: "CH4 Annual Output Emission Rate (lb/MWh)",
+      PLN2ORTA: "N2O Annual Output Emission Rate (lb/MWh)",
+      PLC2ERTA: "CO2 equivalent Output Emission Rate (lb/MWh)",
+    };
 
-    this.getPlantData = this.getPlantData.bind(this);
+    this.get_plant_data = this.get_plant_data.bind(this);
 
     this.alert_title = "";
     this.alert_text = {
@@ -68,7 +96,7 @@ class Visualization extends Component {
     };
   }
 
-  getPlantData(table) {
+  get_plant_data(table) {
     this.setState({ specific_plant_data_export: table });
   }
 
@@ -162,6 +190,7 @@ class Visualization extends Component {
 
       if (region === "plant") {
         const fuel_sentence_code_lookup = this.props.fuel_sentence_code_lookup;
+
         if (
           (lookup[this.props.tier1] === "total generation (MWh)") &
           (lookup[this.props.tier2] !== "all fuels")
@@ -247,40 +276,11 @@ class Visualization extends Component {
 
           if (+this.state.tier1 !== 7 && +this.state.tier1 !== 9) {
             if (+this.state.tier5 === 99) {
-              if (this.state.specific_plant_data_export.PNAME!==undefined && this.state.specific_plant_data_export.PNAME!=="-") {
-                let columns_dict = {
-                  PNAME: "Plant Name",
-                  ORISPL: "Facility ID",
-                  PSTATABB: "Plant State",
-                  SUBRGN: "eGRID Subregion",
-                  PLPRMFL: "Plant Primary Fuel",
-                  SECFUEL: "Plant Secondary Fuel",
-                  NUMUNT: "Number of Units",
-                  NUMGEN: "Number of Generators",
-                  PLNAMEPCAP: "Nameplate Capacity (MW)",
-                  CAPFAC: "Plant Capacity Factor",
-                  PLNGENAN: "Plant Generation (MWh)",
-                  PLHTIANT: "Heat Input (MMBtu)",
-                  PLNOXAN: "NOx Annual Emissions (tons)",
-                  PLNOXOZ: "NOx Ozone Season Emissions (tons)",
-                  PLSO2AN: "SO2 Annual Emissions (tons)",
-                  PLCO2AN: "CO2 Annual Emissions (tons)",
-                  PLCH4AN: "CH4 Annual Emissions (lbs)",
-                  PLN2OAN: "N2O Annual Emissions (lbs)",
-                  PLCO2EQA: "CO2 equivalent Annual Emissions (tons)",
-                  PLNOXRTA: "NOx Annual Output Emission Rate (lb/MWh)",
-                  PLNOXRTO: "NOx Ozone Season Output Emission Rate (lb/MWh)",
-                  PLSO2RTA: "SO2 Annual Output Emission Rate (lb/MWh)",
-                  PLCO2RTA: "CO2 Annual Output Emission Rate (lb/MWh)",
-                  PLCH4RTA: "CH4 Annual Output Emission Rate (lb/MWh)",
-                  PLN2ORTA: "N2O Annual Output Emission Rate (lb/MWh)",
-                  PLC2ERTA: "CO2 equivalent Output Emission Rate (lb/MWh)",
-                };
-  
-                Object.keys(columns_dict).forEach((c) => {
+              if (this.state.specific_plant_data_export.PNAME!==undefined && this.state.specific_plant_data_export.PNAME!=="-") {  
+                Object.keys(this.columns_dict).forEach((c) => {
                   csv +=
                     '"' +
-                    columns_dict[c] +
+                    this.columns_dict[c] +
                     '","' +
                     this.state.specific_plant_data_export[c] +
                     '"\r\n';
@@ -592,6 +592,7 @@ class Visualization extends Component {
                 title={this.state.name}
                 plant_data={this.state.plant_data_map_only}
                 data={this.state.data}
+                table_rows={this.columns_dict}
                 window_width={this.state.window_width}
                 window_height={this.state.window_height}
                 fuels={this.state.fuels}
@@ -612,7 +613,7 @@ class Visualization extends Component {
                 }
                 fuel_background_select_color={fuel_background_select_color}
                 wrap_long_labels={wrap_long_labels}
-                getPlantData={this.getPlantData}
+                get_plant_data={this.get_plant_data}
               />
               {this.state.show_alert && <Dialog
                 is_table="false"
