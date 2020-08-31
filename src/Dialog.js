@@ -9,7 +9,7 @@ function Dialog(props) {
 
   if (props.is_table === "true") {
     table_header = (
-      <tr className="first-row">
+      <tr>
         <th>{props.table_header[0]}</th>
         <th>{props.table_header[1]}</th>
       </tr>
@@ -26,7 +26,7 @@ function Dialog(props) {
         );
       } else {
         row = (
-          <tr className="last-row" key={r[0]}>
+          <tr key={r[0]}>
             <td>{r[0]}</td>
             <td>{r[1]}</td>
           </tr>

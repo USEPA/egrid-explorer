@@ -26,7 +26,7 @@ class ResourceMixChart extends Component {
       table_info: {},
       show_modal: false
     };
-    this.sort_text = "Sort by Primary Fuel";
+    this.sort_text = "Sort by Primary Fuel:";
     this.sort_reset_text = "Reset";
     this.micromap_width_pct = 0.15;
     this.fuels_filter_pct = 0.85;
@@ -83,7 +83,7 @@ class ResourceMixChart extends Component {
             .on("mouseover", null)
             .on("mouseout", null)
             .style("opacity", 0.5)
-            .style("cursor", "not-allowed")
+            .style("cursor", "pointer")
             .select("text")
             .text(this.sort_text)
             .call(this.props.wrap_long_labels, 88);
@@ -155,8 +155,11 @@ class ResourceMixChart extends Component {
       data
         .filter((e) => e.name === "US")
         .forEach((e) => {
-          table_info[e.name + "_" + e.type] = d3.format(".2f")(e.value);
-          table_info[e.type] = "-";
+          let name = this.props.fuel_label_lookup[e.type];
+          table_info[name] = {};
+          table_info[name].type=e.type;
+          table_info[name]["US_" + e.type] = d3.format(".2f")(e.value);
+          table_info[name][e.type] = "-";
         });
       let name = _.uniq(data.map((d) => d.name));
 
@@ -227,10 +230,16 @@ class ResourceMixChart extends Component {
             data
               .filter((e) => e.name === d.name || e.name === "US")
               .forEach((e) => {
+                let name = this.props.fuel_label_lookup[e.type];
+                if (Object.keys(table_info).indexOf(name)===-1) {
+                  table_info[name]={};
+                }
+                table_info[name].type=e.type;
                 if (e.name === "US") {
-                  table_info[e.name + "_" + e.type] = d3.format(".2f")(e.value);
+                  table_info[name][e.name + "_" + e.type] = d3.format(".2f")(e.value);
+                  if (d.name==="US") table_info[name][e.type] = "-";
                 } else {
-                  table_info[e.type] = d3.format(".2f")(e.value);
+                  table_info[name][e.type] = d3.format(".2f")(e.value);
                 }
               });
 
@@ -295,10 +304,16 @@ class ResourceMixChart extends Component {
             data
               .filter((e) => e.name === d.name || e.name === "US")
               .forEach((e) => {
+                let name = this.props.fuel_label_lookup[e.type];
+                if (Object.keys(table_info).indexOf(name)===-1) {
+                  table_info[name]={};
+                }
+                table_info[name].type=e.type;
                 if (e.name === "US") {
-                  table_info[e.name + "_" + e.type] = d3.format(".2f")(e.value);
+                  table_info[name][e.name + "_" + e.type] = d3.format(".2f")(e.value);
+                  if (d.name==="US") table_info[name][e.type] = "-";
                 } else {
-                  table_info[e.type] = d3.format(".2f")(e.value);
+                  table_info[name][e.type] = d3.format(".2f")(e.value);
                 }
               });
 
@@ -381,10 +396,17 @@ class ResourceMixChart extends Component {
             data
               .filter((e) => e.name === d || e.name === "US")
               .forEach((e) => {
+                let name = this.props.fuel_label_lookup[e.type];
+                if (Object.keys(table_info).indexOf(name)===-1) {
+                  table_info[name]={};
+                }
+
+                table_info[name].type=e.type;
                 if (e.name === "US") {
-                  table_info[e.name + "_" + e.type] = d3.format(".2f")(e.value);
+                  table_info[name][e.name + "_" + e.type] = d3.format(".2f")(e.value);
+                  if (d==="US") table_info[name][e.type] = "-";
                 } else {
-                  table_info[e.type] = d3.format(".2f")(e.value);
+                  table_info[name][e.type] = d3.format(".2f")(e.value);
                 }
               });
 
@@ -450,10 +472,17 @@ class ResourceMixChart extends Component {
             data
               .filter((e) => e.name === d || e.name === "US")
               .forEach((e) => {
+                let name = this.props.fuel_label_lookup[e.type];
+                if (Object.keys(table_info).indexOf(name)===-1) {
+                  table_info[name]={};
+                }
+                
+                table_info[name].type=e.type;
                 if (e.name === "US") {
-                  table_info[e.name + "_" + e.type] = d3.format(".2f")(e.value);
+                  table_info[name][e.name + "_" + e.type] = d3.format(".2f")(e.value);
+                  if (d==="US") table_info[name][e.type] = "-";
                 } else {
-                  table_info[e.type] = d3.format(".2f")(e.value);
+                  table_info[name][e.type] = d3.format(".2f")(e.value);
                 }
               });
 
@@ -565,10 +594,9 @@ class ResourceMixChart extends Component {
         .select(".fuels")
         .insert("div", ".fuel")
         .style("display", "inline-flex")
-        .style("vertical-align", "bottom")
-        .attr("class", "reset")
+        .attr("class", "reset no-export-to-pdf fuel-button")
         .style("opacity", 0.5)
-        .style("cursor", "not-allowed")
+        .style("cursor", "pointer")
         .append("svg")
         .attr("width", boxlen_reset)
         .attr("height", h_legend)
@@ -712,7 +740,7 @@ class ResourceMixChart extends Component {
         .on("mouseover", null)
         .on("mouseout", null)
         .style("opacity", 0.5)
-        .style("cursor", "not-allowed")
+        .style("cursor", "pointer")
         .select("text")
         .text(this.sort_text)
         .attr("x", boxlen_reset / 2)

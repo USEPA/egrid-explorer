@@ -92,7 +92,7 @@ class App extends Component {
       list: [],
     };
     this.logo_link =
-      "https://www.epa.gov/energy/emissions-generation-resource-integrated-database-egrid";
+      "https://www.epa.gov/egrid";
 
     // sentence query
     this.conjunction = {
@@ -228,6 +228,36 @@ class App extends Component {
         "SOLAR",
         "GEOTHERMAL",
       ],
+    };
+
+    // table names
+    this.plant_table_rows = {
+      PNAME: "Plant Name",
+      ORISPL: "Facility ID",
+      PSTATABB: "Plant State",
+      SUBRGN: "eGRID Subregion",
+      PLPRMFL: "Plant Primary Fuel",
+      SECFUEL: "Plant Secondary Fuel",
+      NUMUNT: "Number of Units",
+      NUMGEN: "Number of Generators",
+      PLNAMEPCAP: "Nameplate Capacity (MW)",
+      CAPFAC: "Plant Capacity Factor",
+      PLNGENAN: "Plant Generation (MWh)",
+      PLHTIANT: "Heat Input (MMBtu)",
+      PLNOXAN: "NOx Annual Emissions (tons)",
+      PLNOXOZ: "NOx Ozone Season Emissions (tons)",
+      PLSO2AN: "SO2 Annual Emissions (tons)",
+      PLCO2AN: "CO2 Annual Emissions (tons)",
+      PLCH4AN: "CH4 Annual Emissions (lbs)",
+      PLN2OAN: "N2O Annual Emissions (lbs)",
+      PLCO2EQA: "CO2 equivalent Annual Emissions (tons)",
+      PLNOXRTA: "NOx Annual Output Emission Rate (lb/MWh)",
+      PLNOXRTO: "NOx Ozone Season Output Emission Rate (lb/MWh)",
+      PLSO2RTA: "SO2 Annual Output Emission Rate (lb/MWh)",
+      PLCO2RTA: "CO2 Annual Output Emission Rate (lb/MWh)",
+      PLCH4RTA: "CH4 Annual Output Emission Rate (lb/MWh)",
+      PLN2ORTA: "N2O Annual Output Emission Rate (lb/MWh)",
+      PLC2ERTA: "CO2 equivalent Output Emission Rate (lb/MWh)",
     };
 
     // geo layers
@@ -492,6 +522,7 @@ class App extends Component {
               fuel_background_select_color={this.fuel_background_select_color}
               ggl_fill_color={this.ggl_fill_color}
               fuel_sentence_code_lookup={this.fuel_sentence_code_lookup}
+              plant_table_rows={this.plant_table_rows}
               wrap_long_labels={this.wrap_long_labels}
               options={this.state.options}
               plant_data={this.state.plant_data}

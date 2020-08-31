@@ -14,10 +14,14 @@ class PlantLevelMapZoom extends Component {
     super(props);
     this.fuels = React.createRef();
     this.legend = React.createRef();
+    let table_info = {};
+    Object.keys(this.props.table_rows).forEach((e) => {
+      table_info[this.props.table_rows[e]] = "-";
+    });
     this.state = {
       selected_plant_id: null,
       selected_fuel: [],
-      table_info: {},
+      table_info: table_info,
       map_style: null,
     };
 
@@ -28,7 +32,7 @@ class PlantLevelMapZoom extends Component {
     this.legend_len = 6;
 
     this.zoom_factor = this.max_radius / this.field_factor_divided_by;
-    
+
     this.filter_text = "Filter by Primary Fuel";
     this.filter_reset_text = "Show All Fuels";
 
@@ -47,7 +51,7 @@ class PlantLevelMapZoom extends Component {
       });
       this.updateTable(table_info);
       this.setState({ table_info: table_info, selected_plant_id: null });
-      
+
       if (this.hoveredPlantId) {
         this.map.setFeatureState(
           { source: "plants", id: this.hoveredPlantId },
@@ -61,7 +65,7 @@ class PlantLevelMapZoom extends Component {
   }
 
   updateTable(table) {
-    this.props.get_plant_data(table);
+    this.props.getPlantData(table);
   }
 
   formatNumber(d) {
@@ -77,7 +81,7 @@ class PlantLevelMapZoom extends Component {
   formatLegend(d) {
     let num = Math.abs(d);
     if (num < 1) {
-      return d===0? d : d3.format(".3f")(d);
+      return d === 0 ? d : d3.format(".3f")(d);
     } else if (num >= 1000) {
       let num = d3.format(".3s")(d);
       let abbr = num.slice(-1);
@@ -92,7 +96,7 @@ class PlantLevelMapZoom extends Component {
       }
       return num;
     } else {
-      return d3.format('.3')(d);
+      return d3.format(".3")(d);
     }
   }
 
@@ -101,7 +105,7 @@ class PlantLevelMapZoom extends Component {
 
     // set up scale
     field_values = features
-      .map((d) => d.properties[this.props.field + '_trimmed'])
+      .map((d) => d.properties[this.props.field + "_trimmed"])
       .sort((a, b) => a - b);
     radius_values = field_values
       .map((d) =>
@@ -119,7 +123,8 @@ class PlantLevelMapZoom extends Component {
       .range(d3.extent(radius_values));
 
     // draw legend
-    let w = 300, h = 75;
+    let w = 300,
+      h = 75;
     let nbox = this.legend_len;
     let boxlen = w / nbox;
 
@@ -127,21 +132,36 @@ class PlantLevelMapZoom extends Component {
     d3.select(".map-zoomable-legend-title").html(this.props.unit);
 
     // get features from visible layer
-    let layer_features_extent = d3.extent(layer_features.map((d) => d.properties[this.props.field]));
-    let thresholds = Object.values(this.props.plant_dist[this.props.field]).slice(0,this.props.plant_dist[this.props.field].length);
+    let layer_features_extent = d3.extent(
+      layer_features.map((d) => d.properties[this.props.field])
+    );
+    let thresholds = Object.values(
+      this.props.plant_dist[this.props.field]
+    ).slice(0, this.props.plant_dist[this.props.field].length);
     let legend_values;
 
-    if (layer_features_extent[0]===undefined && layer_features_extent[1]===undefined) {
+    if (
+      layer_features_extent[0] === undefined &&
+      layer_features_extent[1] === undefined
+    ) {
       legend_values = [];
     } else {
-      if (layer_features_extent[1] < thresholds.slice(thresholds.length-1)[0]) {
-        thresholds = [thresholds.slice(0)[0],
-        thresholds.slice(0)[0]+(layer_features_extent[1]-thresholds.slice(0)[0])/5,
-        thresholds.slice(0)[0]+(layer_features_extent[1]-thresholds.slice(0)[0])*2/5,
-        thresholds.slice(0)[0]+(layer_features_extent[1]-thresholds.slice(0)[0])*3/5,
-        thresholds.slice(0)[0]+(layer_features_extent[1]-thresholds.slice(0)[0])*4/5,
-        layer_features_extent[1]];
-  
+      if (
+        layer_features_extent[1] < thresholds.slice(thresholds.length - 1)[0]
+      ) {
+        thresholds = [
+          thresholds.slice(0)[0],
+          thresholds.slice(0)[0] +
+            (layer_features_extent[1] - thresholds.slice(0)[0]) / 5,
+          thresholds.slice(0)[0] +
+            ((layer_features_extent[1] - thresholds.slice(0)[0]) * 2) / 5,
+          thresholds.slice(0)[0] +
+            ((layer_features_extent[1] - thresholds.slice(0)[0]) * 3) / 5,
+          thresholds.slice(0)[0] +
+            ((layer_features_extent[1] - thresholds.slice(0)[0]) * 4) / 5,
+          layer_features_extent[1],
+        ];
+
         if (layer_features_extent[1] <= thresholds.slice(0)[0]) {
           thresholds = [thresholds.slice(0)[0]];
         }
@@ -149,7 +169,8 @@ class PlantLevelMapZoom extends Component {
       legend_values = thresholds.map((d) => scale(d)).sort((a, b) => a - b);
     }
 
-    let legend_cells = d3.select(".map-zoomable-legend")
+    let legend_cells = d3
+      .select(".map-zoomable-legend")
       .append("g")
       .attr("width", w)
       .attr("height", h)
@@ -178,7 +199,14 @@ class PlantLevelMapZoom extends Component {
       )
       .attr("dx", 0)
       .attr("dy", 0)
-      .text((d,i) => i===0 ? "<=" + this.formatLegend(scale.invert(d)).toString() : (i===legend_values.length-1 && scale.invert(d)===this.props.plant_dist[this.props.field].max? ">=" + this.formatLegend(scale.invert(d)).toString() : this.formatLegend(scale.invert(d))))
+      .text((d, i) =>
+        i === 0
+          ? "<=" + this.formatLegend(scale.invert(d)).toString()
+          : i === legend_values.length - 1 &&
+            scale.invert(d) === this.props.plant_dist[this.props.field].max
+          ? ">=" + this.formatLegend(scale.invert(d)).toString()
+          : this.formatLegend(scale.invert(d))
+      )
       .style("text-anchor", "middle");
   }
 
@@ -190,12 +218,13 @@ class PlantLevelMapZoom extends Component {
           (d) => this.state.selected_fuel.indexOf(d.properties.FUEL) !== -1
         )
         .map((d) => {
-          d.properties[this.props.field +  '_trimmed'] = d.properties[this.props.field];
+          d.properties[this.props.field + "_trimmed"] =
+            d.properties[this.props.field];
           if (
             d.properties[this.props.field] >=
             this.props.plant_dist[this.props.field].max
           ) {
-            d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
+            d.properties[this.props.field + "_trimmed"] = this.props.plant_dist[
               this.props.field
             ].max;
           }
@@ -203,7 +232,7 @@ class PlantLevelMapZoom extends Component {
             d.properties[this.props.field] <=
             this.props.plant_dist[this.props.field].min
           ) {
-            d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
+            d.properties[this.props.field + "_trimmed"] = this.props.plant_dist[
               this.props.field
             ].min;
           }
@@ -217,8 +246,9 @@ class PlantLevelMapZoom extends Component {
 
     // update legend
     let factor =
-      d3.max(data.features.map((d) => d.properties[this.props.field + '_trimmed'])) /
-      this.field_factor_divided_by;
+      d3.max(
+        data.features.map((d) => d.properties[this.props.field + "_trimmed"])
+      ) / this.field_factor_divided_by;
 
     // update source data event
     this.map.on("sourcedata", (d) => {
@@ -269,31 +299,33 @@ class PlantLevelMapZoom extends Component {
   updateMapWithNOFuelFilter() {
     const data = {
       type: "FeatureCollection",
-      features: this.props.plant_data.features.filter(d=>{
-        return this.props.avail_fuels.indexOf(d.properties.FUEL) > -1;
-      })
-      .map((d) => {
-        d.properties[this.props.field +  '_trimmed'] = d.properties[this.props.field];
+      features: this.props.plant_data.features
+        .filter((d) => {
+          return this.props.avail_fuels.indexOf(d.properties.FUEL) > -1;
+        })
+        .map((d) => {
+          d.properties[this.props.field + "_trimmed"] =
+            d.properties[this.props.field];
 
-        if (
-          d.properties[this.props.field] >=
-          this.props.plant_dist[this.props.field].max
-        ) {
-          d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
-            this.props.field
-          ].max;
-        }
+          if (
+            d.properties[this.props.field] >=
+            this.props.plant_dist[this.props.field].max
+          ) {
+            d.properties[this.props.field + "_trimmed"] = this.props.plant_dist[
+              this.props.field
+            ].max;
+          }
 
-        if (
-          d.properties[this.props.field] <=
-          this.props.plant_dist[this.props.field].min
-        ) {
-          d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
-            this.props.field
-          ].min;
-        }
-        return d;
-      }),
+          if (
+            d.properties[this.props.field] <=
+            this.props.plant_dist[this.props.field].min
+          ) {
+            d.properties[this.props.field + "_trimmed"] = this.props.plant_dist[
+              this.props.field
+            ].min;
+          }
+          return d;
+        }),
     };
 
     // update map data
@@ -302,8 +334,9 @@ class PlantLevelMapZoom extends Component {
 
     // update legend
     let factor =
-      d3.max(data.features.map((d) => d.properties[this.props.field + '_trimmed'])) /
-      this.field_factor_divided_by;
+      d3.max(
+        data.features.map((d) => d.properties[this.props.field + "_trimmed"])
+      ) / this.field_factor_divided_by;
 
     // update source data event
     this.map.on("sourcedata", (d) => {
@@ -327,7 +360,7 @@ class PlantLevelMapZoom extends Component {
       .on("mouseover", null)
       .on("mouseout", null)
       .style("opacity", 0.5)
-      .style("cursor", "not-allowed");
+      .style("cursor", "pointer");
     d3.selectAll(".fuels-selection")
       .select(".reset text")
       .text(this.filter_text)
@@ -339,7 +372,7 @@ class PlantLevelMapZoom extends Component {
 
   setRadius(features) {
     let factor =
-      d3.max(features.map((d) => d.properties[this.props.field + '_trimmed'])) /
+      d3.max(features.map((d) => d.properties[this.props.field + "_trimmed"])) /
       this.field_factor_divided_by;
 
     this.map.setPaintProperty(
@@ -353,9 +386,13 @@ class PlantLevelMapZoom extends Component {
         ["linear"],
         ["zoom"],
         this.props.min_zoom,
-        ["/", ["get", this.props.field + '_trimmed'], factor],
+        ["/", ["get", this.props.field + "_trimmed"], factor],
         this.props.max_zoom,
-        ["/", ["get", this.props.field + '_trimmed'], factor / this.zoom_factor],
+        [
+          "/",
+          ["get", this.props.field + "_trimmed"],
+          factor / this.zoom_factor,
+        ],
       ]
     );
   }
@@ -406,7 +443,6 @@ class PlantLevelMapZoom extends Component {
   }
 
   componentDidMount() {
-    // console.log(this.props.table_rows);
     let init_zoom =
         this.props.window_width < 768
           ? this.props.min_zoom + 0.1
@@ -439,7 +475,9 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl-group mapboxgl-ctrl";
         this._container.innerHTML =
-          "<button><span className='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src=" + reset_view_icon + " alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
+          "<button><span className='mapboxgl-ctrl-icon' aria-haspopup='true' title='zoom to national view'><img src=" +
+          reset_view_icon +
+          " alt='reset_view' width=29 height=29 style='border-radius: 4px'></img></span></button>";
         this._container.style.borderRadius = "4px";
         this._container.style.boxShadow = "0 0 0 2px rgba(0,0,0,.1)";
         this._container.style.cursor = "pointer";
@@ -562,147 +600,160 @@ class PlantLevelMapZoom extends Component {
           this.map_layer_load_times += 1;
 
           // add fuel filter
-          let w = d3.select(this.fuels.current).node().clientWidth,
-            h = d3.select(this.fuels.current).node().clientHeight;
-          let nbox = this.props.fuels.length + 2;
-          let boxlen = w / nbox > 100 ? 100 : Math.max(w / nbox, 90);
-          let boxlen_filter = boxlen, boxlen_reset = boxlen * 1.5;
-          
-          d3.selectAll(".fuels-selection").selectAll("div").remove();
-          let fuels = d3
-            .selectAll(".fuels-selection")
-            .append("div")
-            .attr("class", "fuels")
-            .selectAll("div")
-            .data(this.props.fuels)
-            .enter()
-            .append("div")
-            .attr("class", "fuel")
-            .style("display", "inline-flex")
-            .style("cursor", "pointer")
-            .style("margin", 0)
-            .style("border-radius", "5px");
+          if (this.props.avail_fuels.length > 1) {
+            let w = d3.select(this.fuels.current).node().clientWidth,
+              h = d3.select(this.fuels.current).node().clientHeight;
+            let nbox = this.props.fuels.length + 2;
+            let boxlen = w / nbox > 100 ? 100 : Math.max(w / nbox, 90);
+            let boxlen_filter = boxlen,
+              boxlen_reset = boxlen * 1.5;
 
-          let fuels_svg = fuels
-            .append("svg")
-            .attr("width", boxlen_filter)
-            .attr("height", h);
+            d3.selectAll(".fuels-selection").selectAll("div").remove();
+            let fuels = d3
+              .selectAll(".fuels-selection")
+              .append("div")
+              .attr("class", "fuels")
+              .selectAll("div")
+              .data(this.props.fuels)
+              .enter()
+              .append("div")
+              .attr("class", "fuel")
+              .style("display", "inline-flex")
+              .style("cursor", "pointer")
+              .style("margin", 0)
+              .style("border-radius", "5px");
 
-          fuels_svg
-            .append("circle")
-            .attr("r", Math.min(boxlen_filter, h * 0.5) / 4)
-            .attr("fill", (d) => this.props.fuel_color_lookup[d])
-            .attr("cx", boxlen_filter / 2)
-            .attr("cy", Math.min(boxlen_filter, h * 0.5) / 2);
+            let fuels_svg = fuels
+              .append("svg")
+              .attr("width", boxlen_filter)
+              .attr("height", h);
 
-          fuels_svg
-            .append("text")
-            .attr("x", boxlen_filter / 2)
-            .attr("y", Math.min(boxlen_filter, h * 0.5) * 1.5)
-            .attr("dx", 0)
-            .attr("dy", 0)
-            .text((d) => this.props.fuel_label_lookup[d])
-            .style("text-anchor", "middle")
-            .call(this.props.wrap_long_labels, boxlen_filter);
+            fuels_svg
+              .append("circle")
+              .attr("r", Math.min(boxlen_filter, h * 0.5) / 4)
+              .attr("fill", (d) => this.props.fuel_color_lookup[d])
+              .attr("cx", boxlen_filter / 2)
+              .attr("cy", Math.min(boxlen_filter, h * 0.5) / 2);
 
-          d3.select(".fuels")
-            .insert("div", ".fuel")
-            .style("display", "inline-flex")
-            .attr("class", "reset no-export-to-pdf")
-            .style("opacity", 0.5)
-            .style("cursor", "not-allowed")
-            .append("svg")
-            .attr("width", boxlen_reset)
-            .attr("height", h)
-            .append("text")
-            .attr("x", boxlen_reset / 2)
-            .attr("y", h / 3)
-            .attr("dx", 0)
-            .attr("dy", 0)
-            .text(this.filter_text)
-            .style("text-anchor", "middle")
-            .style("font-weight", "bold")
-            .style("font-size", "1.1em")
-            .call(this.props.wrap_long_labels, 88);
+            fuels_svg
+              .append("text")
+              .attr("x", boxlen_filter / 2)
+              .attr("y", Math.min(boxlen_filter, h * 0.5) * 1.5)
+              .attr("dx", 0)
+              .attr("dy", 0)
+              .text((d) => this.props.fuel_label_lookup[d])
+              .style("text-anchor", "middle")
+              .call(this.props.wrap_long_labels, boxlen_filter);
 
-          d3.selectAll(".fuel")
-            .on("click", (d) => {
-              let n = d3
-                .select(this.fuels.current)
-                .selectAll(".fuel")
-                .filter((e) => e === d);
-              if (this.map.loaded()) {
-                if (n.classed("selected")) {
-                  this.setState({
-                    selected_fuel: this.state.selected_fuel.filter(
-                      (e) => e !== d
-                    ),
-                  });
-                } else {
-                  this.setState({
-                    selected_fuel: this.state.selected_fuel.concat(d),
-                  });
+            let filter_div = d3.select(".fuels")
+              .insert("div", ".fuel")
+              .style("display", "inline-flex")
+              .attr("class", "reset no-export-to-pdf fuel-button")
+              .style("opacity", 0.5)
+              .style("cursor", "pointer");
+              
+            filter_div.append("svg")
+              .attr("width", boxlen_reset)
+              .attr("height", h)
+              .append("text")
+              .attr("x", boxlen_reset / 2)
+              .attr("y", h / 3)
+              .attr("dx", 0)
+              .attr("dy", 0)
+              .text(this.filter_text)
+              .style("text-anchor", "middle")
+              .style("font-weight", "bold")
+              .style("font-size", "1.1em")
+              .call(this.props.wrap_long_labels, 88);
+
+            d3.selectAll(".fuel")
+              .on("click", (d) => {
+                let n = d3
+                  .select(this.fuels.current)
+                  .selectAll(".fuel")
+                  .filter((e) => e === d);
+                if (this.map.loaded()) {
+                  if (n.classed("selected")) {
+                    this.setState({
+                      selected_fuel: this.state.selected_fuel.filter(
+                        (e) => e !== d
+                      ),
+                    });
+                  } else {
+                    this.setState({
+                      selected_fuel: this.state.selected_fuel.concat(d),
+                    });
+                  }
                 }
-              }
-            })
-            .on("mouseover", (d) => {
-              let n = d3
-                .select(this.fuels.current)
-                .selectAll(".fuel")
-                .filter((e) => e === d);
-              if (this.map.loaded()) {
-                if (!n.classed("selected")) {
-                  n.style("background", this.props.fuel_background_highlight_color);
+              })
+              .on("mouseover", (d) => {
+                let n = d3
+                  .select(this.fuels.current)
+                  .selectAll(".fuel")
+                  .filter((e) => e === d);
+                if (this.map.loaded()) {
+                  if (!n.classed("selected")) {
+                    n.style(
+                      "background",
+                      this.props.fuel_background_highlight_color
+                    );
+                  }
                 }
-              }
-            })
-            .on("mouseout", (d) => {
-              let n = d3
-                .select(this.fuels.current)
-                .selectAll(".fuel")
-                .filter((e) => e === d);
-              if (this.map.loaded()) {
-                if (!n.classed("selected")) {
-                  n.style("background", "none");
-                } else {
-                  n.style("background", this.props.fuel_background_select_color);
+              })
+              .on("mouseout", (d) => {
+                let n = d3
+                  .select(this.fuels.current)
+                  .selectAll(".fuel")
+                  .filter((e) => e === d);
+                if (this.map.loaded()) {
+                  if (!n.classed("selected")) {
+                    n.style("background", "none");
+                  } else {
+                    n.style(
+                      "background",
+                      this.props.fuel_background_select_color
+                    );
+                  }
                 }
-              }
-            });
+              });
 
-          d3.selectAll(".fuel")
-            .filter((d) => this.props.avail_fuels.indexOf(d) === -1)
-            .style("opacity", 0.3)
-            .style("pointer-events", "none");
+            d3.selectAll(".fuel")
+              .filter((d) => this.props.avail_fuels.indexOf(d) === -1)
+              .style("opacity", 0.3)
+              .style("pointer-events", "none");
+          }
 
           // add initial map data
           const data = {
             type: "FeatureCollection",
-            features: this.props.plant_data.features.filter(d=>{
-              return this.props.avail_fuels.indexOf(d.properties.FUEL) > -1;
-            }).map((d) => {
-              d.properties[this.props.field +  '_trimmed'] = d.properties[this.props.field];
+            features: this.props.plant_data.features
+              .filter((d) => {
+                return this.props.avail_fuels.indexOf(d.properties.FUEL) > -1;
+              })
+              .map((d) => {
+                d.properties[this.props.field + "_trimmed"] =
+                  d.properties[this.props.field];
 
-              if (
-                d.properties[this.props.field] >=
-                this.props.plant_dist[this.props.field].max
-              ) {
-                d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
-                  this.props.field
-                ].max;
-              }
+                if (
+                  d.properties[this.props.field] >=
+                  this.props.plant_dist[this.props.field].max
+                ) {
+                  d.properties[
+                    this.props.field + "_trimmed"
+                  ] = this.props.plant_dist[this.props.field].max;
+                }
 
-              if (
-                d.properties[this.props.field] <=
-                this.props.plant_dist[this.props.field].min
-              ) {
-                d.properties[this.props.field +  '_trimmed'] = this.props.plant_dist[
-                  this.props.field
-                ].min;
-              }
-              
-              return d;
-            }),
+                if (
+                  d.properties[this.props.field] <=
+                  this.props.plant_dist[this.props.field].min
+                ) {
+                  d.properties[
+                    this.props.field + "_trimmed"
+                  ] = this.props.plant_dist[this.props.field].min;
+                }
+
+                return d;
+              }),
           };
 
           // add data source to map
@@ -838,8 +889,8 @@ class PlantLevelMapZoom extends Component {
                   .addTo(this.map);
 
                 let table_info = {};
-                Object.keys(d.features[0].properties).forEach((e) => {
-                  table_info[e] =
+                Object.keys(this.props.table_rows).forEach((e) => {
+                  table_info[this.props.table_rows[e]] =
                     typeof d.features[0].properties[e] === "number" &&
                     e !== "ORISPL"
                       ? this.formatNumber(d.features[0].properties[e])
@@ -908,8 +959,8 @@ class PlantLevelMapZoom extends Component {
                   .addTo(this.map);
 
                 let table_info = {};
-                Object.keys(d.features[0].properties).forEach((e) => {
-                  table_info[e] =
+                Object.keys(this.props.table_rows).forEach((e) => {
+                  table_info[this.props.table_rows[e]] =
                     typeof d.features[0].properties[e] === "number" &&
                     e !== "ORISPL"
                       ? this.formatNumber(d.features[0].properties[e])
@@ -939,20 +990,18 @@ class PlantLevelMapZoom extends Component {
   }
 
   render() {
-    let title = (
-      <p className="title">
-        {this.props.title.replace(',', '\n')}
-      </p>
-    );
+    let title = <p className="title">{this.props.title.replace(",", "\n")}</p>;
 
     return (
       <div id="map-zoomable-wrapper">
         {title}
-        <div
-          className="fuels-selection"
-          style={{ width: "100%" }}
-          ref={this.fuels}
-        ></div>
+        {this.props.avail_fuels.length > 1 && (
+          <div
+            className="fuels-selection"
+            style={{ width: "100%" }}
+            ref={this.fuels}
+          ></div>
+        )}
         <div id="map-zoomable">
           <div
             className="map-container"
@@ -968,12 +1017,12 @@ class PlantLevelMapZoom extends Component {
             style={{
               width: this.props.window_width < 1024 ? "unset" : "37%",
               marginTop: this.props.window_width < 1024 ? 5 : 0,
-              marginLeft: 5
+              marginLeft: 5,
             }}
           >
             <UpdatedTable
               title={this.props.title}
-              field={this.props.field}
+              field={this.props.table_rows[this.props.field]}
               table_info={this.state.table_info}
               highlight_color={this.props.table_highlight_color}
             />

@@ -231,40 +231,46 @@ input[type="button"].btn-secondary-outline:focus {
   color:#1e542a;
 }
 
-input[type="button"].btn-tertiary {
+input[type="button"].btn-tertiary{
   background-color: #5B616B;
   border: 2px solid #5B616B;
   color:#ffffff;
 }
 
-input[type="button"].btn-tertiary:hover, input[type="button"].btn-tertiary:active {
+input[type="button"].btn-tertiary:hover, input[type="button"].btn-tertiary:active{
   background-color: #323a45;
   border: 2px solid #323a45;
   color:#ffffff;
 }
 
-input[type="button"].btn-tertiary:focus {
+input[type="button"].btn-tertiary:focus{
   background-color: #262c35;
   border: 2px solid #262c35;
   color:#ffffff;
 }
 
-input[type="button"].btn-tertiary-outline {
+input[type="button"].btn-tertiary-outline, .fuel-button{
   background-color: #ffffff;
   border: 2px solid #5B616B;
   color:#5B616B;
 }
 
-input[type="button"].btn-tertiary-outline:hover, input[type="button"].btn-tertiary-outline:active {
+input[type="button"].btn-tertiary-outline:hover, input[type="button"].btn-tertiary-outline:active,
+.fuel-button:hover, .fuel-button:active {
   background-color: #ffffff;
   border: 2px solid #323a45;
   color:#323a45;
 }
 
-input[type="button"].btn-tertiary-outline:focus {
+input[type="button"].btn-tertiary-outline:focus, .fuel-button:focus{
   background-color: #ffffff;
   border: 2px solid #262c35;
   color:#262c35;
+}
+
+.fuel-button {
+  border-radius:4px;
+  vertical-align:top;
 }
 
 /* export panel */
@@ -478,10 +484,6 @@ table th, table td{
 
 #resourcemix-table td {
   padding: 0.6em;
-}
-
-#resourcemix-table .first-row {
-  height: 100px;
 }
 
 #resourcemix-table tr td:nth-of-type(1), #resourcemix-table tr th:nth-of-type(1){

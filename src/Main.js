@@ -460,6 +460,7 @@ class Main extends Component {
               fuel_background_select_color={this.props.fuel_background_select_color}
               ggl_fill_color={this.props.ggl_fill_color}
               fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
+              plant_table_rows={this.props.plant_table_rows}
               wrap_long_labels={this.props.wrap_long_labels}
               field={this.state.field}
               title={this.state.title}

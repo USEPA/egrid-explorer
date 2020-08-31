@@ -35,6 +35,7 @@ class Visualization extends Component {
       resource_mix_data: [],
       plant_data: [],
       plant_data_map_only: [],
+      plant_avail_fuels: [],
       specific_plant_data_export: {},
       fuels: [],
       map_fill: [],
@@ -43,49 +44,8 @@ class Visualization extends Component {
       show_alert: false
     };
     this.init_window_width = window.innerWidth;
-    this.plant_avail_fuels = [
-      "COAL",
-      "OIL",
-      "GAS",
-      "NUCLEAR",
-      "HYDRO",
-      "BIOMASS",
-      "WIND",
-      "SOLAR",
-      "GEOTHERMAL",
-      "OFSL",
-      "OTHF",
-    ];
-    this.columns_dict = {
-      PNAME: "Plant Name",
-      ORISPL: "Facility ID",
-      PSTATABB: "Plant State",
-      SUBRGN: "eGRID Subregion",
-      PLPRMFL: "Plant Primary Fuel",
-      SECFUEL: "Plant Secondary Fuel",
-      NUMUNT: "Number of Units",
-      NUMGEN: "Number of Generators",
-      PLNAMEPCAP: "Nameplate Capacity (MW)",
-      CAPFAC: "Plant Capacity Factor",
-      PLNGENAN: "Plant Generation (MWh)",
-      PLHTIANT: "Heat Input (MMBtu)",
-      PLNOXAN: "NOx Annual Emissions (tons)",
-      PLNOXOZ: "NOx Ozone Season Emissions (tons)",
-      PLSO2AN: "SO2 Annual Emissions (tons)",
-      PLCO2AN: "CO2 Annual Emissions (tons)",
-      PLCH4AN: "CH4 Annual Emissions (lbs)",
-      PLN2OAN: "N2O Annual Emissions (lbs)",
-      PLCO2EQA: "CO2 equivalent Annual Emissions (tons)",
-      PLNOXRTA: "NOx Annual Output Emission Rate (lb/MWh)",
-      PLNOXRTO: "NOx Ozone Season Output Emission Rate (lb/MWh)",
-      PLSO2RTA: "SO2 Annual Output Emission Rate (lb/MWh)",
-      PLCO2RTA: "CO2 Annual Output Emission Rate (lb/MWh)",
-      PLCH4RTA: "CH4 Annual Output Emission Rate (lb/MWh)",
-      PLN2ORTA: "N2O Annual Output Emission Rate (lb/MWh)",
-      PLC2ERTA: "CO2 equivalent Output Emission Rate (lb/MWh)",
-    };
 
-    this.get_plant_data = this.get_plant_data.bind(this);
+    this.getPlantData = this.getPlantData.bind(this);
 
     this.alert_title = "";
     this.alert_text = {
@@ -96,7 +56,7 @@ class Visualization extends Component {
     };
   }
 
-  get_plant_data(table) {
+  getPlantData(table) {
     this.setState({ specific_plant_data_export: table });
   }
 
@@ -125,6 +85,7 @@ class Visualization extends Component {
       resource_mix_data = [],
       fuels = [],
       map_fill = [],
+      plant_avail_fuels = [],
       background_layer = { type: "FeatureCollection", features: [] },
       layer = { type: "FeatureCollection", features: [] };
 
@@ -165,6 +126,8 @@ class Visualization extends Component {
       fuels = this.props.field.replace(/\[|\]|\s/g, "").split(",");
       resource_mix_data = data;
     } else {
+      fuels = this.props.plant_fuels;
+
       if (category.split("emission").length > 1) {
         map_fill = this.props.choropleth_map_fill.emission;
       } else if (category.split("generation").length > 1) {
@@ -189,16 +152,15 @@ class Visualization extends Component {
       });
 
       if (region === "plant") {
-        const fuel_sentence_code_lookup = this.props.fuel_sentence_code_lookup;
-
         if (
           (lookup[this.props.tier1] === "total generation (MWh)") &
           (lookup[this.props.tier2] !== "all fuels")
         ) {
-          this.plant_avail_fuels =
-            fuel_sentence_code_lookup[lookup[this.props.tier2]];
+          plant_avail_fuels = this.props.fuel_sentence_code_lookup[lookup[this.props.tier2]];
+        } else {
+          plant_avail_fuels = this.props.plant_fuels;
         }
-        fuels = this.props.plant_fuels;
+
         data.forEach((d) => {
           d.value = d[this.props.field];
           if (d.value > 0) {
@@ -260,6 +222,7 @@ class Visualization extends Component {
         resource_mix_data: resource_mix_data,
         plant_data: plant_data,
         plant_data_map_only: plant_data_map_only,
+        plant_avail_fuels: plant_avail_fuels,
         fuels: fuels,
         map_fill: map_fill,
         layer: layer,
@@ -276,23 +239,26 @@ class Visualization extends Component {
 
           if (+this.state.tier1 !== 7 && +this.state.tier1 !== 9) {
             if (+this.state.tier5 === 99) {
-              if (this.state.specific_plant_data_export.PNAME!==undefined && this.state.specific_plant_data_export.PNAME!=="-") {  
-                Object.keys(this.columns_dict).forEach((c) => {
+              if (this.state.specific_plant_data_export["Plant Name"]!==undefined && this.state.specific_plant_data_export["Plant Name"]!=="-") {  
+                Object.keys(this.props.plant_table_rows).forEach((c) => {
                   csv +=
                     '"' +
-                    this.columns_dict[c] +
+                    this.props.plant_table_rows[c] +
                     '","' +
-                    this.state.specific_plant_data_export[c] +
+                    this.state.specific_plant_data_export[this.props.plant_table_rows[c]] +
                     '"\r\n';
                 });
-                filename = this.state.specific_plant_data_export.PNAME + ',' + this.state.name.split(',').splice(-1);
+                filename = this.state.specific_plant_data_export["Plant Name"] + ',' + this.state.name.split(',').splice(-1);
               } else {
                 this.setState({ show_alert: true });
                 return;
               }
             } else {
-              export_table = this.state.data;
-
+              export_table = _.flatten([
+                this.state.us_data.map(d=>{d.value=this.state.us_data[0][this.props.field]; return d;}),
+                this.state.data,
+              ]);
+  
               csv += "Region, " + this.state.title.replace(/,/g, "") + "\r\n";
               export_table.forEach((r) => {
                 csv +=
@@ -428,7 +394,7 @@ class Visualization extends Component {
         fuel_name_lookup[d] = "CNPR";
       }
     });
-
+    
     let vis;
     if (category === "grid gross loss rates") {
       vis = (
@@ -592,11 +558,11 @@ class Visualization extends Component {
                 title={this.state.name}
                 plant_data={this.state.plant_data_map_only}
                 data={this.state.data}
-                table_rows={this.columns_dict}
+                table_rows={this.props.plant_table_rows}
                 window_width={this.state.window_width}
                 window_height={this.state.window_height}
                 fuels={this.state.fuels}
-                avail_fuels={this.plant_avail_fuels}
+                avail_fuels={this.state.plant_avail_fuels}
                 init_center={[-96.922211, 38.381266]}
                 init_zoom={3.3}
                 min_zoom={2}
@@ -613,7 +579,7 @@ class Visualization extends Component {
                 }
                 fuel_background_select_color={fuel_background_select_color}
                 wrap_long_labels={wrap_long_labels}
-                get_plant_data={this.get_plant_data}
+                getPlantData={this.getPlantData}
               />
               {this.state.show_alert && <Dialog
                 is_table="false"
@@ -668,6 +634,7 @@ class UpdatedVisualization extends Component {
           fuel_background_select_color={this.props.fuel_background_select_color}
           ggl_fill_color={this.props.ggl_fill_color}
           fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
+          plant_table_rows={this.props.plant_table_rows}
           wrap_long_labels={this.props.wrap_long_labels}
           field={this.props.field}
           title={this.props.title}
