@@ -26,7 +26,6 @@ import Main from "./Main";
 import Dialog from "./Dialog.js";
 
 import "./EPAStyle.css";
-// import "bootstrap/dist/css/bootstrap.min.css";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
