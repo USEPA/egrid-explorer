@@ -60,19 +60,24 @@ class ResourceMixChart extends Component {
           this.updateView(null);
         }
       } else {
+        let w_legend = d3.select(this.fuels.current).node().clientWidth,
+        h_legend = this.props.filter_height;
+        let nbox = this.props.fuels.length + 2;
+        let boxlen = w_legend / nbox > 100 ? 100 : Math.max(w_legend / nbox, 75);
+        let boxlen_filter = boxlen, boxlen_reset = boxlen;
+
         if (this.state.clicked_on_bar) {
           d3.select(this.fuels.current)
             .select(".reset")
+            .classed("reset-button", true)
             .style("opacity", 1)
             .style("cursor", "pointer")
-            .on("mouseover", () => {
-              d3.select(".reset").style("opacity", 0.7);
-            })
-            .on("mouseout", () => {
-              d3.select(".reset").style("opacity", 1);
-            })
             .select("text")
             .text(this.sort_reset_text)
+            .attr("x", boxlen_reset / 2)
+            .attr("y", h_legend / 2.2)
+            .attr("dx", 0)
+            .attr("dy", 0)
             .on("click", () => {
               this.updateView(null);
             });
@@ -80,12 +85,17 @@ class ResourceMixChart extends Component {
           if (this.state.sort_fuel === null) {
             d3.select(this.fuels.current)
             .select(".reset")
+            .classed("reset-button", false)
             .on("mouseover", null)
             .on("mouseout", null)
             .style("opacity", 0.5)
             .style("cursor", "pointer")
             .select("text")
             .text(this.sort_text)
+            .attr("x", boxlen_reset / 2)
+            .attr("y", h_legend / 5)
+            .attr("dx", 0)
+            .attr("dy", 0)
             .call(this.props.wrap_long_labels, 88);
           }
         }
@@ -555,17 +565,11 @@ class ResourceMixChart extends Component {
         .select(this.fuels.current)
         .append("div")
         .attr("class", "fuels")
-        .style("text-align", "left")
         .selectAll("div")
         .data(fuel_names.map((d) => this.props.fuel_name_lookup[d]))
         .enter()
         .append("div")
-        .attr("class", "fuel")
-        .style("display", "inline-flex")
-        .style("cursor", "pointer")
-        .style("margin", 0)
-        .style("border-radius", "5px")
-        .style("vertical-align", "bottom");
+        .attr("class", "fuel");
 
       let fuels_svg = fuels
         .append("svg")
@@ -586,34 +590,34 @@ class ResourceMixChart extends Component {
         .attr("dx", 0)
         .attr("dy", 0)
         .text((d) => this.props.fuel_label_lookup[d])
-        .style("text-anchor", "middle")
-        .style("font-size", "0.9em")
         .call(this.props.wrap_long_labels, boxlen_filter * 0.9);
 
-      let reset = d3
+      let reset_div = d3
         .select(".fuels")
         .insert("div", ".fuel")
         .style("display", "inline-flex")
-        .attr("class", "reset no-export-to-pdf fuel-button")
+        .attr("class", "reset no-export-to-pdf")
         .style("opacity", 0.5)
-        .style("cursor", "pointer")
-        .append("svg")
+        .style("cursor", "pointer");
+
+      reset_div.append("svg")
         .attr("width", boxlen_reset)
         .attr("height", h_legend)
         .on("click", (d) => {
-          this.setState({ sort_fuel: null, clicked_on_bar: false, mouseover_fuel: null,});
-        });
-
-      reset
+          this.setState({ 
+            clicked_on_bar: false,
+            sort_fuel: null,
+            selected_region: this.props.region,
+            mouseover_fuel: null,
+            table_info: table_info
+          });
+        })
         .append("text")
         .attr("x", boxlen_reset / 2)
-        .attr("y", h_legend / 3)
+        .attr("y", h_legend / 5)
         .attr("dx", 0)
         .attr("dy", 0)
         .text(this.sort_text)
-        .style("text-anchor", "middle")
-        .style("font-size", "0.9em")
-        .style("font-weight", "bold")
         .call(this.props.wrap_long_labels, 88);
 
       d3.selectAll(".fuel")
@@ -667,7 +671,6 @@ class ResourceMixChart extends Component {
 
     // filter
     let fuel_names = this.props.fuels;
-
     let w_legend = d3.select(this.fuels.current).node().clientWidth,
       h_legend = this.props.filter_height;
     let nbox = fuel_names.length + 2;
@@ -737,6 +740,7 @@ class ResourceMixChart extends Component {
       // reset
       d3.select(this.fuels.current)
         .select(".reset")
+        .classed("reset-button", false)
         .on("mouseover", null)
         .on("mouseout", null)
         .style("opacity", 0.5)
@@ -744,7 +748,7 @@ class ResourceMixChart extends Component {
         .select("text")
         .text(this.sort_text)
         .attr("x", boxlen_reset / 2)
-        .attr("y", h_legend / 3)
+        .attr("y", h_legend / 5)
         .attr("dx", 0)
         .attr("dy", 0)
         .call(this.props.wrap_long_labels, boxlen_reset);
@@ -799,18 +803,13 @@ class ResourceMixChart extends Component {
     } else {
       d3.select(this.fuels.current)
         .select(".reset")
+        .classed("reset-button", true)
         .style("opacity", 1)
         .style("cursor", "pointer")
-        .on("mouseover", () => {
-          d3.select(".reset").style("opacity", 0.7);
-        })
-        .on("mouseout", () => {
-          d3.select(".reset").style("opacity", 1);
-        })
         .select("text")
         .text(this.sort_reset_text)
         .attr("x", boxlen_reset / 2)
-        .attr("y", h_legend / 2)
+        .attr("y", h_legend / 2.2)
         .attr("dx", 0)
         .attr("dy", 0)
         .call(this.props.wrap_long_labels, boxlen_reset);
@@ -919,6 +918,10 @@ class ResourceMixChart extends Component {
                   ? this.state.width * 0.9
                   : this.state.width * 0.95 - this.props.table_width,
               height: this.props.barchart_height,
+              marginTop:
+              this.state.width < this.props.ipad_width
+                ? this.props.margin_top
+                : 0,
             }}
             ref={this.barchart_wrapper}
           >
@@ -937,12 +940,13 @@ class ResourceMixChart extends Component {
               marginTop:
                 this.state.width < this.props.ipad_width
                   ? this.props.margin_top
-                  : 5,
+                  : 0,
               marginLeft: 0,
             }}
           >
             <UpdatedTable
               title={this.props.title}
+              region_level={this.props.region}
               region={this.state.selected_region}
               type={this.state.mouseover_fuel}
               table_info={this.state.table_info}

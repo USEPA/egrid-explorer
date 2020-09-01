@@ -10,25 +10,19 @@ class SentenceDropdown extends Component {
       let opt = null;
       if (this.props.id === "tier1") {
         opt = (
-          <option key={option[0]} value={option[0]} disabled={false}>
+          <option key={option[0]} value={option[0]} label={option[1]} disabled={false}>
             {option[1]}
           </option>
         );
       } else if (this.props.id === this.props.updated_tier) {
         opt = (
-          <option key={option[0]} value={option[0]} disabled={false}>
+          <option key={option[0]} value={option[0]} label={option[1]} disabled={false}>
             {option[1]}
           </option>
         );
       } else if (available_options.indexOf(option[0]) !== -1) {
         opt = (
-          <option key={option[0]} value={option[0]} disabled={false}>
-            {option[1]}
-          </option>
-        );
-      } else if (available_options.indexOf(option[0]) === -1) {
-        opt = (
-          <option key={option[0]} value={option[0]} disabled={true}>
+          <option key={option[0]} value={option[0]} label={option[1]} disabled={false}>
             {option[1]}
           </option>
         );
@@ -39,7 +33,6 @@ class SentenceDropdown extends Component {
     return (
       <div className="select-wrapper">
         <select value={selected_option} onChange={this.props.change}>
-          {/* <optgroup>{opts}</optgroup> */}
           {opts}
         </select>
       </div>

@@ -33,7 +33,7 @@ class PlantLevelMapZoom extends Component {
 
     this.zoom_factor = this.max_radius / this.field_factor_divided_by;
 
-    this.filter_text = "Filter by Primary Fuel";
+    this.filter_text = "Filter by Primary Fuel:";
     this.filter_reset_text = "Show All Fuels";
 
     this.show_plant_info = false;
@@ -274,18 +274,14 @@ class PlantLevelMapZoom extends Component {
       .select(".reset")
       .style("opacity", 1)
       .style("cursor", "pointer")
-      .on("mouseover", () => {
-        d3.select(".reset").style("opacity", 0.7);
-      })
-      .on("mouseout", () => {
-        d3.select(".reset").style("opacity", 1);
-      })
       .on("click", () => {
         this.setState({ selected_fuel: [] });
       });
 
     d3.selectAll(".fuels-selection")
-      .select(".reset text")
+      .select(".reset")
+      .classed("reset-button", true)
+      .select("text")
       .text(this.filter_reset_text)
       .call(this.props.wrap_long_labels, 88);
 
@@ -362,7 +358,9 @@ class PlantLevelMapZoom extends Component {
       .style("opacity", 0.5)
       .style("cursor", "pointer");
     d3.selectAll(".fuels-selection")
-      .select(".reset text")
+      .select(".reset")
+      .classed("reset-button", false)
+      .select("text")
       .text(this.filter_text)
       .call(this.props.wrap_long_labels, 88);
     d3.selectAll(".selected")
@@ -602,11 +600,10 @@ class PlantLevelMapZoom extends Component {
           // add fuel filter
           if (this.props.avail_fuels.length > 1) {
             let w = d3.select(this.fuels.current).node().clientWidth,
-              h = d3.select(this.fuels.current).node().clientHeight;
+              h = this.props.filter_height;
             let nbox = this.props.fuels.length + 2;
-            let boxlen = w / nbox > 100 ? 100 : Math.max(w / nbox, 90);
-            let boxlen_filter = boxlen,
-              boxlen_reset = boxlen * 1.5;
+            let boxlen = w / nbox > 88 ? 88 : Math.max(w / nbox, 75);
+            let boxlen_filter = boxlen, boxlen_reset = boxlen;
 
             d3.selectAll(".fuels-selection").selectAll("div").remove();
             let fuels = d3
@@ -617,11 +614,7 @@ class PlantLevelMapZoom extends Component {
               .data(this.props.fuels)
               .enter()
               .append("div")
-              .attr("class", "fuel")
-              .style("display", "inline-flex")
-              .style("cursor", "pointer")
-              .style("margin", 0)
-              .style("border-radius", "5px");
+              .attr("class", "fuel");
 
             let fuels_svg = fuels
               .append("svg")
@@ -638,17 +631,17 @@ class PlantLevelMapZoom extends Component {
             fuels_svg
               .append("text")
               .attr("x", boxlen_filter / 2)
-              .attr("y", Math.min(boxlen_filter, h * 0.5) * 1.5)
+              .attr("y", Math.min(boxlen_filter, h * 0.5) * 1.2)
               .attr("dx", 0)
               .attr("dy", 0)
               .text((d) => this.props.fuel_label_lookup[d])
               .style("text-anchor", "middle")
-              .call(this.props.wrap_long_labels, boxlen_filter);
+              .call(this.props.wrap_long_labels, boxlen_filter*0.9);
 
             let filter_div = d3.select(".fuels")
               .insert("div", ".fuel")
               .style("display", "inline-flex")
-              .attr("class", "reset no-export-to-pdf fuel-button")
+              .attr("class", "reset no-export-to-pdf")
               .style("opacity", 0.5)
               .style("cursor", "pointer");
               
@@ -661,9 +654,6 @@ class PlantLevelMapZoom extends Component {
               .attr("dx", 0)
               .attr("dy", 0)
               .text(this.filter_text)
-              .style("text-anchor", "middle")
-              .style("font-weight", "bold")
-              .style("font-size", "1.1em")
               .call(this.props.wrap_long_labels, 88);
 
             d3.selectAll(".fuel")
@@ -998,7 +988,7 @@ class PlantLevelMapZoom extends Component {
         {this.props.avail_fuels.length > 1 && (
           <div
             className="fuels-selection"
-            style={{ width: "100%" }}
+            style={{ width: "100%", height: "100%"}}
             ref={this.fuels}
           ></div>
         )}

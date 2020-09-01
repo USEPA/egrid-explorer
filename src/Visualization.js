@@ -153,7 +153,7 @@ class Visualization extends Component {
 
       if (region === "plant") {
         if (
-          (lookup[this.props.tier1] === "total generation (MWh)") &
+          (lookup[this.props.tier1] === "total generation (MWh)" || lookup[this.props.tier1] === "heat input (MMBtu)") &
           (lookup[this.props.tier2] !== "all fuels")
         ) {
           plant_avail_fuels = this.props.fuel_sentence_code_lookup[lookup[this.props.tier2]];
@@ -445,7 +445,7 @@ class Visualization extends Component {
             ipad_width={768}
             table_width={400}
             barchart_height={600}
-            filter_height={130}
+            filter_height={120}
             margin_top={20}
             margin_right={10}
             margin_left={region === "state" ? 155 : 60}
@@ -561,6 +561,7 @@ class Visualization extends Component {
                 table_rows={this.props.plant_table_rows}
                 window_width={this.state.window_width}
                 window_height={this.state.window_height}
+                filter_height={100}
                 fuels={this.state.fuels}
                 avail_fuels={this.state.plant_avail_fuels}
                 init_center={[-96.922211, 38.381266]}
