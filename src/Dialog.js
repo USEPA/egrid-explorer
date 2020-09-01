@@ -17,18 +17,18 @@ function Dialog(props) {
 
     props.table_rows.forEach((r, i) => {
       let row;
-      if (i != props.table_rows.length - 1) {
+      if (i !== props.table_rows.length - 1) {
         row = (
           <tr key={r[0]}>
             <td>{r[0]}</td>
-            <td>{r[1]}</td>
+            <td style={{textAlign:'left'}}>{r[1]}</td>
           </tr>
         );
       } else {
         row = (
           <tr key={r[0]}>
             <td>{r[0]}</td>
-            <td>{r[1]}</td>
+            <td style={{textAlign:'left'}}>{r[1]}</td>
           </tr>
         );
       }

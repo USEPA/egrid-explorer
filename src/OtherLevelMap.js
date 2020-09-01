@@ -20,9 +20,9 @@ class OtherLevelMap extends Component {
   formatNumber(d) {
     let num = Math.abs(d);
     if (num < 1) {
-      return d===0? 0 : d3.format(".3f")(d);
+      return d===0? d : d3.format(".3f")(d);
     } else {
-      return isNaN(d) ? "" : d3.format(",.0f")(d);
+      return isNaN(d) ? "" : d3.format(",.2f")(d);
     }
   }
 
@@ -140,7 +140,7 @@ class OtherLevelMap extends Component {
       .on("mousemove", (d) => {
         let html =
           "<span>The <b>" +
-          this.props.title.slice(0, 1).toLowerCase() +
+          this.props.title.slice(0, 1) +
           this.props.title.slice(1).split(" (")[0] +
           "</b> for <b>" +
           d.properties.name +
@@ -240,7 +240,7 @@ class OtherLevelMap extends Component {
       .on("mousemove", (d) => {
         let html =
           "<span>The <b>" +
-          this.props.title.slice(0, 1).toLowerCase() +
+          this.props.title.slice(0, 1) +
           this.props.title.slice(1).split(" (")[0] +
           "</b> for <b>" +
           d.properties.name +

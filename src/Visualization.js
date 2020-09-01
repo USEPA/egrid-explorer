@@ -240,13 +240,14 @@ class Visualization extends Component {
           if (+this.state.tier1 !== 7 && +this.state.tier1 !== 9) {
             if (+this.state.tier5 === 99) {
               if (this.state.specific_plant_data_export["Plant Name"]!==undefined && this.state.specific_plant_data_export["Plant Name"]!=="-") {  
-                Object.keys(this.props.plant_table_rows).forEach((c) => {
+                Object.keys(this.props.plant_table_rows).forEach((c, i) => {
                   csv +=
                     '"' +
                     this.props.plant_table_rows[c] +
                     '","' +
                     this.state.specific_plant_data_export[this.props.plant_table_rows[c]] +
                     '"\r\n';
+                  if (i===0) csv+="Year, " + this.props.year + "\r\n";
                 });
                 filename = this.state.specific_plant_data_export["Plant Name"] + ',' + this.state.name.split(',').splice(-1);
               } else {
@@ -418,7 +419,7 @@ class Visualization extends Component {
                   ? 812.5
                   : this.init_window_width * 0.78
               }
-              height={550}
+              height={500}
               layer={this.props.ggl_layer}
               us_data={this.state.us_data}
               background_layer={this.props.state_layer}
@@ -619,6 +620,7 @@ class UpdatedVisualization extends Component {
       <div>
         <Visualization
           className="visualization-wrapper"
+          year={this.props.year}
           options={this.props.options}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}
@@ -686,18 +688,9 @@ class UpdatedVisualization extends Component {
             />
           </div>
           <div>
-            <b>Download complete eGRID data: </b>
-            <a
-              href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx"
+            <a href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx"
               target="_blank"
-              rel="noopener noreferrer"
-            >
-              <input
-                type="button"
-                value="eGRID2018"
-                className="btn-primary-outline download-icon"
-              />
-            </a>
+              rel="noopener noreferrer">Download complete eGRID data</a>
           </div>
         </div>
       </div>

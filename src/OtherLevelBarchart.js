@@ -17,30 +17,7 @@ class OtherLevelBarchart extends Component {
     };
   }
 
-  formatXaxis(d) {
-    let num = Math.abs(d);
-    if (num < 1) {
-      return d===0? d:d3.format(".3f")(d);
-    } else if (num >= 1 && num < 10) {
-      return d3.format(".2f")(d);
-    } else if (num >= 1000) {
-      let num = d3.format(".2s")(d);
-      let abbr = num.slice(-1);
-      if (abbr === "G") {
-        num = num.substring(0, num.length - 1) + "B";
-      }
-      let chars1 = num.slice(-3);
-      let chars2 = chars1.substring(0, 2);
-      if (chars2 === ".0") {
-        num = num.slice(0, -3) + num.slice(-1);
-        return num;
-      }
-      return num;
-    } else {
-      return d3.format(".0f")(d);
-    }
-  }
-
+  // tooltip
   formatNumber(d) {
     let num = Math.abs(d);
     if (num < 1) {
@@ -50,6 +27,7 @@ class OtherLevelBarchart extends Component {
     }
   }
 
+  // US number
   formatUSNumber(d) {
     let num = Math.abs(d);
     if (num < 1) {
@@ -59,6 +37,7 @@ class OtherLevelBarchart extends Component {
     }
   }
 
+  // label
   formatLabel(d) {
     let num = Math.abs(d);
     if (num < 1) {
@@ -80,6 +59,31 @@ class OtherLevelBarchart extends Component {
       return num;
     } else {
       return isNaN(d) ? "" : d3.format(",.0f")(d);
+    }
+  }
+
+  // x axis
+  formatXaxis(d) {
+    let num = Math.abs(d);
+    if (num < 1) {
+      return d===0? d:d3.format(".3f")(d);
+    } else if (num >= 1 && num < 10) {
+      return d3.format(".2f")(d);
+    } else if (num >= 1000) {
+      let num = d3.format(".2s")(d);
+      let abbr = num.slice(-1);
+      if (abbr === "G") {
+        num = num.substring(0, num.length - 1) + "B";
+      }
+      let chars1 = num.slice(-3);
+      let chars2 = chars1.substring(0, 2);
+      if (chars2 === ".0") {
+        num = num.slice(0, -3) + num.slice(-1);
+        return num;
+      }
+      return num;
+    } else {
+      return d3.format(".0f")(d);
     }
   }
 
@@ -251,7 +255,7 @@ class OtherLevelBarchart extends Component {
           id = d.id;
           html =
             "<span>The <b>" +
-            this.props.title.slice(0, 1).toLowerCase() +
+            this.props.title.slice(0, 1) +
             this.props.title.slice(1).split(" (")[0] +
             "</b> for <b>" +
             d.name +
@@ -264,7 +268,7 @@ class OtherLevelBarchart extends Component {
           id = this.props.data.filter((e) => e.name === d).map((e) => e.id)[0];
           html =
             "<span>The <b>" +
-            this.props.title.slice(0, 1).toLowerCase() +
+            this.props.title.slice(0, 1) +
             this.props.title.slice(1).split(" (")[0] +
             "</b> for <b>" +
             d +

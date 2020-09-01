@@ -90,10 +90,7 @@ class GGLChart extends Component {
       })
       .on("mousemove", (d) => {
         let html =
-          "<span>The <b>" +
-          this.props.title.slice(0, 1).toLowerCase() +
-          this.props.title.slice(1).split(" (")[0] +
-          "</b> for <b>" +
+          "<span>The Grid gross loss rate for <b>" +
           d.properties.name +
           "</b> is <b>" +
           d.properties.value +
@@ -194,7 +191,7 @@ class GGLChart extends Component {
       .on("mousemove", (d) => {
         let html =
           "<span>The <b>" +
-          this.props.title.slice(0, 1).toLowerCase() +
+          this.props.title.slice(0, 1) +
           this.props.title.slice(1).split(" (")[0] +
           "</b> for <b>" +
           d.properties.name +
@@ -234,6 +231,8 @@ class GGLChart extends Component {
           .classed("selected", true)
           .style("stroke-width", 1)
           .style("opacity", 1);
+        
+        this.setState({mouseover_region: d.properties.name});
       })
       .on("mouseout", (d) => {
         d3.select(this.tooltip.current)
@@ -314,7 +313,7 @@ class GGLChart extends Component {
   render() {
     let title = (
       <div>
-        <p className="title">{this.props.title.replace(',', '\n')}</p>
+        <p className="title">{this.props.title}</p>
       </div>
     ); 
 

@@ -120,16 +120,6 @@
   outline: none !important;
 }
 
-.app .download-icon {
-  background-image: url("assets/img/download_solid.png");
-  background-repeat: no-repeat;
-  background-position: 5%;
-  padding-left: 30px !important;
-  padding-right: 10px !important;
-  background-size: 18%;
-  text-align: right !important;
-}
-
 .app .graphics-icon {
   background-image: url("assets/img/file_image_solid.png");
   background-repeat: no-repeat;
@@ -370,18 +360,6 @@
   font-weight: bold;
 }
 
-/* static map (export for zoomable) */
-.app #map-static-wrapper {
-  width: 100%;
-  margin: 0 auto;
-}
-
-.app #map-static-legend {
-  width: 400px;
-  height: 75px;
-  display: inline-block;
-}
-
 /* zoomable map */
 .app #map-zoomable-wrapper {
   width: 100%;
@@ -581,7 +559,6 @@ table td {
 .app .fuel {
   display: inline-flex;
   cursor:pointer;
-  /* vertical-align: top; */
   height: 100px;
   margin: 0;
   border-radius: 4px;
@@ -612,7 +589,6 @@ table td {
 
 /* export visualization */
 @media print {
-
   .sitewide-alert,
   #block-pane-official-website-header {
     display: none;
@@ -622,7 +598,7 @@ table td {
   .no-export-to-pdf svg,
   .mapboxgl-ctrl,
   .table-wrapper {
-    display: none;
+    display: none !important;
   }
 
   .mapbox-legend,
@@ -631,33 +607,28 @@ table td {
     background: #fff !important;
   }
 
-  .map-container {
+  .app .map-container {
     width: 90% !important;
   }
 
-  .fuel.selected circle {
+  .app .fuel.selected circle {
     stroke: #000;
     stroke-width: 2px;
   }
 
-  .fuel.selected text {
+  .app .fuel.selected text {
     font-weight: "bold";
     font-size: 1.2em;
   }
 
-  #map-zoomable-wrapper .fuel {
-    width: 90px;
+  .app #map-zoomable-wrapper .fuel {
+    width: 80px;
     height: 10px;
+    border: none;
   }
 
-  #barchart {
+  .app #barchart {
     margin-top: 40px;
-  }
-
-  table {
-    border-style: unset;
-    border: 1px solid black;
-    display: block;
   }
 }
 

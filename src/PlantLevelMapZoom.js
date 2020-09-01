@@ -201,10 +201,10 @@ class PlantLevelMapZoom extends Component {
       .attr("dy", 0)
       .text((d, i) =>
         i === 0
-          ? "<=" + this.formatLegend(scale.invert(d)).toString()
+          ? "≤" + this.formatLegend(scale.invert(d)).toString()
           : i === legend_values.length - 1 &&
             scale.invert(d) === this.props.plant_dist[this.props.field].max
-          ? ">=" + this.formatLegend(scale.invert(d)).toString()
+          ? "≥" + this.formatLegend(scale.invert(d)).toString()
           : this.formatLegend(scale.invert(d))
       )
       .style("text-anchor", "middle");

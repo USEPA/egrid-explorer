@@ -1,5 +1,4 @@
 Region,Subregion,Grid Gross Loss Rate (%)
-US,,4.87%
 Alaska,"AKGD, AKMS",5.12%
 Eastern,"FRCC, MROE, 
 MROW, NEWE, NYCW, 
@@ -10,4 +9,5 @@ SRSO, SRTV, SRVC",4.88%
 ERCOT,ERCT,4.87%
 Hawaii,"HIMS, HIOA",5.14%
 Western,"AZNM, CAMX, 
-NWPP, RMPA",4.80%
+NWPP, RMPA",4.80%,
+US,,4.87%

@@ -448,6 +448,7 @@ class Main extends Component {
         ) : (
           <div id="visualization">
             <UpdatedVisualization
+              year={this.props.year}
               options={this.props.options}
               choropleth_map_fill={this.props.choropleth_map_fill}
               plant_fuels={this.props.plant_fuels}

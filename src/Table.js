@@ -147,7 +147,9 @@ class UpdatedTable extends Component {
                 <th>{this.props.table_info["Plant Name"]}</th>
               </tr>
             </thead>
-            <tbody>{plant_table}</tbody>
+            <tbody>
+              {plant_table}
+            </tbody>
           </table>
         )}
         <Dialog
