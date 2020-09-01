@@ -190,10 +190,7 @@ class GGLChart extends Component {
       })
       .on("mousemove", (d) => {
         let html =
-          "<span>The <b>" +
-          this.props.title.slice(0, 1) +
-          this.props.title.slice(1).split(" (")[0] +
-          "</b> for <b>" +
+          "<span>The Grid gross loss rate for <b>" +
           d.properties.name +
           "</b> is <b>" +
           d.properties.value +
