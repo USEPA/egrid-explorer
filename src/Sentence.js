@@ -32,7 +32,7 @@ class SentenceDropdown extends Component {
 
     return (
       <div className="select-wrapper">
-        <select value={selected_option} onChange={this.props.change}>
+        <select aria-label={this.props.lookup[selected_option]} value={selected_option} onChange={this.props.change}>
           {opts}
         </select>
       </div>

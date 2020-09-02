@@ -342,6 +342,7 @@ class Main extends Component {
           <span> </span>
           <SentenceDropdown
             id="tier1"
+            lookup={lookup}
             change={this.handleChange1}
             updated_tier={this.state.updated_tier}
             selected_option={this.state.tier1}
@@ -361,6 +362,7 @@ class Main extends Component {
           {tier2_options.length > 1 ? (
             <SentenceDropdown
               id="tier2"
+              lookup={lookup}
               change={this.handleChange2}
               updated_tier={this.state.updated_tier}
               selected_option={this.state.tier2}
@@ -388,6 +390,7 @@ class Main extends Component {
           {tier4_options.length > 1 ? (
             <SentenceDropdown
               id="tier4"
+              lookup={lookup}
               change={this.handleChange4}
               updated_tier={this.state.updated_tier}
               selected_option={this.state.tier4}
@@ -415,6 +418,7 @@ class Main extends Component {
           {tier5_options.length > 1 ? (
             <SentenceDropdown
               id="tier5"
+              lookup={lookup}
               change={this.handleChange5}
               updated_tier={this.state.updated_tier}
               selected_option={this.state.tier5}
