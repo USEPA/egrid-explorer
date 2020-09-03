@@ -28,6 +28,8 @@
 /* header */
 .app header {
   min-height: 80px;
+  background-image: url("assets/img/banner.png");
+  background-size: 100% 100%;
 }
 
 .app header div {
@@ -53,7 +55,7 @@
   border: 2px solid #2e8540;
   padding: 1.6rem;
   font-weight: 500;
-  margin: 16px 0 16px 0;
+  margin: 0 0 16px 0;
   line-height: 1.6em;
 }
 
@@ -72,6 +74,11 @@
   -moz-appearance: none;
   appearance: none;
   cursor: pointer;
+}
+
+.select {
+  border-bottom: 1.8px dashed #212529 !important;
+  text-decoration: none !important;
 }
 
 .app select option {
@@ -233,7 +240,7 @@
   color: #ffffff;
 }
 
-.app input[type="button"].btn-tertiary-outline,{
+.app input[type="button"].btn-tertiary-outline{
   background-color: #ffffff;
   border: 2px solid #5B616B;
   color: #5B616B;
@@ -308,7 +315,7 @@
 
 .app .sort-buttons {
   font-size: 0.8em;
-  font-weight: 700;
+  font-weight: 700px;
 }
 
 .app .sort-buttons input:nth-of-type(1) {
@@ -524,6 +531,7 @@ table td {
 /* d3: fuel selection */
 .app .reset {
   margin-right: 5px;
+  opacity:0.5;
 }
 
 .app .reset svg {
@@ -540,16 +548,23 @@ table td {
   border-radius: 4px;
   vertical-align: top;
   height: 100px;
-  fill: #a9a9a9;
-  border: 2px solid #a9a9a9;
-  color: #a9a9a9;
-  background-color: #ffffff;
-}
-
-.app .reset-button:hover {
   border: 2px solid #262c35;
   color: #262c35;
   fill: #262c35;
+  background-color: #ffffff;
+  cursor:pointer;
+}
+
+.app .reset-button:hover {
+  opacity:1;
+}
+
+.app #micromap-magnifying-glass {
+  opacity:0.7;
+}
+
+.app #micromap-magnifying-glass:hover {
+  opacity:1;
 }
 
 .app .fuels-selection {
@@ -592,7 +607,12 @@ table td {
 }
 
 /* export visualization */
-@media print {
+@media print{
+  @page {
+    margin: 0 !important;
+    size: a3 !important;
+  }
+
   .sitewide-alert,
   #block-pane-official-website-header {
     display: none;
@@ -600,39 +620,24 @@ table td {
 
   .no-export-to-pdf,
   .no-export-to-pdf svg,
+  .table-wrapper,
   .mapboxgl-ctrl,
-  .table-wrapper {
+  .app .reset {
     display: none !important;
   }
 
+  .app #barchart {
+    margin-top: 40px;
+  }
+  
   .mapbox-legend,
   .mapboxgl-popup-content {
     display: inline !important;
     background: #fff !important;
   }
 
-  .app .map-container {
-    width: 90% !important;
-  }
-
-  .app .fuel.selected circle {
-    stroke: #000;
-    stroke-width: 2px;
-  }
-
-  .app .fuel.selected text {
-    font-weight: "bold";
-    font-size: 1.2em;
-  }
-
-  .app #map-zoomable-wrapper .fuel {
-    width: 80px;
-    height: 10px;
-    border: none;
-  }
-
-  .app #barchart {
-    margin-top: 40px;
+  .app .map-container{
+    width: 80% !important;
   }
 }
 

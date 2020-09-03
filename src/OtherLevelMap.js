@@ -139,7 +139,7 @@ class OtherLevelMap extends Component {
       })
       .on("mousemove", (d) => {
         let html =
-          "<span>The <b>" +
+          "<span><b>" +
           this.props.title.slice(0, 1) +
           this.props.title.slice(1).split(" (")[0] +
           "</b> for <b>" +
@@ -239,7 +239,7 @@ class OtherLevelMap extends Component {
       })
       .on("mousemove", (d) => {
         let html =
-          "<span>The <b>" +
+          "<span><b>" +
           this.props.title.slice(0, 1) +
           this.props.title.slice(1).split(" (")[0] +
           "</b> for <b>" +

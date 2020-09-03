@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Dialog from "./Dialog.js";
-import SubregionMap from "./assets/img/2018_egrid_subregions.png";
+import * as d3 from "d3";
 
 class UpdatedTable extends Component {
   constructor(props) {
@@ -51,6 +51,7 @@ class UpdatedTable extends Component {
                   ? "bold"
                   : "normal",
             }}
+            key={i}
           >
             <td>{r}</td>
             <td>
@@ -63,8 +64,9 @@ class UpdatedTable extends Component {
       });
     } else {
       Object.keys(this.props.table_info).forEach((r, i) => {
-        let row;
+        let row, info = this.props.table_info[r];
         if (r !== "eGRID Subregion" && r !== "Plant Name") {
+          if ((r==="Number of Units" || r==="Number of Generators") && info!=="-") info = d3.format(".0f")(+info);
           row = (
             <tr
               style={{
@@ -75,7 +77,7 @@ class UpdatedTable extends Component {
               key={i}
             >
               <td>{r}</td>
-              <td>{this.props.table_info[r]}</td>
+              <td>{info}</td>
             </tr>
           );
         } else if (r === "eGRID Subregion"){
@@ -153,10 +155,8 @@ class UpdatedTable extends Component {
           </table>
         )}
         <Dialog
-          is_table="false"
-          has_image="true"
+          id="subregion-map"
           title="eGRID Subregion"
-          text={{ text: [], list: [], image: SubregionMap }}
           show={this.state.show_modal}
           onHide={() => this.setState({ show_modal: false })}
         />

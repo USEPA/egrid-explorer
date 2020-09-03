@@ -254,7 +254,7 @@ class OtherLevelBarchart extends Component {
         if (typeof d === "object") {
           id = d.id;
           html =
-            "<span>The <b>" +
+            "<span><b>" +
             this.props.title.slice(0, 1) +
             this.props.title.slice(1).split(" (")[0] +
             "</b> for <b>" +
@@ -267,7 +267,7 @@ class OtherLevelBarchart extends Component {
         } else if (typeof d === "string") {
           id = this.props.data.filter((e) => e.name === d).map((e) => e.id)[0];
           html =
-            "<span>The <b>" +
+            "<span><b>" +
             this.props.title.slice(0, 1) +
             this.props.title.slice(1).split(" (")[0] +
             "</b> for <b>" +

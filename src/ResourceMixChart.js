@@ -4,7 +4,7 @@ import * as _ from "underscore";
 import * as d3_composite from "d3-composite-projections";
 import Dialog from "./Dialog.js";
 import UpdatedTable from "./Table";
-import SubregionMap from "./assets/img/2018_egrid_subregions.png";
+import searchIcon from "./assets/img/search_solid.png";
 
 class ResourceMixChart extends Component {
   constructor(props) {
@@ -70,8 +70,6 @@ class ResourceMixChart extends Component {
           d3.select(this.fuels.current)
             .select(".reset")
             .classed("reset-button", true)
-            .style("opacity", 1)
-            .style("cursor", "pointer")
             .select("text")
             .text(this.sort_reset_text)
             .attr("x", boxlen_reset / 2)
@@ -88,8 +86,6 @@ class ResourceMixChart extends Component {
             .classed("reset-button", false)
             .on("mouseover", null)
             .on("mouseout", null)
-            .style("opacity", 0.5)
-            .style("cursor", "pointer")
             .select("text")
             .text(this.sort_text)
             .attr("x", boxlen_reset / 2)
@@ -206,6 +202,13 @@ class ResourceMixChart extends Component {
         .style("stroke-width", 0.5);
       
       d3.select(this.micromap.current)
+        .append("image")
+        .attr("id", "micromap-magnifying-glass")
+        .attr("class", "no-export-to-pdf")
+        .attr("xlink:href", searchIcon)
+        .attr("width", 20)
+        .attr("height", 20)
+        .attr("transform", "translate(" + (w_micro-30) + "," + (h_micro-25) + ")")
         .style("cursor", "pointer")
         .on("click", ()=>{ this.setState({ show_modal: true });});
 
@@ -549,7 +552,7 @@ class ResourceMixChart extends Component {
         )
         .call(d3.axisTop(barXScale))
         .selectAll("text")
-        .attr("transform", "rotate(-30)")
+        .attr("transform", "rotate()")
         .style("font-size", (d) => (d === "US" ? "1.5em" : "1.2em"))
         .style("font-weight", (d) => (d === "US" ? "bold" : "normal"));
 
@@ -596,9 +599,7 @@ class ResourceMixChart extends Component {
         .select(".fuels")
         .insert("div", ".fuel")
         .style("display", "inline-flex")
-        .attr("class", "reset no-export-to-pdf")
-        .style("opacity", 0.5)
-        .style("cursor", "pointer");
+        .attr("class", "reset no-export-to-pdf");
 
       reset_div.append("svg")
         .attr("width", boxlen_reset)
@@ -727,6 +728,9 @@ class ResourceMixChart extends Component {
       .translate([w_micro / 2, h_micro / 2]);
     let path = d3.geoPath().projection(projection);
     d3.select(this.micromap.current).selectAll("path").attr("d", path);
+    d3.select(this.micromap.current)
+    .select("#micromap-magnifying-glass")
+    .attr("transform", "translate(" + (w_micro-30) + "," + (h_micro-25) + ")");
 
     if (fuel === null) {
       // micromap
@@ -743,8 +747,6 @@ class ResourceMixChart extends Component {
         .classed("reset-button", false)
         .on("mouseover", null)
         .on("mouseout", null)
-        .style("opacity", 0.5)
-        .style("cursor", "pointer")
         .select("text")
         .text(this.sort_text)
         .attr("x", boxlen_reset / 2)
@@ -804,8 +806,6 @@ class ResourceMixChart extends Component {
       d3.select(this.fuels.current)
         .select(".reset")
         .classed("reset-button", true)
-        .style("opacity", 1)
-        .style("cursor", "pointer")
         .select("text")
         .text(this.sort_reset_text)
         .attr("x", boxlen_reset / 2)
@@ -890,7 +890,7 @@ class ResourceMixChart extends Component {
             style={{
               width:
                 this.state.width < this.props.ipad_width
-                  ? this.state.width * 0.9
+                  ? this.state.width * 0.4
                   : this.state.width * this.micromap_width_pct,
               height: this.props.filter_height,
             }}
@@ -955,10 +955,8 @@ class ResourceMixChart extends Component {
           </div>
         </div>
         <Dialog
-          is_table="false"
-          has_image="true"
+          id="subregion-map"
           title="eGRID Subregion"
-          text={{"text":[], "list":[], "image": SubregionMap}}
           show={this.state.show_modal}
           onHide={() => this.setState({ show_modal: false })}
         />
