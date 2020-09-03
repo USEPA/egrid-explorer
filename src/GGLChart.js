@@ -90,7 +90,7 @@ class GGLChart extends Component {
       })
       .on("mousemove", (d) => {
         let html =
-          "<span>The Grid gross loss rate for <b>" +
+          "<span>Grid gross loss rate for <b>" +
           d.properties.name +
           "</b> is <b>" +
           d.properties.value +
@@ -190,7 +190,7 @@ class GGLChart extends Component {
       })
       .on("mousemove", (d) => {
         let html =
-          "<span>The Grid gross loss rate for <b>" +
+          "<span>Grid gross loss rate for <b>" +
           d.properties.name +
           "</b> is <b>" +
           d.properties.value +

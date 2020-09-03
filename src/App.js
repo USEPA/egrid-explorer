@@ -80,15 +80,6 @@ class App extends Component {
 
     // header data
     this.year = 2018;
-    this.more_info_title = "Instructions";
-    this.more_info_text = {
-      text: [
-        "The sentence wording is created through combinations of options from four dropdowns: 1) an environmental characteristic, 2) a pollutant, 3) a fuel type, and 4) a geographic level. To explore the data, change the wording of the sentence by selecting different options from the drop-downs (underlined words). The graphs will immediately change according to the selected variables.",
-        "When selecting the Plant geographic level in the fourth dropdown, you can select a specific plant to get more information displayed in the accompanying table or you can filter by one or more fuels by clicking on the fuel types immediately above the map.",
-        "When selecting the Resource Mix environmental characteristic in the first dropdown, clicking on the fuel types will sort the bar graph accordingly, and you can select one of the bars to get more information displayed in the accompanying table.",
-      ],
-      list: [],
-    };
     this.logo_link =
       "https://www.epa.gov/egrid";
 
@@ -453,7 +444,6 @@ class App extends Component {
 
         this.glossary_table_header = Object.keys(glossary[0]);
         this.glossary_table_rows = glossary.map((d) => Object.values(d));
-        this.glossary_title = "Glossary";
 
         this.setState({
           options: options.filter((e) => e.tier5 !== "52"),
@@ -541,17 +531,14 @@ class App extends Component {
           </div>
         )}
         {this.state.show_instruction && <Dialog
-          is_table="false"
-          has_image="false"
-          title={this.more_info_title}
-          text={this.more_info_text}
+          id="instruction"
+          title="Instructions"
           show={this.state.show_instruction}
           onHide={() => this.setState({ show_instruction: false })}
         />}
         {this.state.show_glossary && <Dialog
-          is_table="true"
-          has_image="false"
-          title={this.glossary_title}
+          id="glossary"
+          title="Glossary"
           table_header={this.glossary_table_header}
           table_rows={this.glossary_table_rows}
           show={this.state.show_glossary}

@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import * as _ from "underscore";
 
 import lookup from "./assets/data/json/eGRID lookup.json";
+import lookup_pollutant from "./assets/data/json/eGRID pollutant lookup.json";
 
 import OtherLevelMap from "./OtherLevelMap";
 import OtherLevelMapLegend from "./OtherLevelMapLegend";
@@ -23,7 +24,6 @@ class Visualization extends Component {
       window_height: window.innerHeight,
       field: this.props.field,
       name: this.props.name,
-      title: this.props.title,
       unit: this.props.unit,
       tier1: this.props.tier1,
       tier2: this.props.tier2,
@@ -46,14 +46,6 @@ class Visualization extends Component {
     this.init_window_width = window.innerWidth;
 
     this.getPlantData = this.getPlantData.bind(this);
-
-    this.alert_title = "";
-    this.alert_text = {
-      text: [
-        "Select a plant before downloading table."
-      ],
-      list: [],
-    };
   }
 
   getPlantData(table) {
@@ -211,7 +203,6 @@ class Visualization extends Component {
       {
         field: this.props.field,
         name: this.props.name,
-        title: this.props.title,
         unit: this.props.unit,
         tier1: this.props.tier1,
         tier2: this.props.tier2,
@@ -241,9 +232,10 @@ class Visualization extends Component {
             if (+this.state.tier5 === 99) {
               if (this.state.specific_plant_data_export["Plant Name"]!==undefined && this.state.specific_plant_data_export["Plant Name"]!=="-") {  
                 Object.keys(this.props.plant_table_rows).forEach((c, i) => {
+                  let row_name = this.props.plant_table_rows[c].split(' ').map(w=>Object.keys(lookup_pollutant).indexOf(w)>-1?lookup_pollutant[w]:w).join(' ');
                   csv +=
                     '"' +
-                    this.props.plant_table_rows[c] +
+                    row_name +
                     '","' +
                     this.state.specific_plant_data_export[this.props.plant_table_rows[c]] +
                     '"\r\n';
@@ -255,12 +247,13 @@ class Visualization extends Component {
                 return;
               }
             } else {
+              let title = this.state.name.replace(/,/g, "").split(' ').map(w=>Object.keys(lookup_pollutant).indexOf(w)>-1?lookup_pollutant[w]:w).join(' ');
               export_table = _.flatten([
                 this.state.us_data.map(d=>{d.value=this.state.us_data[0][this.props.field]; return d;}),
                 this.state.data,
               ]);
   
-              csv += "Region, " + this.state.title.replace(/,/g, "") + "\r\n";
+              csv += "Region, " + title + "\r\n";
               export_table.forEach((r) => {
                 csv +=
                   r.name.toString().replace(/,/g, " ") + "," + r.value + "\r\n";
@@ -335,7 +328,7 @@ class Visualization extends Component {
           let encodedUri = encodeURI(csv);
           let link = document.createElement("a");
           link.setAttribute("href", encodedUri);
-          link.setAttribute("target", "_blank");
+          // link.setAttribute("target", "_blank");
           link.setAttribute("download", filename + ".csv");
           document.body.appendChild(link);
           link.click();
@@ -565,7 +558,7 @@ class Visualization extends Component {
                 filter_height={100}
                 fuels={this.state.fuels}
                 avail_fuels={this.state.plant_avail_fuels}
-                init_center={[-96.922211, 38.381266]}
+                init_center={[-96.922211, 37.381266]}
                 init_zoom={3.3}
                 min_zoom={2}
                 max_zoom={15}
@@ -584,10 +577,8 @@ class Visualization extends Component {
                 getPlantData={this.getPlantData}
               />
               {this.state.show_alert && <Dialog
-                is_table="false"
-                has_image="false"
-                title={this.alert_title}
-                text={this.alert_text}
+                id="no-selected-plant-alert"
+                title=""
                 show={this.state.show_alert}
                 onHide={() => this.setState({ show_alert: false })}
               />}
@@ -640,7 +631,6 @@ class UpdatedVisualization extends Component {
           plant_table_rows={this.props.plant_table_rows}
           wrap_long_labels={this.props.wrap_long_labels}
           field={this.props.field}
-          title={this.props.title}
           name={this.props.name}
           unit={this.props.unit}
           tier1={this.props.tier1}

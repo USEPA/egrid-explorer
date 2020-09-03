@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import mapboxgl from "mapbox-gl";
 import * as d3 from "d3";
-import * as d3_composite from "d3-composite-projections";
 
 import reset_view_icon from "./assets/img/reset_view_icon.jpg";
 import UpdatedTable from "./Table";
@@ -272,8 +271,6 @@ class PlantLevelMapZoom extends Component {
       .style("background", "none");
     d3.selectAll(".fuels-selection")
       .select(".reset")
-      .style("opacity", 1)
-      .style("cursor", "pointer")
       .on("click", () => {
         this.setState({ selected_fuel: [] });
       });
@@ -354,9 +351,7 @@ class PlantLevelMapZoom extends Component {
     d3.selectAll(".fuels-selection")
       .select(".reset")
       .on("mouseover", null)
-      .on("mouseout", null)
-      .style("opacity", 0.5)
-      .style("cursor", "pointer");
+      .on("mouseout", null);
     d3.selectAll(".fuels-selection")
       .select(".reset")
       .classed("reset-button", false)
@@ -641,9 +636,7 @@ class PlantLevelMapZoom extends Component {
             let filter_div = d3.select(".fuels")
               .insert("div", ".fuel")
               .style("display", "inline-flex")
-              .attr("class", "reset no-export-to-pdf")
-              .style("opacity", 0.5)
-              .style("cursor", "pointer");
+              .attr("class", "reset no-export-to-pdf");
               
             filter_div.append("svg")
               .attr("width", boxlen_reset)

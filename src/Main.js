@@ -18,9 +18,8 @@ class Main extends Component {
       tier4: init_options.tier4,
       tier5: init_options.tier5,
       field: init_options["Final field name in eGRID"],
-      title: init_options["Table Export Title"],
       unit: init_options.Units,
-      name: init_options["Visual Title (for Export and Webpage)"],
+      name: init_options.Title,
       all_options: this.props.options.filter(
         (d) => d.tier1 === init_options.tier1
       ),
@@ -121,8 +120,7 @@ class Main extends Component {
                 {
                   field: opt["Final field name in eGRID"],
                   unit: opt.Units,
-                  name: opt["Visual Title (for Export and Webpage)"],
-                  title: opt["Table Export Title"],
+                  name: opt.Title,
                   dropdown_changing: false,
                 },
                 () => {
@@ -190,8 +188,7 @@ class Main extends Component {
               {
                 field: opt["Final field name in eGRID"],
                 unit: opt.Units,
-                name: opt["Visual Title (for Export and Webpage)"],
-                title: opt["Table Export Title"],
+                name: opt.Title,
                 dropdown_changing: false,
               },
               () => {
@@ -256,8 +253,7 @@ class Main extends Component {
               {
                 field: opt["Final field name in eGRID"],
                 unit: opt.Units,
-                name: opt["Visual Title (for Export and Webpage)"],
-                title: opt["Table Export Title"],
+                name: opt.Title,
                 dropdown_changing: false,
               },
               () => {
@@ -316,8 +312,7 @@ class Main extends Component {
               {
                 field: opt["Final field name in eGRID"],
                 unit: opt.Units,
-                name: opt["Visual Title (for Export and Webpage)"],
-                title: opt["Table Export Title"],
+                name: opt.Title,
                 dropdown_changing: false,
               },
               () => {
