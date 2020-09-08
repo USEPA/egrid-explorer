@@ -156,7 +156,8 @@ class UpdatedTable extends Component {
         )}
         <Dialog
           id="subregion-map"
-          title="eGRID Subregion"
+          title=""
+          name="eGRID Subregion"
           show={this.state.show_modal}
           onHide={() => this.setState({ show_modal: false })}
         />

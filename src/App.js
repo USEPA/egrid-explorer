@@ -532,13 +532,15 @@ class App extends Component {
         )}
         {this.state.show_instruction && <Dialog
           id="instruction"
-          title="Instructions"
+          title=""
+          name="Instructions"
           show={this.state.show_instruction}
           onHide={() => this.setState({ show_instruction: false })}
         />}
         {this.state.show_glossary && <Dialog
           id="glossary"
-          title="Glossary"
+          title=""
+          name="Glossary"
           table_header={this.glossary_table_header}
           table_rows={this.glossary_table_rows}
           show={this.state.show_glossary}

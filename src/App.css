@@ -29,7 +29,7 @@
 .app header {
   min-height: 80px;
   background-image: url("assets/img/banner.png");
-  background-size: 100% 100%;
+  background-size: 100%;
 }
 
 .app header div {
@@ -658,6 +658,10 @@ table td {
 }
 
 .modal-content .modal-title {
+  font-size: 1.5em !important;
+}
+
+.modal-content .close{
   font-size: 1.5em !important;
 }
 
