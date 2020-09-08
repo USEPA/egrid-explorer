@@ -153,6 +153,15 @@ class Visualization extends Component {
           plant_avail_fuels = this.props.plant_fuels;
         }
 
+        if (
+          (lookup[this.props.tier1] === "output emission rates (lb/MWh)" || lookup[this.props.tier1] === "input emission rates (lb/MMBtu)") &
+          (lookup[this.props.tier4] !== "all fuels")
+        ) {
+          plant_avail_fuels = this.props.fuel_sentence_code_lookup[lookup[this.props.tier4]];
+        } else {
+          plant_avail_fuels = this.props.plant_fuels;
+        }
+
         data.forEach((d) => {
           d.value = d[this.props.field];
           if (d.value > 0) {
