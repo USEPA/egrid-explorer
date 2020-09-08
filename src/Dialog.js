@@ -53,7 +53,7 @@ function Dialog(props) {
           wealth of other information for virtually every power plant in the
           U.S. This data is presented in a{" "}
           <a
-            href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx"
+            href="https://www.epa.gov/egrid/download-data"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -65,7 +65,7 @@ function Dialog(props) {
           the query sentence: 1) an environmental characteristic, 2) a
           pollutant, 3) a fuel type, and 4) a geographic level.
         </p>
-        <img src={instruction_sentence} alt="instruction_sentence" />
+        <img src={instruction_sentence} alt="query sentence" />
         <p>
           To explore the data, change the wording of the query sentence by
           selecting different options from the dropdowns. The map and bar chart
@@ -82,7 +82,7 @@ function Dialog(props) {
           table, or filter by one or more fuels by clicking on the fuel types
           immediately above the map.
         </p>
-        <img src={instruction_zoomable_map} alt="instruction_zoomable_map" />
+        <img src={instruction_zoomable_map} alt="plant level map" />
         <p>
           <strong>
             <u>Resource Mix</u>
@@ -94,7 +94,7 @@ function Dialog(props) {
           in the accompanying table. To view a labeled map of the eGrid
           Subregions click on the map above the bar graph.
         </p>
-        <img src={instruction_resourcemix} alt="instruction_resourcemix" />
+        <img src={instruction_resourcemix} alt="resource mix" />
       </div>
     );
   } else if (id === "glossary") {
@@ -122,9 +122,9 @@ function Dialog(props) {
       centered
     >
       <Modal.Header closeButton>
-        {props.title !== "" && (
+        {props.name !== "" && (
           <Modal.Title id="contained-modal-title-vcenter">
-            {props.title}
+            {props.name}
           </Modal.Title>
         )}
       </Modal.Header>

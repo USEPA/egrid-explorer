@@ -905,7 +905,8 @@ class ResourceMixChart extends Component {
                   ? this.state.width * 0.9
                   : this.state.width * this.fuels_filter_pct,
               verticalAlign: "top",
-              height: "100%"
+              height: "100%",
+              textAlign: "left"
             }}
             ref={this.fuels}
           ></div>
@@ -956,7 +957,8 @@ class ResourceMixChart extends Component {
         </div>
         <Dialog
           id="subregion-map"
-          title="eGRID Subregion"
+          name="eGRID Subregion"
+          title=""
           show={this.state.show_modal}
           onHide={() => this.setState({ show_modal: false })}
         />

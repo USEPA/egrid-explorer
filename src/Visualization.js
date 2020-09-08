@@ -687,7 +687,7 @@ class UpdatedVisualization extends Component {
             />
           </div>
           <div>
-            <a href="https://www.epa.gov/sites/production/files/2020-03/egrid2018_data_v2.xlsx"
+            <a href="https://www.epa.gov/egrid/download-data"
               target="_blank"
               rel="noopener noreferrer">Download complete eGRID data</a>
           </div>
