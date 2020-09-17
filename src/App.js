@@ -469,7 +469,7 @@ class App extends Component {
         this.state.ggl_data.length > 0 &&
         this.state.us_data.length > 0 ? (
           <div className="app">
-            <header className="no-export-to-pdf">
+            <header>
               <a
                 href={this.logo_link}
                 target="_blank"
@@ -477,7 +477,7 @@ class App extends Component {
               >
                 <img id="logo" src={logo} alt="eGrid Logo" />
               </a>
-              <div>
+              <div className="no-export-to-pdf">
                 <input
                   className="btn-secondary"
                   type="button"

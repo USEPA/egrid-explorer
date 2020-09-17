@@ -639,6 +639,7 @@ table td {
   .app .map-container{
     width: 80% !important;
   }
+  
 }
 
 /* popup: */
@@ -1020,4 +1021,19 @@ table td {
 .spinner-grow-sm {
   width: 1rem;
   height: 1rem
+}
+
+@media (max-width: 1023px) {
+  .app #logo {
+    width: 30%;
+  }
+  .app header div {
+    width: 68%;
+  }
+}
+
+@media (max-width: 767px) {
+  .app select {
+    max-width: 327px;
+  }
 }

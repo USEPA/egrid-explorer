@@ -235,7 +235,7 @@ class Visualization extends Component {
           window.print();
         });
         d3.select("#export-table").on("click", () => {
-          let export_table, csv = "", filename = this.state.name;
+          let export_table, filename = this.state.name, csv = "data:text/csv;charset=utf-8,";
 
           if (+this.state.tier1 !== 7 && +this.state.tier1 !== 9) {
             if (+this.state.tier5 === 99) {
@@ -333,22 +333,14 @@ class Visualization extends Component {
               csv += r.name + ',"' + r.subregion + '",' + r.value + "\r\n";
             });
           }
-
-          var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-          if (navigator.msSaveBlob) { 
-              navigator.msSaveBlob(blob, filename + ".csv");
-          } else {
-              var link = document.createElement("a");
-              if (link.download !== undefined) {
-                  var url = URL.createObjectURL(blob);
-                  link.setAttribute("href", url);
-                  link.setAttribute("download", filename + ".csv");
-                  link.style.visibility = 'hidden';
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-              }
-          }
+          
+          let encodedUri = encodeURI(csv);
+          let link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("target", "_blank");
+          link.setAttribute("download", filename + ".csv");
+          document.body.appendChild(link);
+          link.click();
         });
       }
     );
