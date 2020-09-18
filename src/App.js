@@ -247,6 +247,12 @@ class App extends Component {
       PLCH4RTA: "CH₄ Total Output Emission Rate (lb/MWh)",
       PLN2ORTA: "N₂O Total Output Emission Rate (lb/MWh)",
       PLC2ERTA: "CO₂ equivalent Total Output Emission Rate (lb/MWh)",
+      PLNOXCRT: "Annual NOₓ Combustion Output Emission Rate (lb/MWh)",
+      PLNOXCRO: "Ozone Season NOₓ combustion Output Emission Rate (lb/MWh)",
+      PLSO2CRT: "Annual SO₂ Combustion Output Emission Rate (lb/MWh)",
+      PLCO2CRT: "Annual CO₂ Combustion Output Emission Rate (lb/MWh)",
+      PLCH4CRT: "Annual CH₄ Combustion Output Emission Rate (lb/MWh)",
+      PLN2OCRT: "Annual N₂O Combustion Output Emission Rate (lb/MWh)"
     };
 
     // geo layers

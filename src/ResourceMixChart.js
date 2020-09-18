@@ -270,7 +270,7 @@ class ResourceMixChart extends Component {
 
             this.setState({
               table_info: table_info,
-              selected_region: d.name,
+              selected_region: d.name==="US"?this.props.region:d.name,
               mouseover_fuel: d.type,
             });
           }
@@ -371,7 +371,7 @@ class ResourceMixChart extends Component {
             this.setState({
               clicked_on_bar: true,
               table_info: table_info,
-              selected_region: d.name,
+              selected_region: d.name==="US"?this.props.region:d.name,
               mouseover_fuel: d.type,
             });
           }
@@ -434,10 +434,10 @@ class ResourceMixChart extends Component {
               .classed("selected", true)
               .style("stroke", "#000")
               .style("stroke-width", 1);
-
+            
             this.setState({
               table_info: table_info,
-              selected_region: d,
+              selected_region: d==="US"?this.props.region:d,
               mouseover_fuel: null,
             });
           }
@@ -534,7 +534,7 @@ class ResourceMixChart extends Component {
             this.setState({
               clicked_on_bar: true,
               table_info: table_info,
-              selected_region: d,
+              selected_region: d==="US"?this.props.region:d,
               mouseover_fuel: null,
             });
           }

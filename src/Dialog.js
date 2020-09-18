@@ -47,11 +47,11 @@ function Dialog(props) {
     modal_body = (
       <div>
         <p>
-          The Environmental &amp; Generation Resource Integrated Database
-          (eGRID) contains average annual values of emissions, generation, heat
-          input, and emission rates, as well as facility attribute data and a
-          wealth of other information for virtually every power plant in the
-          U.S. This data is presented in a{" "}
+          The Emissions &amp; Generation Resource Integrated Database (eGRID)
+          contains average annual values of emissions, generation, heat input,
+          and emission rates, as well as facility attribute data and a wealth of
+          other information for virtually every power plant in the U.S. This
+          data is presented in a{" "}
           <a
             href="https://www.epa.gov/egrid/download-data"
             target="_blank"
@@ -92,7 +92,8 @@ function Dialog(props) {
           &rdquo; (from the first dropdown), sort the bar graph by clicking the
           fuel types, and select an individual bar to display more information
           in the accompanying table. To view a labeled map of the eGrid
-          Subregions click on the map above the bar graph.
+          Subregions, click on the magnifying glass next to the map above the
+          bar graph.
         </p>
         <img src={instruction_resourcemix} alt="resource mix" />
       </div>
@@ -100,17 +101,21 @@ function Dialog(props) {
   } else if (id === "glossary") {
     modal_body = (
       <table>
-            <thead>{table_header}</thead>
-            <tbody>{table_rows}</tbody>
-          </table>
+        <thead>{table_header}</thead>
+        <tbody>{table_rows}</tbody>
+      </table>
     );
-  } else if (id==="no-selected-plant-alert") {
+  } else if (id === "no-selected-plant-alert") {
     modal_body = (
-      <div><p>Select a plant before downloading table.</p></div>
+      <div>
+        <p>Select a plant before downloading table.</p>
+      </div>
     );
-  } else if (id==="subregion-map") {
+  } else if (id === "subregion-map") {
     modal_body = (
-      <div><img src={SubregionMap} alt="subregion_map" /></div>
+      <div>
+        <img src={SubregionMap} alt="subregion_map" />
+      </div>
     );
   }
 
@@ -128,9 +133,7 @@ function Dialog(props) {
           </Modal.Title>
         )}
       </Modal.Header>
-      <Modal.Body>
-        {modal_body}
-      </Modal.Body>
+      <Modal.Body>{modal_body}</Modal.Body>
       <Modal.Footer>
         <input
           type="button"

@@ -20,8 +20,10 @@ class OtherLevelBarchart extends Component {
   // tooltip
   formatNumber(d) {
     let num = Math.abs(d);
-    if (num < 1) {
-      return d===0? d : d3.format(".3f")(d);
+    if (num < 0.1) {
+      return d===0? d : d3.format(".4f")(d);
+    } else if (num < 1) {
+      return d3.format(".3f")(d);
     } else {
       return isNaN(d) ? "" : d3.format(",.2f")(d);
     }
@@ -32,8 +34,10 @@ class OtherLevelBarchart extends Component {
     let num = Math.abs(d);
     if (num < 1) {
       return d===0? d : d3.format(".3f")(d);
+    } else if (num < 1000) {
+      return d3.format(".2f")(d);
     } else {
-      return isNaN(d) ? "" : d3.format(",.0f")(d);
+      return d3.format(",.0f")(d);
     }
   }
 
@@ -42,35 +46,20 @@ class OtherLevelBarchart extends Component {
     let num = Math.abs(d);
     if (num < 1) {
       return d===0? d : d3.format(".3f")(d);
-    } else if (num >= 1 && num < 10) {
+    } else if (num < 1000) {
       return d3.format(".2f")(d);
-    } else if (num >= 1000000) {
-      let num = d3.format(".3s")(d);
-      let abbr = num.slice(-1);
-      if (abbr === "G") {
-        num = num.substring(0, num.length - 1) + "B";
-      }
-      let chars1 = num.slice(-3);
-      let chars2 = chars1.substring(0, 2);
-      if (chars2 === ".0") {
-        num = num.slice(0, -3) + num.slice(-1);
-        return num;
-      }
-      return num;
     } else {
-      return isNaN(d) ? "" : d3.format(",.0f")(d);
+      return d3.format(",.0f")(d);
     }
   }
 
   // x axis
   formatXaxis(d) {
     let num = Math.abs(d);
-    if (num < 1) {
-      return d===0? d:d3.format(".3f")(d);
-    } else if (num >= 1 && num < 10) {
-      return d3.format(".2f")(d);
-    } else if (num >= 1000) {
-      let num = d3.format(".2s")(d);
+    if (num < 10) {
+      return d;
+    } else if (num >= 10) {
+      let num = d3.format(".0s")(d);
       let abbr = num.slice(-1);
       if (abbr === "G") {
         num = num.substring(0, num.length - 1) + "B";
@@ -82,8 +71,6 @@ class OtherLevelBarchart extends Component {
         return num;
       }
       return num;
-    } else {
-      return d3.format(".0f")(d);
     }
   }
 
@@ -166,12 +153,13 @@ class OtherLevelBarchart extends Component {
       );
 
     // axis
+    console.log(barXScale.domain());
     let axis_x =
       this.state.width / 2 < 160
         ? this.state.width / 2 < 100
           ? d3.axisTop(barXScale).ticks(1).tickFormat(this.formatXaxis)
           : d3.axisTop(barXScale).ticks(3).tickFormat(this.formatXaxis)
-        : d3.axisTop(barXScale).ticks(5).tickFormat(this.formatXaxis);
+        : d3.axisTop(barXScale).ticks(4).tickFormat(this.formatXaxis);
     d3.select(this.axis_x.current).selectAll("g").remove();
     d3.select(this.axis_x.current)
       .attr("class", "axis_x")
@@ -439,7 +427,7 @@ class OtherLevelBarchart extends Component {
 
   render() {
     return (
-      <div id="barchart-wrapper" style={{ width: this.state.width }}>
+      <div id="barchart-wrapper" style={{ width: this.state.width,height:this.state.height+77}}>
         <div className="sort-buttons no-export-to-pdf blue-segmented-buttongroup">
           <input
             style={{

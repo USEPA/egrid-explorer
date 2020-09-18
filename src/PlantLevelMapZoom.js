@@ -24,9 +24,8 @@ class PlantLevelMapZoom extends Component {
       map_style: null,
     };
 
-    this.legend_min_radius = 3;
     this.map_layer_load_times = 0;
-    this.field_factor_divided_by = 12;
+    this.field_factor_divided_by = 18;
     this.max_radius = 22;
     this.legend_len = 6;
 
@@ -526,7 +525,7 @@ class PlantLevelMapZoom extends Component {
         id_list.forEach((d, i) => {
           const div = window.document.createElement("div");
           const input = window.document.createElement("input"),
-            label = window.document.createElement("span");
+            label = window.document.createElement("label");
 
           div.style.display = "block";
           div.style.textAlign = "left";
@@ -541,6 +540,7 @@ class PlantLevelMapZoom extends Component {
           input.style.padding = "0";
 
           label.style.verticalAlign = "text-bottom";
+          label.htmlFor = d;
           label.style.paddingLeft = "5px";
           label.innerHTML = value_list[i];
 

@@ -19,8 +19,10 @@ class OtherLevelMap extends Component {
 
   formatNumber(d) {
     let num = Math.abs(d);
-    if (num < 1) {
-      return d===0? d : d3.format(".3f")(d);
+    if (num < 0.1) {
+      return d===0? d : d3.format(".4f")(d);
+    } else if (num < 1) {
+      return d3.format(".3f")(d);
     } else {
       return isNaN(d) ? "" : d3.format(",.2f")(d);
     }
@@ -354,7 +356,7 @@ class OtherLevelMap extends Component {
     );
 
     return (
-      <div style={{width: this.state.width}}>
+      <div style={{width: this.state.width, height: this.state.height}}>
         <div
         >
           {title}

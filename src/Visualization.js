@@ -149,14 +149,8 @@ class Visualization extends Component {
           (lookup[this.props.tier2] !== "all fuels")
         ) {
           plant_avail_fuels = this.props.fuel_sentence_code_lookup[lookup[this.props.tier2]];
-        } else {
-          plant_avail_fuels = this.props.plant_fuels;
-        }
-
-        if (
-          (lookup[this.props.tier1] === "output emission rates (lb/MWh)" || lookup[this.props.tier1] === "input emission rates (lb/MMBtu)") &
-          (lookup[this.props.tier4] !== "all fuels")
-        ) {
+        } else if ((lookup[this.props.tier1] === "output emission rates (lb/MWh)" || lookup[this.props.tier1] === "input emission rates (lb/MMBtu)") &
+          (lookup[this.props.tier4] !== "all fuels")) {
           plant_avail_fuels = this.props.fuel_sentence_code_lookup[lookup[this.props.tier4]];
         } else {
           plant_avail_fuels = this.props.plant_fuels;
