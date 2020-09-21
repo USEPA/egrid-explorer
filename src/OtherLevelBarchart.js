@@ -48,18 +48,10 @@ class OtherLevelBarchart extends Component {
       return d===0? d : d3.format(".3f")(d);
     } else if (num < 1000) {
       return d3.format(".2f")(d);
-    } else {
+    } else if (num < 1000000){
       return d3.format(",.0f")(d);
-    }
-  }
-
-  // x axis
-  formatXaxis(d) {
-    let num = Math.abs(d);
-    if (num < 10) {
-      return d;
-    } else if (num >= 10) {
-      let num = d3.format(".0s")(d);
+    } else {
+      let num = d3.format(".3s")(d);
       let abbr = num.slice(-1);
       if (abbr === "G") {
         num = num.substring(0, num.length - 1) + "B";
@@ -68,6 +60,44 @@ class OtherLevelBarchart extends Component {
       let chars2 = chars1.substring(0, 2);
       if (chars2 === ".0") {
         num = num.slice(0, -3) + num.slice(-1);
+        return num;
+      }
+      return num;
+    }
+  }
+
+  // x axis
+  formatXaxis(d) {
+    let num = Math.abs(d);
+    if (num < 1000) {
+      return d;
+    } else {
+      let num = d3.format(".3s")(d);
+      let abbr = num.slice(-1);
+      if (abbr === "G") {
+        num = num.substring(0, num.length - 1) + "B";
+      }
+      let chars1, chars2;
+
+      // 2.00M => 2M
+      chars1 = num.slice(-4);
+      chars2 = chars1.substring(0, 3);
+      if (chars2 === ".00") {
+        num = num.slice(0, -4) + num.slice(-1);
+        return num;
+      }
+      // 20.0M => 20M
+      chars1 = num.slice(-3);
+      chars2 = chars1.substring(0, 2);
+      if (chars2 === ".0") {
+        num = num.slice(0, -3) + num.slice(-1);
+        return num;
+      }
+      // 1.50M => 1.5M
+      chars1 = num.slice(-2);
+      chars2 = chars1.substring(0, 1);
+      if (chars2 === "0") {
+        num = num.slice(0, -2) + num.slice(-1);
         return num;
       }
       return num;
