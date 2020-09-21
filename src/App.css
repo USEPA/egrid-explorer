@@ -25,6 +25,14 @@
   border-radius: 4px !important;
 }
 
+.app input[type=radio]+label:before {
+  content: none !important;
+}
+
+.app label {
+  display: inline !important;
+}
+
 /* header */
 .app header {
   min-height: 80px;
@@ -641,6 +649,8 @@ table td {
   }
   
 }
+
+
 
 /* popup: */
 .modal-content {
