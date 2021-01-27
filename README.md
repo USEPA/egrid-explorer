@@ -1,100 +1,41 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Link to app in production: [https://www.epa.gov/egrid/data-explorer](https://www.epa.gov/egrid/data-explorer)
 
-## Available Scripts
+# **eGRID Data Explorer**
 
-In the project directory, you can run:
+This interactive data explorer for eGRID enables the visual exploration of hundreds of unique combinations of eGRID data points. Data can be sorted by fuel type (including fossil fuels and renewable energy such as wind, solar, and hydro), emission type, and region. This project relies on front-end JavaScript in order to be deployed onto the EPA&#39;s Drupal WebCMS.
 
-### `npm start`
+**Installation**
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+1. `git clone` the application to your local machine.
+2. Navigate to the root of the project and run `npm install`.
+3. After downloading the required packages, you can run `npm start`. In your browser, go to [http://localhost:2629](http://localhost:2629/).
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Requirements**
 
-### `npm run build`
+- [Node.js and npm](https://nodejs.org/en/)
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Deployment**
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+To deploy the app onto either the [production EPA Drupal site](https://wcms.epa.gov/) or the [staging app dev server](https://webcms.appdev.epa.gov/), build the app for production by running `npm run build`, then copy the contents of `build` folder to Drupal or the staging app dev server.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**Built With**
 
-### `npm run eject`
+- [Node.js and npm](https://nodejs.org/en/) - JavaScript runtime and package manager
+- [ReactJS](https://reactjs.org/) - The JavaScript framework
+- [D3 Data-Driven Documents](https://d3js.org/) - JavaScript library for data visualization
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+**Versioning**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Version 1.0 was released on September 21, 2020.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+**Helpful Links**
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- [Production site](https://www.epa.gov/egrid/data-explorer)
+- [eGRID Home page](https://www.epa.gov/egrid)
 
-## Learn More
+**Disclaimer**
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
-
-### project specific
-Code Format:
-functions, javascript classes: camelCase
-variables, css classes: lower_case
-
-Script Use:
-feature.js: styles, lookup tables for global use
-main.js: load data, design structure for entire visualization
-map.js: static and leaflet map at plant, state, subregion and NERC region levels
-barchart.js: barchart accompanying static map
-stackedbarchart.js: stacked barchart for resource mix visualization
-
-Data Files:
-eGrid Data - 
-    GGL.csv
-    NERC.csv
-    plant.csv
-    state.csv
-    subregion.csv
-    US.csv
-Topojson - 
-    GGL.json
-    NERC.json
-    SUBRGN.json
-    US.json
-Sentence Structure Constructor:
-    eGRID all-level sentence structure.csv
-    eGRID all-level sentence structure.json
-Others
-    eGRID state fullname.csv
-    mapboxToken.txt
+The United States Environmental Protection Agency (EPA) GitHub project code is provided on an &quot;as is&quot; basis and the user assumes responsibility for its use. EPA has relinquished control of the information and no longer has responsibility to protect the integrity, confidentiality, or availability of the information. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by EPA. The EPA seal and logo shall not be used in any manner to imply endorsement of any commercial product or activity by EPA or the United States Government.
