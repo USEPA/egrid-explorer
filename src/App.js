@@ -79,7 +79,6 @@ class App extends Component {
     };
 
     // header data
-    this.year = 2018;
     this.logo_link =
       "https://www.epa.gov/egrid";
 
@@ -252,7 +251,8 @@ class App extends Component {
       PLSO2CRT: "Annual SO₂ Combustion Output Emission Rate (lb/MWh)",
       PLCO2CRT: "Annual CO₂ Combustion Output Emission Rate (lb/MWh)",
       PLCH4CRT: "Annual CH₄ Combustion Output Emission Rate (lb/MWh)",
-      PLN2OCRT: "Annual N₂O Combustion Output Emission Rate (lb/MWh)"
+      PLN2OCRT: "Annual N₂O Combustion Output Emission Rate (lb/MWh)",
+      PLC2ECRT: "Annual CO₂ equivalent Combustion Output Emission Rate (lb/MWh)"
     };
 
     // geo layers
@@ -277,7 +277,7 @@ class App extends Component {
         return d;
       });
     this.state_layer.features = this.state_layer.features.filter(
-      (d) => d.id !== 72 && d.id !== 78
+      (d) => d.id !== 78
     ); // no data for state 72 and state 78
 
     // wrap svg text labels
@@ -362,11 +362,11 @@ class App extends Component {
           });
           d.id = d.FIPSST;
         });
-        this.state_layer.features.map((d) =>
-          state.filter((e) => e.FIPSST === d.id).length === 1
-            ? (d.name = state.filter((e) => e.FIPSST === d.id)[0].name)
-            : ""
-        );
+        this.state_layer.features.map((d) => {
+          if (state.filter((e) => e.FIPSST === d.id).length > 0) {
+            d.name = state.filter((e) => e.FIPSST === d.id)[0].name;
+          }
+        });
 
         plant.map((d, i) => {
           d.label = d.PNAME;
@@ -452,7 +452,7 @@ class App extends Component {
         this.glossary_table_rows = glossary.map((d) => Object.values(d));
 
         this.setState({
-          options: options.filter((e) => e.tier5 !== "52"),
+          options: options.filter((e) => e.tier4 !== "52"),
           state_data: state,
           plant_data: plant,
           subrgn_data: subrgn,
@@ -499,7 +499,6 @@ class App extends Component {
               </div>
             </header>
             <Main
-              year={this.year}
               conjunction={this.conjunction}
               choropleth_map_fill={this.choropleth_map_fill}
               plant_fuels={this.plant_fuels}

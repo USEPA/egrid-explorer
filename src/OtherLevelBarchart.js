@@ -183,7 +183,6 @@ class OtherLevelBarchart extends Component {
       );
 
     // axis
-    console.log(barXScale.domain());
     let axis_x =
       this.state.width / 2 < 160
         ? this.state.width / 2 < 100

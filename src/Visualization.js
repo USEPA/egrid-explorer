@@ -27,6 +27,7 @@ class Visualization extends Component {
       unit: this.props.unit,
       tier1: this.props.tier1,
       tier2: this.props.tier2,
+      tier3: this.props.tier3,
       tier4: this.props.tier4,
       tier5: this.props.tier5,
       barchart_sort: false,
@@ -70,7 +71,7 @@ class Visualization extends Component {
 
   updateState() {
     let category = lookup[this.props.tier1],
-      region = lookup[this.props.tier5];
+      region = lookup[this.props.tier4];
     let choropleth_data = [],
       plant_data = { type: "FeatureCollection", features: [] },
       plant_data_map_only = { type: "FeatureCollection", features: [] },
@@ -82,7 +83,7 @@ class Visualization extends Component {
       layer = { type: "FeatureCollection", features: [] };
 
     // set state depending on region and category
-    const us_data = this.props.us_data.map((d) => {
+    const us_data = this.props.us_data.filter(d=>+d.Year===+lookup[this.props.tier5]).map((d) => {
       Object.keys(d).forEach((e) => {
         if (e.split("US").length > 1) {
           d[
@@ -98,20 +99,20 @@ class Visualization extends Component {
 
     let data = [];
     if (region === "eGRID subregion") {
-      data = this.props.subrgn_data;
+      data = this.props.subrgn_data.filter(d=>+d.Year===+lookup[this.props.tier5]);
       layer = this.props.subrgn_layer;
     } else if (region === "NERC region") {
-      data = this.props.nerc_data;
+      data = this.props.nerc_data.filter(d=>+d.Year===+lookup[this.props.tier5]);
       layer = this.props.nerc_layer;
     } else if (region === "state") {
-      data = this.props.state_data;
+      data = this.props.state_data.filter(d=>+d.Year===+lookup[this.props.tier5]);
       layer = this.props.state_layer;
     } else if (region === "plant") {
-      data = this.props.plant_data;
+      data = this.props.plant_data.filter(d=>+d.Year===+lookup[this.props.tier5]);
     }
 
     if (category === "grid gross loss rates") {
-      choropleth_data = this.props.ggl_data;
+      choropleth_data = this.props.ggl_data.filter(d=>+d.Year===+lookup[this.props.tier5]);
       layer = this.props.ggl_layer;
       background_layer = this.props.state_layer;
     } else if (category === "resource mix (%)") {
@@ -131,14 +132,13 @@ class Visualization extends Component {
       ) {
         map_fill = this.props.choropleth_map_fill.others;
       }
-
       choropleth_data = data.map((d) => {
         return {
           name: d.name,
           id: d.id,
           label: d.label,
           unit: this.props.unit,
-          type: region !== "plant" ? lookup[this.props.tier5] : d.FUEL,
+          type: region !== "plant" ? lookup[this.props.tier4] : d.FUEL,
           value: d[this.props.field],
         };
       });
@@ -150,8 +150,8 @@ class Visualization extends Component {
         ) {
           plant_avail_fuels = this.props.fuel_sentence_code_lookup[lookup[this.props.tier2]];
         } else if ((lookup[this.props.tier1] === "output emission rates (lb/MWh)" || lookup[this.props.tier1] === "input emission rates (lb/MMBtu)") &
-          (lookup[this.props.tier4] !== "all fuels")) {
-          plant_avail_fuels = this.props.fuel_sentence_code_lookup[lookup[this.props.tier4]];
+          (lookup[this.props.tier3] !== "all fuels")) {
+          plant_avail_fuels = this.props.fuel_sentence_code_lookup[lookup[this.props.tier3]];
         } else {
           plant_avail_fuels = this.props.plant_fuels;
         }
@@ -209,6 +209,7 @@ class Visualization extends Component {
         unit: this.props.unit,
         tier1: this.props.tier1,
         tier2: this.props.tier2,
+        tier3: this.props.tier3,
         tier4: this.props.tier4,
         tier5: this.props.tier5,
         data: choropleth_data,
@@ -232,7 +233,7 @@ class Visualization extends Component {
           let export_table, filename = this.state.name, csv = "data:text/csv;charset=utf-8,";
 
           if (+this.state.tier1 !== 7 && +this.state.tier1 !== 9) {
-            if (+this.state.tier5 === 99) {
+            if (+this.state.tier4 === 99) {
               if (this.state.specific_plant_data_export["Plant Name"]!==undefined && this.state.specific_plant_data_export["Plant Name"]!=="-") {  
                 Object.keys(this.props.plant_table_rows).forEach((c, i) => {
                   let row_name = this.props.plant_table_rows[c].split(' ').map(w=>Object.keys(lookup_pollutant).indexOf(w)>-1?lookup_pollutant[w]:w).join(' ');
@@ -242,7 +243,7 @@ class Visualization extends Component {
                     '","' +
                     this.state.specific_plant_data_export[this.props.plant_table_rows[c]] +
                     '"\r\n';
-                  if (i===0) csv+="Year, " + this.props.year + "\r\n";
+                  if (i===0) csv+="Year, " + this.props.tier5 + "\r\n";
                 });
                 filename = this.state.specific_plant_data_export["Plant Name"] + ',' + this.state.name.split(',').splice(-1);
               } else {
@@ -342,7 +343,7 @@ class Visualization extends Component {
 
   render() {
     let category = lookup[this.props.tier1],
-      region = lookup[this.props.tier5];
+      region = lookup[this.props.tier4];
     const plant_dist = this.props.plant_dist;
     const fuel_label_lookup = this.props.fuel_label_lookup;
     const fuel_color_lookup = this.props.fuel_color_lookup;
@@ -399,7 +400,7 @@ class Visualization extends Component {
           <div className="wrapper">
             <GGLChart
               title={this.state.name}
-              data={this.props.ggl_data}
+              data={this.state.data}
               window_width={this.state.window_width}
               window_height={this.state.window_height}
               width={
@@ -614,7 +615,6 @@ class UpdatedVisualization extends Component {
       <div>
         <Visualization
           className="visualization-wrapper"
-          year={this.props.year}
           options={this.props.options}
           choropleth_map_fill={this.props.choropleth_map_fill}
           plant_fuels={this.props.plant_fuels}
@@ -638,6 +638,7 @@ class UpdatedVisualization extends Component {
           unit={this.props.unit}
           tier1={this.props.tier1}
           tier2={this.props.tier2}
+          tier3={this.props.tier3}
           tier4={this.props.tier4}
           tier5={this.props.tier5}
           plant_data={this.props.plant_data}
@@ -659,14 +660,14 @@ class UpdatedVisualization extends Component {
         >
           <div>
             <b>Export view as: </b>
-            {lookup[this.props.tier5] !== "plant" && (
+            {lookup[this.props.tier4] !== "plant" && (
               <input
                 type="button"
                 className="export-vis btn-primary-outline graphics-icon"
                 value="Graphics"
               />
             )}
-            {lookup[this.props.tier5] === "plant" && (
+            {lookup[this.props.tier4] === "plant" && (
               <input
                 type="button"
                 className="export-vis btn-primary-outline graphics-icon"

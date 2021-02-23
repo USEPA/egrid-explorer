@@ -83,6 +83,10 @@ class OtherLevelMap extends Component {
             prop.centroid[0] = prop.centroid[0] + 10;
             prop.centroid[1] = prop.centroid[1] - 10;
             break;
+          case "PURTO RICO":
+            prop.centroid[0] = prop.centroid[0] + 10;
+            prop.centroid[1] = prop.centroid[1] - 10;
+            break;
           default:
             break;
         }
@@ -130,9 +134,16 @@ class OtherLevelMap extends Component {
       .append("path")
       .attr("d", path)
       .attr("class", (d) => "map-path mouseover_target region_" + d.properties.id)
-      .style("fill", (d) => fill_scale(d.properties.value))
+      .style("fill", (d) => {
+        if (d.properties.value===null) return "none";
+        return fill_scale(d.properties.value);
+      })
       .style("stroke", "#000")
       .style("stroke-width", 0.5)
+      .style("pointer-events", (d)=>{
+        if (d.properties.id===null) return "none";
+        return "auto";
+      })
       .on("mouseover", (d) => {
         d3.select(this.tooltip.current)
           .transition()
