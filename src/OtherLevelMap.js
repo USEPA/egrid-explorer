@@ -83,7 +83,7 @@ class OtherLevelMap extends Component {
             prop.centroid[0] = prop.centroid[0] + 10;
             prop.centroid[1] = prop.centroid[1] - 10;
             break;
-          case "PURTO RICO":
+          case "PUERTO RICO":
             prop.centroid[0] = prop.centroid[0] + 10;
             prop.centroid[1] = prop.centroid[1] - 10;
             break;
