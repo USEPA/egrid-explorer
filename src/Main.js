@@ -10,7 +10,8 @@ import UpdatedVisualization from "./Visualization";
 class Main extends Component {
   constructor(props) {
     super(props);
-    const init_options = this.props.options[0];
+    const latest_year = this.props.options.map(d=>+lookup[d.tier5]).sort((a,b)=>b-a)[0];
+    const init_options = this.props.options.filter(d=>+lookup[d.tier5]===latest_year)[0];
     this.state = {
       dropdown_changing: false,
       tier1: init_options.tier1,
