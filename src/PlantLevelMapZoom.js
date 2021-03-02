@@ -36,27 +36,10 @@ class PlantLevelMapZoom extends Component {
 
     this.show_plant_info = false;
     this.hoveredPlantId = null;
+
     this.tooltip = new mapboxgl.Popup({
       closeButton: true,
-      closeOnClick: false,
-    }).on("close", () => {
-      this.show_plant_info = false;
-      this.tooltip.options.anchor = "bottom";
-
-      let table_info = {};
-      Object.keys(this.state.table_info).forEach((e) => {
-        table_info[e] = "-";
-      });
-      this.updateTable(table_info);
-      this.setState({ table_info: table_info, selected_plant_id: null });
-
-      if (this.hoveredPlantId) {
-        this.map.setFeatureState(
-          { source: "plants", id: this.hoveredPlantId },
-          { hover: false }
-        );
-      }
-      this.hoveredPlantId = null;
+      closeOnClick: false
     });
 
     this.updateTable = this.updateTable.bind(this);
@@ -199,10 +182,10 @@ class PlantLevelMapZoom extends Component {
       .attr("dy", 0)
       .text((d, i) =>
         i === 0
-          ? "≤" + this.formatLegend(scale.invert(d)).toString()
+          ? "≤" + this.formatLegend(scale.invert(d))
           : i === legend_values.length - 1 &&
             scale.invert(d) === this.props.plant_dist[this.props.field].max
-          ? "≥" + this.formatLegend(scale.invert(d)).toString()
+          ? "≥" + this.formatLegend(scale.invert(d))
           : this.formatLegend(scale.invert(d))
       )
       .style("text-anchor", "middle");
@@ -255,9 +238,7 @@ class PlantLevelMapZoom extends Component {
         this.map.queryRenderedFeatures({
           layers: [
             "plants-" +
-              this.state.map_style +
-              "-" +
-              this.map_layer_load_times.toString(),
+              this.state.map_style,
           ],
         }),
         factor
@@ -337,9 +318,7 @@ class PlantLevelMapZoom extends Component {
         this.map.queryRenderedFeatures({
           layers: [
             "plants-" +
-              this.state.map_style +
-              "-" +
-              this.map_layer_load_times.toString(),
+              this.state.map_style,
           ],
         }),
         factor
@@ -369,9 +348,7 @@ class PlantLevelMapZoom extends Component {
 
     this.map.setPaintProperty(
       "plants-" +
-        this.state.map_style +
-        "-" +
-        this.map_layer_load_times.toString(),
+        this.state.map_style,
       "circle-radius",
       [
         "interpolate",
@@ -417,6 +394,7 @@ class PlantLevelMapZoom extends Component {
             this.setState({ table_info: table_info });
 
             this.tooltip.remove();
+
             if (this.hoveredPlantId) {
               this.map.setFeatureState(
                 { source: "plants", id: this.hoveredPlantId },
@@ -590,8 +568,6 @@ class PlantLevelMapZoom extends Component {
           map_style: d.style.stylesheet.id,
         },
         () => {
-          this.map_layer_load_times += 1;
-
           // add fuel filter
           if (this.props.avail_fuels.length > 1) {
             let w = d3.select(this.fuels.current).node().clientWidth,
@@ -739,6 +715,10 @@ class PlantLevelMapZoom extends Component {
               }),
           };
 
+          // remove source and layer
+          if (this.map.getLayer("plants-" + this.state.map_style)) this.map.removeLayer("plants-" + this.state.map_style);
+          if (this.map.getSource("plants")) this.map.removeSource("plants");
+
           // add data source to map
           this.map.addSource("plants", {
             type: "geojson",
@@ -749,9 +729,7 @@ class PlantLevelMapZoom extends Component {
           this.map.addLayer({
             id:
               "plants-" +
-              this.state.map_style +
-              "-" +
-              this.map_layer_load_times.toString(),
+              this.state.map_style,
             type: "circle",
             source: "plants",
             minzoom: this.props.min_zoom,
@@ -788,7 +766,7 @@ class PlantLevelMapZoom extends Component {
                   "OTHF",
                   this.props.fuel_color_lookup.OTHF,
                   "#000",
-                ],
+                ]
               ],
               "circle-opacity": this.props.circle_opacity,
               "circle-color": [
@@ -830,13 +808,65 @@ class PlantLevelMapZoom extends Component {
             { hover: true }
           );
 
-          // add interactive events: mousemove, mouseleave, click
+          // add interactive events: mouseenter, mouseleave, click
           this.map.on(
             "mousemove",
             "plants-" +
-              this.state.map_style +
-              "-" +
-              this.map_layer_load_times.toString(),
+              this.state.map_style,
+            (d) => {
+              if (!this.show_plant_info) {
+                this.map.getCanvas().style.cursor = "pointer";
+
+                if (d.features.length > 0) {
+                  if (this.hoveredPlantId) {
+                    this.map.setFeatureState(
+                      { source: "plants", id: this.hoveredPlantId },
+                      { hover: false }
+                    );
+                  }
+                  this.hoveredPlantId = d.features[0].id;
+                  this.map.setFeatureState(
+                    { source: "plants", id: this.hoveredPlantId },
+                    { hover: true }
+                  );
+                }
+
+                while (
+                  Math.abs(
+                    d.lngLat.lng - d.features[0].geometry.coordinates.slice()[0]
+                  ) > 180
+                ) {
+                  d.features[0].geometry.coordinates.slice()[0] +=
+                    d.lngLat.lng > d.features[0].geometry.coordinates.slice()[0]
+                      ? 360
+                      : -360;
+                }
+
+                this.tooltip
+                  .setLngLat(d.features[0].geometry.coordinates.slice())
+                  .setText(d.features[0].properties.name)
+                  .addTo(this.map);
+
+                let table_info = {};
+                Object.keys(this.props.table_rows).forEach((e) => {
+                  table_info[this.props.table_rows[e]] =
+                    typeof d.features[0].properties[e] === "number" &&
+                    e !== "ORISPL"
+                      ? this.formatNumber(d.features[0].properties[e])
+                      : d.features[0].properties[e] === ""
+                      ? "-"
+                      : d.features[0].properties[e];
+                });
+                this.updateTable(table_info);
+                this.setState({ table_info: table_info });
+              }
+            }
+          );
+
+          this.map.on(
+            "mouseenter",
+            "plants-" +
+              this.state.map_style,
             (d) => {
               if (!this.show_plant_info) {
                 this.map.getCanvas().style.cursor = "pointer";
@@ -890,9 +920,7 @@ class PlantLevelMapZoom extends Component {
           this.map.on(
             "mouseleave",
             "plants-" +
-              this.state.map_style +
-              "-" +
-              this.map_layer_load_times.toString(),
+              this.state.map_style,
             () => {
               if (!this.show_plant_info) {
                 this.map.getCanvas().style.cursor = "";
@@ -912,9 +940,7 @@ class PlantLevelMapZoom extends Component {
           this.map.on(
             "click",
             "plants-" +
-              this.state.map_style +
-              "-" +
-              this.map_layer_load_times.toString(),
+              this.state.map_style,
             (d) => {
               if (d.features[0].id === this.state.selected_plant_id) {
                 this.show_plant_info = false;
@@ -956,6 +982,26 @@ class PlantLevelMapZoom extends Component {
                 this.setState({
                   table_info: table_info,
                   selected_plant_id: this.hoveredPlantId,
+                });
+
+                d3.selectAll(".mapboxgl-popup-close-button").on("click", ()=>{
+                  this.show_plant_info = false;
+                  this.tooltip.options.anchor = "bottom";
+
+                  let table_info = {};
+                  Object.keys(this.state.table_info).forEach((e) => {
+                    table_info[e] = "-";
+                  });
+                  this.updateTable(table_info);
+                  this.setState({ table_info: table_info, selected_plant_id: null });
+
+                  if (this.hoveredPlantId) {
+                    this.map.setFeatureState(
+                      { source: "plants", id: this.hoveredPlantId },
+                      { hover: false }
+                    );
+                  }
+                  this.hoveredPlantId = null;
                 });
               }
             }

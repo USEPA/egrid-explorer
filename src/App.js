@@ -376,7 +376,7 @@ class App extends Component {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
-          d.id = i;
+          d.id = +d.ORISPL;
         });
 
         plant_dist.map((d, i) => {
