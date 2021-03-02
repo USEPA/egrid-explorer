@@ -5,7 +5,7 @@ import instruction_sentence from "./assets/img/instruction_sentence.png";
 import instruction_resourcemix from "./assets/img/instruction_resourcemix.png";
 import instruction_zoomable_map from "./assets/img/instruction_zoomable_map.png";
 
-import SubregionMap from "./assets/img/2018_egrid_subregions.png";
+import SubregionMap from "./assets/img/2019_egrid_subregions.png";
 
 function Dialog(props) {
   let table_rows = [],

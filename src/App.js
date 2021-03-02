@@ -390,6 +390,8 @@ class App extends Component {
           };
         });
 
+        let subrgn_names = subrgn.map(d=>d.SUBRGN);
+        subrgn_names = subrgn_names.filter((d,i)=>subrgn_names.indexOf(d)==i);
         subrgn.map((d, i) => {
           d.label = d.SUBRGN;
           d.name = d.SUBRGN;
@@ -398,12 +400,14 @@ class App extends Component {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
-          d.id = i;
+          d.id = subrgn_names.indexOf(d.SUBRGN);
         });
         this.subrgn_layer.features.map((d) => {
           d.id = subrgn.filter((e) => e.name === d.name).map((e) => e.id)[0];
         });
 
+        let nerc_names = nerc.map(d=>d.NERC);
+        nerc_names = nerc_names.filter((d,i)=>nerc_names.indexOf(d)==i);
         nerc = nerc.filter((d) => d.NERC !== "NA");
         nerc.map((d, i) => {
           d.label = d.NERC;
@@ -413,7 +417,7 @@ class App extends Component {
               d[e] = +d[e].replace(/,/g, "");
             }
           });
-          d.id = i;
+          d.id = nerc_names.indexOf(d.NERC);
         });
         this.nerc_layer.features.map((d) => {
           d.id = nerc.filter((e) => e.name === d.name).map((e) => e.id)[0];

@@ -64,7 +64,7 @@ class ResourceMixChart extends Component {
         h_legend = this.props.filter_height;
         let nbox = this.props.fuels.length + 2;
         let boxlen = w_legend / nbox > 100 ? 100 : Math.max(w_legend / nbox, 75);
-        let boxlen_filter = boxlen, boxlen_reset = boxlen;
+        let boxlen_reset = boxlen;
 
         if (this.state.clicked_on_bar) {
           d3.select(this.fuels.current)
