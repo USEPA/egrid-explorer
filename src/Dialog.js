@@ -61,9 +61,9 @@ function Dialog(props) {
           </a>{" "}
           and in this Data Explorer.&nbsp; The queried data are selected with a
           series of dropdown buttons, which are incorporated into a sentence and
-          displayed in a responsive map and bar chart. Four dropdowns comprise
+          displayed in a responsive map and bar chart. Five dropdowns comprise
           the query sentence: 1) an environmental characteristic, 2) a
-          pollutant, 3) a fuel type, and 4) a geographic level.
+          pollutant, 3) a fuel type, 4) a geographic level, and 5) year.
         </p>
         <img src={instruction_sentence} alt="query sentence" />
         <p>

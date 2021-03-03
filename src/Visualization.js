@@ -243,7 +243,7 @@ class Visualization extends Component {
                     '","' +
                     this.state.specific_plant_data_export[this.props.plant_table_rows[c]] +
                     '"\r\n';
-                  if (i===0) csv+="Year, " + this.props.tier5 + "\r\n";
+                  if (i===0) csv+="Year, " + lookup[this.props.tier5] + "\r\n";
                 });
                 filename = this.state.specific_plant_data_export["Plant Name"] + ',' + this.state.name.split(',').splice(-1);
               } else {
