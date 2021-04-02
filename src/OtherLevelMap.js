@@ -45,6 +45,11 @@ class OtherLevelMap extends Component {
 
         // special cases of centroid to edit
         switch (d.name) {
+          // nerc region
+          case "HICC":
+            prop.centroid[0] = prop.centroid[0] + 40;
+            break;
+          // subregion
           case "AKMS":
             prop.centroid[1] = prop.centroid[1] - 25;
             break;
@@ -59,6 +64,17 @@ class OtherLevelMap extends Component {
             prop.centroid[0] = prop.centroid[0] + 30;
             prop.centroid[1] = prop.centroid[1] - 15;
             break;
+          case "PRMS":
+            prop.centroid[1] = prop.centroid[1] - 15;
+            break;
+          case "HIOA":
+            prop.centroid[0] = prop.centroid[0] + 10;
+            prop.centroid[1] = prop.centroid[1] - 10;
+            break;
+          case "HIMS":
+            prop.centroid[0] = prop.centroid[0] + 40;
+            break;
+          // state
           case "MARYLAND":
             prop.centroid[1] = prop.centroid[1] - 10;
             break;
@@ -86,6 +102,9 @@ class OtherLevelMap extends Component {
           case "PUERTO RICO":
             prop.centroid[0] = prop.centroid[0] + 10;
             prop.centroid[1] = prop.centroid[1] - 10;
+            break;
+          case "HAWAII":
+            prop.centroid[0] = prop.centroid[0] + 30;
             break;
           default:
             break;
