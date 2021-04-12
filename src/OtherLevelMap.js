@@ -49,6 +49,9 @@ class OtherLevelMap extends Component {
           case "HICC":
             prop.centroid[0] = prop.centroid[0] + 40;
             break;
+          case "PR":
+            prop.centroid[1] = prop.centroid[1] - 15;
+            break;
           // subregion
           case "AKMS":
             prop.centroid[1] = prop.centroid[1] - 25;
@@ -100,8 +103,7 @@ class OtherLevelMap extends Component {
             prop.centroid[1] = prop.centroid[1] - 10;
             break;
           case "PUERTO RICO":
-            prop.centroid[0] = prop.centroid[0] + 10;
-            prop.centroid[1] = prop.centroid[1] - 10;
+            prop.centroid[1] = prop.centroid[1] - 15;
             break;
           case "HAWAII":
             prop.centroid[0] = prop.centroid[0] + 30;

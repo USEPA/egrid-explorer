@@ -6,7 +6,8 @@ import * as topojson from "topojson-client";
 import logo from "./assets/img/logo.png";
 
 import subrgn_topo from "./assets/data/json/SUBRGN.json";
-import nerc_topo from "./assets/data/json/NERC.json";
+import nerc2018_topo from "./assets/data/json/NERC2018.json";
+import nerc2019_topo from "./assets/data/json/NERC2019.json";
 import ggl_topo from "./assets/data/json/GGL.json";
 import us_topo from "./assets/data/json/US.json";
 
@@ -258,7 +259,8 @@ class App extends Component {
     // geo layers
     this.ggl_layer = topojson.feature(ggl_topo, "GGL");
     this.subrgn_layer = topojson.feature(subrgn_topo, "subregion");
-    this.nerc_layer = topojson.feature(nerc_topo, "NERC");
+    this.nerc2018_layer = topojson.feature(nerc2018_topo, "NERC");
+    this.nerc2019_layer = topojson.feature(nerc2019_topo, "NERC");
     this.state_layer = topojson.feature(us_topo, "states");
 
     this.ggl_layer.features.map((d) => {
@@ -269,7 +271,14 @@ class App extends Component {
       d.id = null;
       d.name = d.properties.Subregions;
     });
-    this.nerc_layer.features = this.nerc_layer.features
+    this.nerc2018_layer.features = this.nerc2018_layer.features
+      .filter((d) => d.properties.NERC !== "-" && d.properties.NERC !== "SPP") // no data for "-" and "SPP"
+      .map((d) => {
+        d.id = null;
+        d.name = d.properties.NERC;
+        return d;
+      });
+    this.nerc2019_layer.features = this.nerc2019_layer.features
       .filter((d) => d.properties.NERC !== "-" && d.properties.NERC !== "SPP") // no data for "-" and "SPP"
       .map((d) => {
         d.id = null;
@@ -419,7 +428,10 @@ class App extends Component {
           });
           d.id = nerc_names.indexOf(d.NERC);
         });
-        this.nerc_layer.features.map((d) => {
+        this.nerc2018_layer.features.map((d) => {
+          d.id = nerc.filter((e) => e.name === d.name).map((e) => e.id)[0];
+        });
+        this.nerc2019_layer.features.map((d) => {
           d.id = nerc.filter((e) => e.name === d.name).map((e) => e.id)[0];
         });
 
@@ -530,7 +542,8 @@ class App extends Component {
               us_data={this.state.us_data}
               state_layer={this.state_layer}
               subrgn_layer={this.subrgn_layer}
-              nerc_layer={this.nerc_layer}
+              nerc2018_layer={this.nerc2018_layer}
+              nerc2019_layer={this.nerc2019_layer}
               ggl_layer={this.ggl_layer}
             ></Main>
           </div>

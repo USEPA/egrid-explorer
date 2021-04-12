@@ -103,7 +103,7 @@ class Visualization extends Component {
       layer = this.props.subrgn_layer;
     } else if (region === "NERC region") {
       data = this.props.nerc_data.filter(d=>+d.Year===+lookup[this.props.tier5]);
-      layer = this.props.nerc_layer;
+      layer = +lookup[this.props.tier5]===2018 ? this.props.nerc2018_layer : this.props.nerc2019_layer;
     } else if (region === "state") {
       data = this.props.state_data.filter(d=>+d.Year===+lookup[this.props.tier5]);
       layer = this.props.state_layer;
@@ -649,7 +649,8 @@ class UpdatedVisualization extends Component {
           us_data={this.props.us_data}
           state_layer={this.props.state_layer}
           subrgn_layer={this.props.subrgn_layer}
-          nerc_layer={this.props.nerc_layer}
+          nerc2018_layer={this.props.nerc2018_layer}
+          nerc2019_layer={this.props.nerc2019_layer}
           ggl_layer={this.props.ggl_layer}
         />
         <div

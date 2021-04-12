@@ -682,7 +682,8 @@ class Main extends Component {
               us_data={this.props.us_data}
               state_layer={this.props.state_layer}
               subrgn_layer={this.props.subrgn_layer}
-              nerc_layer={this.props.nerc_layer}
+              nerc2018_layer={this.props.nerc2018_layer}
+              nerc2019_layer={this.props.nerc2019_layer}
               ggl_layer={this.props.ggl_layer}
             ></UpdatedVisualization>
           </div>
