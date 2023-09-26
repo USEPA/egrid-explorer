@@ -1,7 +1,3 @@
-{
-  "CO₂": "CO2",
-  "NOₓ": "NOx",
-  "SO₂": "SO2",
-  "CH₄": "CH4",
-  "N₂O": "N2O"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:6fc22e9e4693de7574b28eacab55fde2a1b771ea25338d03d0d906211c325848
+size 92

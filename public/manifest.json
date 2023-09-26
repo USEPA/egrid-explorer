@@ -1,15 +1,3 @@
-{
-  "short_name": "eGRID",
-  "name": "Emissions and Generation Resource Integrated Database",
-  "icons": [
-    {
-      "src": "logo.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:22c84d958323c79fb7d999389dc620f78673eae8d0ff22e629ab895c16aa0e0f
+size 329

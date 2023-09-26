@@ -1,19 +1,3 @@
-Word/phrase,Definition
-All combustion fuels,"Includes all fossil fuels (coal, oil, natural gas, blast furnace gas, and tire-derived fuel) and biomass, such as wood, agricultural byproducts, municipal solid waste, and landfill gas."
-All fossil fuels,"Includes coal, oil, natural gas and other fossil fuels, such as blast furnace gas and tire-derived fuel."
-Capacity factor,"A ratio of the annual net generation at a plant to the amount of electricity that could have been generated at continuous full-time operation at maximum load (i.e., nameplate capacity)."
-CO₂ equivalent,"A term used to express the impact of different greenhouse gases in terms of the amount of CO₂ that would create the same amount of global warming. In eGRID, CO₂ equivalent is the sum of CO₂, CH₄ and N₂O emissions adjusted using global warming potential values from the fourth IPCC assessment."
-eGRID subregion,Subregions defined by EPA where end-use consumptive emissions rates are most similar to the generation emissions rates from the power plants within the subregion.
-Grid gross loss ,"The percentage of generated electricity that is lost in the process of supplying it to consumers. Also known as line losses, power losses, or transmission and distribution losses (i.e., T&D losses)."
-Heat input,The amount of heat energy consumed to produce electricity by a plant that combusts fuel.
-Input emission rate,The input emission rates are calculated as the total annual adjusted emissions divided by the annual heat input.
-Nameplate capacity,"The maximum power output of a plant, commonly expressed in megawatts (MW)."
-NERC region,A region designated by the North American Electric Reliability Corporation (NERC) and overseen by a regional entity that is responsible for improving the reliability of the bulk power system.
-Non-baseload emission rate,"The output emission rates for plants that tend to only supply electricity during peak periods of demand (i.e. cycling units or peakers), rather than operating continuously."
-Other fossil,Includes blast furnace gas and tire-derived fuel.
-Other unknown,"Includes electricity used for energy storage, process gas, purchased steam, waste heat, and unreported fuel types."
-Output emission rate,The output emission rates are calculated as total annual adjusted emissions divided by annual net generation.
-Ozone season,"The period of time in which ozone typically reaches higher concentrations, May through September."
-Primary fuel,"The energy source (i.e., fuel) that provides the highest amount of energy (measured in mmBtu or million British Thermal Units) over the course of a year in a given power plant."
-Resource mix,"The renewable and non-renewable resources (such as coal, natural, gas, wind, solar, etc.) that are used to generate electricity in a given plant or region. The resource mix is presented as a percent of generation by each resource."
-Secondary fuels,"In power plants that use more than one energy source, secondary fuels are all of the other fuels in use at the power plant."
+version https://git-lfs.github.com/spec/v1
+oid sha256:562c6d20b44f1da58141cbd4ffe209ab71d16f3f40bb290c87e3d98cae7db023
+size 3031
