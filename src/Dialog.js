@@ -4,6 +4,8 @@ import Modal from "react-bootstrap/Modal";
 import instruction_sentence from "./assets/img/instruction_sentence.png";
 import instruction_resourcemix from "./assets/img/instruction_resourcemix.png";
 import instruction_zoomable_map from "./assets/img/instruction_zoomable_map.png";
+import instruction_sparklines from "./assets/img/instructions_sparklines.png";
+import instruction_trend_chart from "./assets/img/instructions_trend_chart.png";
 
 import SubregionMap from "./assets/img/2019_egrid_subregions.png";
 
@@ -96,6 +98,31 @@ function Dialog(props) {
           bar graph.
         </p>
         <img src={instruction_resourcemix} alt="resource mix" />
+        <p>
+          <strong>
+            <u>Trends</u>
+          </strong>
+          <strong>: </strong>
+          To explore trend-level data, click on any of the bars, geographic regions, or sparklines on the page. Click on the same element to remove its data from the trend chart.
+        </p>
+
+        <p>
+          <strong>
+            <u>The Sparklines</u>
+          </strong>
+          <strong>: </strong>
+          Sparklines are small charts that provide a visual representation of the trend data. The sparklines are used as an overview of the overall trend for a geographic level.
+        </p>
+        {/* <div style={{ height: '200px', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', width: 'auto', backgroundImage: `url(${instruction_sparklines})` }}></div> */}
+        {/* <img src={instruction_sparklines} alt="sparklines" width="60px" /> */}
+        <p>
+          <strong>
+            <u>The Trend Chart</u>
+          </strong>
+          <strong>: </strong>
+          The trend chart provides detailed information on the trend of the given environmental characteristic over time for a geographic level. A tooltip pop-up provides data for each given year.
+        </p>
+        <img src={instruction_trend_chart} alt="trend chart" />
       </div>
     );
   } else if (id === "glossary") {

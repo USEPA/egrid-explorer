@@ -2,9 +2,12 @@ import React, { Component } from "react";
 import * as d3 from "d3";
 import * as _ from "underscore";
 import * as d3_composite from "d3-composite-projections";
+import ResourceMixAreaChart from "./ResourceMixAreaChart";
 import Dialog from "./Dialog.js";
 import UpdatedTable from "./Table";
+// import UpdatedTrends from "./Trends";
 import searchIcon from "./assets/img/search_solid.png";
+import { forEach } from "underscore";
 
 class ResourceMixChart extends Component {
   constructor(props) {
@@ -24,7 +27,11 @@ class ResourceMixChart extends Component {
       clicked_on_bar: false,
       selected_region: this.props.region,
       table_info: {},
-      show_modal: false
+      trend_info: {},
+      area_info: [],
+      show_modal: false,
+      trendsData: this.props.trendsData,
+      yearIdx: this.props.year === 2021 ? 3 : this.props.year === 2020 ? 2 : this.props.year === 2019 ? this.props.year === 2018 : 0,
     };
     this.sort_text = "Sort by Primary Fuel:";
     this.sort_reset_text = "Reset";
@@ -32,6 +39,7 @@ class ResourceMixChart extends Component {
     this.fuels_filter_pct = 0.85;
     this.barchart_pct = 0.7;
     this.barchart_table_pct = 0.3;
+
   }
 
   componentDidMount() {
@@ -52,7 +60,7 @@ class ResourceMixChart extends Component {
             .on("click", () => {
               this.updateView(null);
             });
-  
+
           this.updateView(this.state.sort_fuel);
         } else if (
           this.state.sort_fuel === null
@@ -61,7 +69,7 @@ class ResourceMixChart extends Component {
         }
       } else {
         let w_legend = d3.select(this.fuels.current).node().clientWidth,
-        h_legend = this.props.filter_height;
+          h_legend = this.props.filter_height;
         let nbox = this.props.fuels.length + 2;
         let boxlen = w_legend / nbox > 100 ? 100 : Math.max(w_legend / nbox, 75);
         let boxlen_reset = boxlen;
@@ -82,17 +90,17 @@ class ResourceMixChart extends Component {
         } else {
           if (this.state.sort_fuel === null) {
             d3.select(this.fuels.current)
-            .select(".reset")
-            .classed("reset-button", false)
-            .on("mouseover", null)
-            .on("mouseout", null)
-            .select("text")
-            .text(this.sort_text)
-            .attr("x", boxlen_reset / 2)
-            .attr("y", h_legend / 5)
-            .attr("dx", 0)
-            .attr("dy", 0)
-            .call(this.props.wrap_long_labels, 88);
+              .select(".reset")
+              .classed("reset-button", false)
+              .on("mouseover", null)
+              .on("mouseout", null)
+              .select("text")
+              .text(this.sort_text)
+              .attr("x", boxlen_reset / 2)
+              .attr("y", h_legend / 5)
+              .attr("dx", 0)
+              .attr("dy", 0)
+              .call(this.props.wrap_long_labels, 88);
           }
         }
       }
@@ -141,33 +149,110 @@ class ResourceMixChart extends Component {
         .range(fuel_colors);
 
       let data = [];
+      let trendsData = [];
       let table_info = {};
-      _.flatten([this.props.us_data, this.props.data]).forEach((d) => {
+      let trend_info = {};
+      let area_info = [];
+
+
+      _.flatten([this.props.us_data, this.props.trendsData]).forEach((d) => {
         let cumsum = 0;
+        let totalValue = 0;
+        let tempTotalValueArray = [];
         fuel_names.forEach((f) => {
+          // if (d.Year === this.props.year) {
           data.push({
-            name: d.name,
+            name: this.props.region === "balancing authority" ? d.BACODE : d.name,
             id: d.id,
             unit: this.props.unit,
             type: this.props.fuel_name_lookup[f],
             value: d[f],
             cumsum: cumsum,
+            totalValue: totalValue,
+            year: d.Year
           });
+          // }
+          tempTotalValueArray.push({
+            totalValue: totalValue,
+            name: this.props.region === "balancing authority" ? d.BACODE : d.name,
+            value: d[f]
+          });
+
+
           cumsum = cumsum + d[f];
+
+
           if (d[f] > 0) avail_fuels.push(this.props.fuel_name_lookup[f]);
         });
+
+
+
+        totalValue = tempTotalValueArray.reduce((items, item) => {
+          const { name, value } = item;
+          const itemIndex = items.findIndex(item => item.name === name)
+          if (itemIndex === -1) {
+            items.push(item);
+          } else {
+            items[itemIndex].value += value;
+          }
+
+          return items;
+        }, []);
+
+
+        data.forEach(function (d) {
+          totalValue.forEach(v => {
+            if (v.name === d.name) {
+              d.totalValue = v.value;
+            }
+          })
+          if (d.name === undefined) {
+            d.name = "US"
+          }
+          if (d.id === undefined) {
+            d.id = d.name
+          }
+        });
+        data.sort((a, b) => a.name.localeCompare(b.name));
+        trendsData = d3.nest()
+          .key(function (d) { return d.year })
+          .entries(data);
       });
+
+      for (var i = data.length - 1; i >= 0; i--) {
+        if (data[i].year === this.props.year) {
+          if (data[i].totalValue == 0) {
+            data.splice(i, 1);
+          }
+        }
+      }
       avail_fuels = _.uniq(avail_fuels);
       data
         .filter((e) => e.name === "US")
         .forEach((e) => {
           let name = this.props.fuel_label_lookup[e.type];
           table_info[name] = {};
-          table_info[name].type=e.type;
+          table_info[name].type = e.type;
           table_info[name]["US_" + e.type] = d3.format(".2f")(e.value);
           table_info[name][e.type] = "-";
         });
-      let name = _.uniq(data.map((d) => d.name));
+
+      trendsData
+        .forEach((e, i) => {
+          e.values.filter((g) => g.name === "US")
+            .forEach((g, idx) => {
+              name = this.props.fuel_label_lookup[g.type];
+              trend_info[name] = {};
+              trend_info[name].type = g.type;
+              trend_info[name]["US_" + g.type] = d3.format(".2f")(g.value);
+              trend_info[name][e.type] = "-";
+              trend_info[name].year = "-";
+              trend_info[name].value = "-";
+            })
+        });
+
+
+      let name = _.uniq(data.filter((d) => d.year === this.props.year).map((d) => d.name));
 
       let barXScale = d3
         .scaleLinear()
@@ -182,11 +267,11 @@ class ResourceMixChart extends Component {
 
       // micromap
       d3.select(this.micromap.current).selectAll("path").remove();
-      let w_micro = d3.select(this.micromap.current).node().clientWidth, 
-          h_micro = this.props.filter_height * 0.85;
+      let w_micro = d3.select(this.micromap.current).node().clientWidth,
+        h_micro = this.props.filter_height * 0.85;
       let projection = d3_composite
         .geoAlbersUsaTerritories()
-        .scale(Math.min(w_micro*0.8, h_micro * 2))
+        .scale(Math.min(w_micro * 0.8, h_micro * 2))
         .translate([w_micro / 2, h_micro / 2]);
       let path = d3.geoPath().projection(projection);
       d3.select(this.micromap.current)
@@ -200,7 +285,7 @@ class ResourceMixChart extends Component {
         .style("fill", "transparent")
         .style("stroke", "#000")
         .style("stroke-width", 0.5);
-      
+
       d3.select(this.micromap.current)
         .append("image")
         .attr("id", "micromap-magnifying-glass")
@@ -208,9 +293,12 @@ class ResourceMixChart extends Component {
         .attr("xlink:href", searchIcon)
         .attr("width", 20)
         .attr("height", 20)
-        .attr("transform", "translate(" + (w_micro-30) + "," + (h_micro-25) + ")")
+        .attr("transform", "translate(" + (w_micro - 30) + "," + (h_micro - 25) + ")")
         .style("cursor", "pointer")
-        .on("click", ()=>{ this.setState({ show_modal: true });});
+        .on("click", () => { this.setState({ show_modal: true }); });
+
+
+      let barchartData = data.filter((d) => d.year === this.props.year);
 
       // barchart
       d3.select(this.barchart.current).selectAll("g").remove();
@@ -218,16 +306,19 @@ class ResourceMixChart extends Component {
         .attr(
           "transform",
           "translate(" +
-            this.props.margin_left +
-            "," +
-            this.props.margin_top +
-            ")"
+          this.props.margin_left +
+          "," +
+          this.props.margin_top +
+          ")"
         )
         .append("g")
         .selectAll("rect")
-        .data(data)
+        .data(barchartData)
         .enter()
         .append("rect")
+        .each((d) => {
+          d.cumsum = data.filter((e) => (e.name === d.name && e.type === d.type) && e.year === this.props.year).map((e) => e.cumsum)[0];
+        })
         .attr("class", (d) => "bars_" + d.id + " bars_" + d.id + "_" + d.type)
         .attr("x", (d) => barXScale(d.cumsum))
         .attr("y", (d) => barYScale(d.name))
@@ -237,23 +328,124 @@ class ResourceMixChart extends Component {
         .attr("height", barYScale.bandwidth())
         .style("cursor", "pointer")
         .style("fill", (d) => barFillScale(d.type))
-        .on("mousemove", (d) => {
+
+
+        // Change this back to mousemove
+        .on("mouseenter", (d) => {
           if (!this.state.clicked_on_bar) {
             let table_info = {};
+            let trend_info = {};
+            let area_info = [];
             data
-              .filter((e) => e.name === d.name || e.name === "US")
+              .filter((e) => (e.name === d.name || e.name === "US") && e.year === this.props.year)
               .forEach((e) => {
                 let name = this.props.fuel_label_lookup[e.type];
-                if (Object.keys(table_info).indexOf(name)===-1) {
-                  table_info[name]={};
+                if (Object.keys(table_info).indexOf(name) === -1) {
+                  table_info[name] = {};
                 }
-                table_info[name].type=e.type;
+                table_info[name].type = e.type;
                 if (e.name === "US") {
                   table_info[name][e.name + "_" + e.type] = d3.format(".2f")(e.value);
-                  if (d.name==="US") table_info[name][e.type] = "-";
+                  if (d.name === "US") table_info[name][e.type] = "-";
                 } else {
                   table_info[name][e.type] = d3.format(".2f")(e.value);
                 }
+              });
+
+            let name, a, b, c;
+
+            // trendsData
+            //   .forEach((e, i) => {
+            //     e.values.forEach(g => {
+            //       if (g.id === d.id) {
+            //         console.log(g)
+            //       }
+            //     })
+            //     // if (e.id === d.id) {
+            //     //   console.log(e)
+            //     // }
+            //   })
+            // console.log(trendsData)
+
+            trendsData
+              .forEach((e, i) => {
+                area_info.push({ year: e.key, Coal: 0, Oil: 0, Gas: 0, Nuclear: 0, Hydro: 0, Biomass: 0, Wind: 0, Solar: 0, 'Geo Thermal': 0, 'Other Fossil': 0, 'Other Unknown': 0, 'All Non-Hydro Renewables': 0, 'All Non Renewables': 0, 'All Combustion': 0, 'All Non Combustion': 0 })
+                e.values.forEach(g => {
+                  name = this.props.fuel_label_lookup[g.type];
+                  if (g.name === d.name) {
+                    if (typeof g.value === "number") {
+                      area_info[i][name] = +d3.format(".2f")(g.value);
+                    }
+                    else {
+                      area_info[i][name] = 0;
+                    }
+                  }
+                })
+                e.values.filter((g) => g.name === d.name || g.name === "US")
+                  .forEach((g, idx) => {
+                    name = this.props.fuel_label_lookup[g.type];
+                    if (Object.keys(trend_info).indexOf(name) === -1) {
+                      trend_info[name] = {};
+                    }
+                    if (g.type) {
+                      trend_info[name].type = g.type;
+                    }
+                    if (g.name === "US") {
+                      trend_info[name][g.name + "_" + g.type] = [d3.format(".2f")(g.value)];
+                      if (d.name === "US") {
+                        trend_info[name][g.type] = "-";
+                        trend_info[name].year = [];
+                        trend_info[name].value = [];
+                        if (trendsData[0].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                          a = trendsData[0].values.filter((g) => g.name === d.name)[idx].value;
+                        } else {
+                          a = 0
+                        }
+                        if (trendsData[1].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                          b = trendsData[1].values.filter((g) => g.name === d.name)[idx].value;
+                        } else {
+                          b = 0
+                        }
+                        if (trendsData[2].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                          c = trendsData[2].values.filter((g) => g.name === d.name)[idx].value;
+                        } else {
+                          c = 0
+                        }
+                        if (trendsData[3].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                          e = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
+                        } else {
+                          e = 0
+                        }
+                        trend_info[name].year.push(2018, 2019, 2020, 2021);
+                        trend_info[name].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(e));
+                      }
+                    } else {
+                      trend_info[name].year = [];
+                      trend_info[name].value = [];
+                      if (trendsData[0].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        a = trendsData[0].values.filter((g) => g.name === d.name)[idx].value;
+                      } else {
+                        a = 0
+                      }
+                      if (trendsData[1].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        b = trendsData[1].values.filter((g) => g.name === d.name)[idx].value;
+                      } else {
+                        b = 0
+                      }
+                      if (trendsData[2].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        c = trendsData[2].values.filter((g) => g.name === d.name)[idx].value;
+                      } else {
+                        c = 0
+                      }
+                      if (trendsData[3].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        e = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
+                      } else {
+                        e = 0
+                      }
+                      trend_info[name].year.push(2018, 2019, 2020, 2021);
+                      trend_info[name].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(e));
+                    }
+                  })
               });
 
             d3.selectAll("path.region_" + d.id).style("fill", this.props.resourcemix_micromap_highlight_color);
@@ -270,8 +462,10 @@ class ResourceMixChart extends Component {
 
             this.setState({
               table_info: table_info,
-              selected_region: d.name==="US"?this.props.region:d.name,
+              selected_region: d.name === "US" ? this.props.region : d.name,
               mouseover_fuel: d.type,
+              trend_info: trend_info,
+              area_info: area_info,
             });
           }
         })
@@ -288,6 +482,8 @@ class ResourceMixChart extends Component {
               table_info: table_info,
               selected_region: this.props.region,
               mouseover_fuel: null,
+              trend_info: trend_info,
+              area_info: [],
             });
           }
         })
@@ -309,25 +505,112 @@ class ResourceMixChart extends Component {
             this.setState({
               clicked_on_bar: false,
               table_info: table_info,
+              trend_info: trend_info,
+              area_info: [],
               selected_region: this.props.region,
               mouseover_fuel: null,
             });
           } else {
             let table_info = {};
+            let trend_info = {};
+            let area_info = [];
             data
-              .filter((e) => e.name === d.name || e.name === "US")
+              .filter((e) => (e.name === d.name || e.name === "US"))
               .forEach((e) => {
                 let name = this.props.fuel_label_lookup[e.type];
-                if (Object.keys(table_info).indexOf(name)===-1) {
-                  table_info[name]={};
+                if (Object.keys(table_info).indexOf(name) === -1) {
+                  table_info[name] = {};
                 }
-                table_info[name].type=e.type;
+                table_info[name].type = e.type;
                 if (e.name === "US") {
                   table_info[name][e.name + "_" + e.type] = d3.format(".2f")(e.value);
-                  if (d.name==="US") table_info[name][e.type] = "-";
+                  if (d.name === "US") table_info[name][e.type] = "-";
                 } else {
                   table_info[name][e.type] = d3.format(".2f")(e.value);
                 }
+              });
+            let a, b, c;
+            trendsData
+              .forEach((e, i) => {
+                area_info.push({ year: e.key, Coal: 0, Oil: 0, Gas: 0, Nuclear: 0, Hydro: 0, Biomass: 0, Wind: 0, Solar: 0, 'Geo thermal': 0, 'Other Fossil': 0, 'Other Unknown': 0, 'All Non-Hydro Renewables': 0, 'All Non Renewables': 0, 'All Combustion': 0, 'All Non Combustion': 0 })
+                e.values.forEach(g => {
+                  name = this.props.fuel_label_lookup[g.type];
+                  if (g.name === d.name) {
+                    if (typeof g.value === "number") {
+                      area_info[i][name] = +d3.format(".2f")(g.value);
+                    }
+                    else {
+                      area_info[i][name] = 0;
+                    }
+                  }
+                })
+                e.values.filter((g) => g.name === d.name || g.name === "US")
+                  .forEach((g, idx) => {
+                    name = this.props.fuel_label_lookup[g.type];
+                    if (Object.keys(trend_info).indexOf(name) === -1) {
+                      trend_info[name] = {};
+                    }
+                    if (g.type) {
+                      trend_info[name].type = g.type;
+                    }
+
+                    if (g.name === "US") {
+                      trend_info[name][g.name + "_" + g.type] = [d3.format(".2f")(g.value)];
+                      if (d.name === "US") {
+                        trend_info[name][g.type] = "-";
+                        trend_info[name].year = [];
+                        trend_info[name].value = [];
+                        if (trendsData[0].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                          a = trendsData[0].values.filter((g) => g.name === d.name)[idx].value;
+                        } else {
+                          a = 0
+                        }
+                        if (trendsData[1].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                          b = trendsData[1].values.filter((g) => g.name === d.name)[idx].value;
+                        } else {
+                          b = 0
+                        }
+                        if (trendsData[2].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                          c = trendsData[2].values.filter((g) => g.name === d.name)[idx].value;
+                        } else {
+                          c = 0
+                        }
+                        if (trendsData[3].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                          e = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
+                        } else {
+                          e = 0
+                        }
+                        trend_info[name].year.push(2018, 2019, 2020, 2021);
+                        trend_info[name].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(e));
+                      }
+                    } else {
+                      trend_info[name].year = [];
+                      trend_info[name].value = [];
+                      if (trendsData[0].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        a = trendsData[0].values.filter((g) => g.name === d.name)[idx].value;
+                      } else {
+                        a = 0
+                      }
+                      if (trendsData[1].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        b = trendsData[1].values.filter((g) => g.name === d.name)[idx].value;
+                      } else {
+                        b = 0
+                      }
+                      if (trendsData[2].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        c = trendsData[2].values.filter((g) => g.name === d.name)[idx].value;
+                      } else {
+                        c = 0
+                      }
+                      if (trendsData[3].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        e = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
+                      } else {
+                        e = 0
+                      }
+                      trend_info[name].year.push(2018, 2019, 2020, 2021);
+                      trend_info[name].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(e));
+                    }
+
+                  })
               });
 
             d3.selectAll(".map-path").style("fill", "none");
@@ -371,7 +654,9 @@ class ResourceMixChart extends Component {
             this.setState({
               clicked_on_bar: true,
               table_info: table_info,
-              selected_region: d.name==="US"?this.props.region:d.name,
+              trend_info: trend_info,
+              area_info: area_info,
+              selected_region: d.name === "US" ? this.props.region : d.name,
               mouseover_fuel: d.type,
             });
           }
@@ -383,10 +668,10 @@ class ResourceMixChart extends Component {
         .attr(
           "transform",
           "translate(" +
-            this.props.margin_left +
-            "," +
-            this.props.margin_top +
-            ")"
+          this.props.margin_left +
+          "," +
+          this.props.margin_top +
+          ")"
         )
         .call(d3.axisLeft(barYScale))
         .selectAll(".tick")
@@ -396,159 +681,19 @@ class ResourceMixChart extends Component {
             "tick mouseover_target region_" +
             data.filter((e) => e.name === d).map((e) => e.id)[0]
         )
-        .style("cursor", "pointer")
         .selectAll("text")
-        .style("font-size", (d) => (d === "US" ? "1.5em" : (this.props.layer_type==="state"?"1.1em":(this.props.layer_type==="NERC region"?"1.5em":"1.2em"))))
+        .style("font-size", (d) => (this.props.layer_type === "balancing authority" ? ".9em" : this.props.layer_type === "state" ? "1.1em" : (this.props.layer_type === "NERC region" ? "1.5em" : "1.2em")))
         .style("font-weight", (d) => (d === "US" ? "bold" : "normal"));
-        
-      d3.selectAll(".tick.mouseover_target")
-        .on("mouseover", (d) => {
-          if (!this.state.clicked_on_bar) {
-            let id = data.filter((e) => e.name === d).map((e) => e.id)[0];
-            let table_info = {};
-            data
-              .filter((e) => e.name === d || e.name === "US")
-              .forEach((e) => {
-                let name = this.props.fuel_label_lookup[e.type];
-                if (Object.keys(table_info).indexOf(name)===-1) {
-                  table_info[name]={};
-                }
-
-                table_info[name].type=e.type;
-                if (e.name === "US") {
-                  table_info[name][e.name + "_" + e.type] = d3.format(".2f")(e.value);
-                  if (d==="US") table_info[name][e.type] = "-";
-                } else {
-                  table_info[name][e.type] = d3.format(".2f")(e.value);
-                }
-              });
-
-            d3.selectAll("path.region_" + id).style("fill", this.props.resourcemix_micromap_highlight_color);
-            d3.selectAll(".region_" + id + " text").style(
-              "font-weight",
-              "bold"
-            );
-
-            d3.select(this.wrapper.current)
-              .selectAll("rect.bars_" + id)
-              .classed("selected", true)
-              .style("stroke", "#000")
-              .style("stroke-width", 1);
-            
-            this.setState({
-              table_info: table_info,
-              selected_region: d==="US"?this.props.region:d,
-              mouseover_fuel: null,
-            });
-          }
-        })
-        .on("mouseout", (d) => {
-          if (!this.state.clicked_on_bar) {
-            d3.selectAll("rect.selected")
-              .classed("selected", false)
-              .style("stroke", "none");
-
-            d3.selectAll(".map-path").style("fill", "none");
-            d3.selectAll(".tick text").style("font-weight", "normal");
-
-            this.setState({
-              table_info: table_info,
-              selected_region: this.props.region,
-              mouseover_fuel: null,
-            });
-          }
-        })
-        .on("click", (d) => {
-          let id = data.filter((e) => e.name === d).map((e) => e.id)[0];
-          if (
-            d3
-              .select(this.wrapper.current)
-              .select("rect.bars_" + id)
-              .classed("highlighted")
-          ) {
-            d3.selectAll("rect.highlighted")
-              .classed("highlighted", false)
-              .style("stroke", "none");
-            d3.selectAll("rect").style("opacity", 1);
-
-            d3.selectAll(".map-path").style("fill", "none");
-            d3.selectAll(".tick text").style("font-weight", "normal");
-
-            this.setState({
-              clicked_on_bar: false,
-              table_info: table_info,
-              selected_region: this.props.region,
-              mouseover_fuel: null,
-            });
-          } else {
-            let table_info = {};
-            data
-              .filter((e) => e.name === d || e.name === "US")
-              .forEach((e) => {
-                let name = this.props.fuel_label_lookup[e.type];
-                if (Object.keys(table_info).indexOf(name)===-1) {
-                  table_info[name]={};
-                }
-                
-                table_info[name].type=e.type;
-                if (e.name === "US") {
-                  table_info[name][e.name + "_" + e.type] = d3.format(".2f")(e.value);
-                  if (d==="US") table_info[name][e.type] = "-";
-                } else {
-                  table_info[name][e.type] = d3.format(".2f")(e.value);
-                }
-              });
-
-            d3.selectAll(".map-path").style("fill", "none");
-            d3.selectAll(".tick text").style("font-weight", "normal");
-            d3.selectAll("path.region_" + id).style("fill", this.props.resourcemix_micromap_highlight_color);
-            d3.selectAll(".region_" + id + " text").style(
-              "font-weight",
-              "bold"
-            );
-
-            d3.selectAll("rect.highlighted")
-              .classed("highlighted", false)
-              .style("stroke", "none");
-
-            d3.selectAll("rect.selected")
-              .classed("selected", false)
-              .style("stroke", "none");
-
-            d3.selectAll("rect").style("opacity", 0.3);
-
-            d3.select(this.wrapper.current)
-              .selectAll("rect.bars_" + "-1")
-              .classed("highlighted", true)
-              .style("opacity", 1)
-              .style("stroke", "#000")
-              .style("stroke-width", 1);
-
-            d3.select(this.wrapper.current)
-              .selectAll("rect.bars_" + id)
-              .classed("highlighted", true)
-              .style("opacity", 1)
-              .style("stroke", "#000")
-              .style("stroke-width", 1);
-
-            this.setState({
-              clicked_on_bar: true,
-              table_info: table_info,
-              selected_region: d==="US"?this.props.region:d,
-              mouseover_fuel: null,
-            });
-          }
-        });
 
       d3.select(this.axis_x.current).selectAll("g").remove();
       d3.select(this.axis_x.current)
         .attr(
           "transform",
           "translate(" +
-            this.props.margin_left +
-            "," +
-            this.props.margin_top +
-            ")"
+          this.props.margin_left +
+          "," +
+          this.props.margin_top +
+          ")"
         )
         .call(d3.axisTop(barXScale))
         .selectAll("text")
@@ -562,7 +707,7 @@ class ResourceMixChart extends Component {
       let nbox = fuel_names.length + 2;
       let boxlen = w_legend / nbox > 100 ? 100 : Math.max(w_legend / nbox, 75);
       let boxlen_filter = boxlen, boxlen_reset = boxlen;
-      
+
       d3.select(this.fuels.current).selectAll("div").remove();
       let fuels = d3
         .select(this.fuels.current)
@@ -605,12 +750,14 @@ class ResourceMixChart extends Component {
         .attr("width", boxlen_reset)
         .attr("height", h_legend)
         .on("click", (d) => {
-          this.setState({ 
+          this.setState({
             clicked_on_bar: false,
             sort_fuel: null,
             selected_region: this.props.region,
             mouseover_fuel: null,
-            table_info: table_info
+            table_info: table_info,
+            trend_info: trend_info,
+            area_info: area_info,
           });
         })
         .append("text")
@@ -626,7 +773,7 @@ class ResourceMixChart extends Component {
           let n = d3
             .select(this.fuels.current)
             .selectAll(".fuel")
-            .filter((e) => e === d);
+            .filter((e) => e === d)
           if (!n.classed("selected")) {
             this.setState({ sort_fuel: d });
           }
@@ -662,11 +809,15 @@ class ResourceMixChart extends Component {
         sort_fuel: null,
         selected_region: this.props.region,
         table_info: table_info,
+        trend_info: trend_info,
+        area_info: [],
       });
     });
   }
 
+
   updateView(fuel) {
+
     let w = d3.select(this.barchart_wrapper.current).node().clientWidth,
       h = this.props.barchart_height;
 
@@ -729,8 +880,8 @@ class ResourceMixChart extends Component {
     let path = d3.geoPath().projection(projection);
     d3.select(this.micromap.current).selectAll("path").attr("d", path);
     d3.select(this.micromap.current)
-    .select("#micromap-magnifying-glass")
-    .attr("transform", "translate(" + (w_micro-30) + "," + (h_micro-25) + ")");
+      .select("#micromap-magnifying-glass")
+      .attr("transform", "translate(" + (w_micro - 30) + "," + (h_micro - 25) + ")");
 
     if (fuel === null) {
       // micromap
@@ -756,21 +907,72 @@ class ResourceMixChart extends Component {
         .call(this.props.wrap_long_labels, boxlen_reset);
 
       let data = [];
-      _.flatten([this.props.us_data, this.props.data]).forEach((d) => {
+      let trendsData = [];
+
+      _.flatten([this.props.us_data, this.props.trendsData]).forEach((d) => {
         let cumsum = 0;
+        let totalValue = 0;
+        let tempTotalValueArray = [];
         fuel_names.forEach((f) => {
           data.push({
-            name: d.name,
+            name: this.props.region === "balancing authority" ? d.BACODE : d.name,
             id: d.id,
             unit: this.props.unit,
             type: this.props.fuel_name_lookup[f],
             value: d[f],
             cumsum: cumsum,
+            totalValue: totalValue,
+            year: d.Year
           });
+          tempTotalValueArray.push({
+            totalValue: totalValue,
+            name: this.props.region === "balancing authority" ? d.BACODE : d.name,
+            value: d[f]
+          })
           cumsum = cumsum + d[f];
+
         });
+        totalValue = tempTotalValueArray.reduce((items, item) => {
+          const { name, value } = item;
+          const itemIndex = items.findIndex(item => item.name === name)
+          if (itemIndex === -1) {
+            items.push(item);
+          } else {
+            items[itemIndex].value += value;
+          }
+
+          return items;
+        }, []);
+        data.filter((d) => d.year === this.props.year).forEach(function (d, i) {
+          totalValue.forEach(v => {
+            if (v.name === d.name) {
+              d.totalValue = v.value;
+            }
+          })
+          if (d.name === undefined) {
+            d.name = "US"
+          }
+          if (d.id === undefined) {
+            d.id = d.name
+          }
+        });
+
+
       });
-      let name = _.uniq(data.map((d) => d.name));
+      // data.sort((a, b) => a.name.localeCompare(b.name));
+      trendsData = d3.nest()
+        .key(function (d) { return d.year })
+        .entries(data);
+
+      for (var i = data.length - 1; i >= 0; i--) {
+        if (data[i].year === this.props.year) {
+          if (data[i].totalValue == 0) {
+            data.splice(i, 1);
+          }
+        }
+      }
+
+      let name = _.uniq(data.filter((d) => d.year === this.props.year).map((d) => d.name));
       name = _.flatten([["US"], name.filter((d) => d !== "US")]);
 
       let barXScale = d3
@@ -795,14 +997,15 @@ class ResourceMixChart extends Component {
       d3.select(this.barchart.current)
         .selectAll("rect")
         .each((d) => {
-          d.cumsum = data.filter((e) => e.name === d.name && e.type === d.type).map((e) => e.cumsum)[0];
+          d.cumsum = data.filter((e) => (e.name === d.name && e.type === d.type) && e.year === this.props.year).map((e) => e.cumsum)[0];
         })
         .attr("x", (d) => barXScale(d.cumsum))
         .attr("width", (d) => barXScale(d.value))
         .transition()
         .duration(400)
         .attr("y", (d) => barYScale(d.name));
-    } else {
+    }
+    else {
       d3.select(this.fuels.current)
         .select(".reset")
         .classed("reset-button", true)
@@ -822,23 +1025,76 @@ class ResourceMixChart extends Component {
       ]);
 
       let data = [];
-      _.flatten([this.props.us_data, this.props.data]).forEach((d) => {
+      let trendsData = [];
+
+      let tempTotalValueArray = [];
+      _.flatten([this.props.us_data, this.props.trendsData]).forEach((d) => {
         let cumsum = 0;
+        let totalValue = 0;
         fuel_names.forEach((f) => {
           data.push({
-            name: d.name,
+            name: this.props.region === "balancing authority" ? d.BACODE : d.name,
             id: d.id,
             unit: this.props.unit,
             type: this.props.fuel_name_lookup[f],
             value: d[f],
             cumsum: cumsum,
-          });
+            totalValue: totalValue,
+            year: d.Year
+          })
+          tempTotalValueArray.push({
+            totalValue: totalValue,
+            name: this.props.region === "balancing authority" ? d.BACODE : d.name,
+            value: d[f]
+          })
+
+          // if (d.Year === this.props.year) {
           cumsum = cumsum + d[f];
+          // }
         });
+        totalValue = tempTotalValueArray.reduce((items, item) => {
+          const { name, value } = item;
+          const itemIndex = items.findIndex(item => item.name === name);
+          if (itemIndex === -1) {
+            items.push(item);
+          }
+          else {
+            items[itemIndex].value += value;
+          }
+
+          return items;
+        }, []);
+
+        data.forEach(function (d, i) {
+          totalValue.forEach(v => {
+            if (v.name === d.name) {
+              d.totalValue = v.value;
+            }
+          })
+          if (d.name === undefined) {
+            d.name = "US"
+          }
+          if (d.id === undefined) {
+            d.id = d.name
+          }
+        });
+        data.sort((a, b) => a.name.localeCompare(b.name));
+        trendsData = d3.nest()
+          .key(function (d) { return d.year })
+          .entries(data);
       });
 
+      for (var i = data.length - 1; i >= 0; i--) {
+        if (data[i].year === this.props.year) {
+          if (data[i].totalValue == 0) {
+            data.splice(i, 1);
+          }
+        }
+      }
+
+
       let name = data
-        .filter((d) => d.type === fuel)
+        .filter((d) => (d.type === fuel) && d.year === this.props.year)
         .sort((a, b) => b.value - a.value)
         .map((d) => d.name);
       name = _.flatten([["US"], name.filter((d) => d !== "US")]);
@@ -865,7 +1121,7 @@ class ResourceMixChart extends Component {
       d3.select(this.barchart.current)
         .selectAll("rect")
         .each((d) => {
-          d.cumsum = data.filter((e) => e.name === d.name && e.type === d.type).map((e) => e.cumsum)[0];
+          d.cumsum = data.filter((e) => (e.name === d.name && e.type === d.type) && e.year === this.props.year).map((e) => e.cumsum)[0];
         })
         .attr("x", (d) => barXScale(d.cumsum))
         .attr("width", (d) => barXScale(d.value))
@@ -883,7 +1139,7 @@ class ResourceMixChart extends Component {
     );
 
     return (
-      <div id="resourcemix-wrapper" ref={this.wrapper} style={{width: this.state.width}}>
+      <div id="resourcemix-wrapper" ref={this.wrapper} style={{ width: this.state.width }}>
         {title}
         <div>
           <svg
@@ -911,49 +1167,98 @@ class ResourceMixChart extends Component {
             ref={this.fuels}
           ></div>
         </div>
-        <div id="resourcemix-chart">
-          <svg
-            style={{
-              width:
-                this.state.width < this.props.ipad_width
-                  ? this.state.width * 0.9
-                  : this.state.width * 0.95 - this.props.table_width,
-              height: this.props.barchart_height,
-              marginTop:
-              this.state.width < this.props.ipad_width
-                ? this.props.margin_top
-                : 0,
-            }}
-            ref={this.barchart_wrapper}
-          >
-            <g ref={this.barchart}></g>
-            <g ref={this.axis_y} className={"axis axis_y"}></g>
-            <g ref={this.axis_x} className={"axis axis_x"}></g>
-          </svg>
-          <div
-            className="table-wrapper"
-            style={{
-              width:
-                this.state.width < this.props.ipad_width
-                  ? this.state.width
-                  : this.props.table_width,
-              height: this.props.barchart_height - this.props.margin_top,
-              marginTop:
-                this.state.width < this.props.ipad_width
-                  ? this.props.margin_top
-                  : 0,
-              marginLeft: 0,
-            }}
-          >
+        <div>
+
+          <div id="resourcemix-chart">
+            <div>
+              <svg
+                style={{
+                  width:
+                    this.state.width < this.props.ipad_width
+                      ? this.state.width * 0.9
+                      : this.state.width * 0.95 - this.props.table_width,
+                  height: this.props.barchart_height,
+                  marginTop:
+                    this.state.width < this.props.ipad_width
+                      ? this.props.margin_top
+                      : 0,
+                }}
+                ref={this.barchart_wrapper}
+              >
+                <g ref={this.barchart}></g>
+                <g ref={this.axis_y} className={"axis axis_y"}></g>
+                <g ref={this.axis_x} className={"axis axis_x"}></g>
+              </svg>
+              {/* <UpdatedTrends
+                title={this.props.title}
+                region_level={this.props.region}
+                region={this.state.selected_region}
+                type={this.state.mouseover_fuel}
+                table_info={this.state.table_info}
+                trend_info={this.state.trend_info}
+                highlight_color={this.props.table_highlight_color}
+                trendsData={this.props.trendsData}
+                year={this.props.year}
+                fuel_color={this.props.fuel_color_lookup}
+              /> */}
+            </div>
+            <div
+              className="table-wrapper"
+            // style={{
+            //   width:
+            //     this.state.width < this.props.ipad_width
+            //       ? this.state.width
+            //       : this.props.table_width,
+            //   height: this.props.barchart_height - this.props.margin_top,
+            //   marginTop:
+            //     this.state.width < this.props.ipad_width
+            //       ? this.props.margin_top
+            //       : 0,
+            //   marginLeft: 0,
+            // }}
+            >
+            </div>
             <UpdatedTable
               title={this.props.title}
               region_level={this.props.region}
               region={this.state.selected_region}
               type={this.state.mouseover_fuel}
               table_info={this.state.table_info}
+              trend_info={this.state.trend_info}
               highlight_color={this.props.table_highlight_color}
+              trendsData={this.props.trendsData}
+              year={this.props.year}
+              fuel_color={this.props.fuel_color_lookup}
             />
+
           </div>
+          <ResourceMixAreaChart
+            title={this.props.title}
+            region_level={this.props.region}
+            region={this.state.selected_region}
+            type={this.props.fuel_label_lookup[this.state.mouseover_fuel]}
+            data={this.state.area_info}
+            highlight_color={this.props.table_highlight_color}
+            year={this.props.year}
+            fuel_color={this.props.fuel_color_lookup}
+            window_width={this.props.window_width}
+            window_height={this.props.window_height}
+            width={
+              this.init_window_width < 800
+                ? this.init_window_width * 0.8
+                : 650
+            }
+            barchart_sort={this.props.barchart_sort}
+            height={200}
+            margin_top={10}
+            margin_bottom={30}
+            margin_right={30}
+            margin_left={60}
+            field={this.props.field}
+            us_data={this.props.us_data}
+            usTrendsData={this.props.usTrendsData}
+            unit={this.props.unit}
+          />
         </div>
         <Dialog
           id="subregion-map"

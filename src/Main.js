@@ -10,8 +10,8 @@ import UpdatedVisualization from "./Visualization";
 class Main extends Component {
   constructor(props) {
     super(props);
-    const latest_year = this.props.options.map(d=>+lookup[d.tier5]).sort((a,b)=>b-a)[0];
-    const init_options = this.props.options.filter(d=>+lookup[d.tier5]===latest_year)[0];
+    const latest_year = this.props.options.map(d => +lookup[d.tier5]).sort((a, b) => b - a)[0];
+    const init_options = this.props.options.filter(d => +lookup[d.tier5] === latest_year)[0];
     this.state = {
       dropdown_changing: false,
       tier1: init_options.tier1,
@@ -115,7 +115,7 @@ class Main extends Component {
                 t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
                   ? _.uniq(t5_avail.map((d) => d.tier5))[0]
                   : this.state.tier5;
-              this.setState({ tier5: t5_val}, () => {
+              this.setState({ tier5: t5_val }, () => {
                 let opt = this.state.all_options.filter(
                   (d) =>
                     d.tier1 === val &&
@@ -205,8 +205,8 @@ class Main extends Component {
             let t5_val =
               t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
                 ? _.uniq(t5_avail.map((d) => d.tier5))[0]
-                : this.state.tier5;            
-            this.setState({tier5: t5_val}, () => {
+                : this.state.tier5;
+            this.setState({ tier5: t5_val }, () => {
               let opt = this.state.all_options.filter(
                 (d) =>
                   d.tier1 === this.state.tier1 &&
@@ -296,7 +296,7 @@ class Main extends Component {
               t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
                 ? _.uniq(t5_avail.map((d) => d.tier5))[0]
                 : this.state.tier5;
-            this.setState({ tier5: t5_val}, ()=>{
+            this.setState({ tier5: t5_val }, () => {
               let opt = this.state.all_options.filter(
                 (d) =>
                   d.tier1 === this.state.tier1 &&
@@ -384,7 +384,7 @@ class Main extends Component {
               t5_avail.map((d) => d.tier5).indexOf(this.state.tier5) === -1
                 ? _.uniq(t3_avail.map((d) => d.tier5))[0]
                 : this.state.tier5;
-            this.setState({tier5: t5_val}, () => {
+            this.setState({ tier5: t5_val }, () => {
               let opt = this.state.all_options.filter(
                 (d) =>
                   d.tier1 === this.state.tier1 &&
@@ -457,16 +457,16 @@ class Main extends Component {
           this.setState({ tier3: t3_val }, () => {
             let t4_avail = this.props.options.filter(
               (d) =>
-              d.tier1 === this.state.tier1 &&
-              d.tier2 === this.state.tier2 &&
-              d.tier3 === this.state.tier3 &&
-              d.tier5 === val
+                d.tier1 === this.state.tier1 &&
+                d.tier2 === this.state.tier2 &&
+                d.tier3 === this.state.tier3 &&
+                d.tier5 === val
             );
-            let t4_val = 
+            let t4_val =
               t4_avail.map((d) => d.tier4).indexOf(this.state.tier4) === -1
                 ? _.uniq(t4_avail.map((d) => d.tier4))[0]
                 : this.state.tier4;
-            this.setState({tier4: t4_val}, () => {
+            this.setState({ tier4: t4_val }, () => {
               let opt = this.state.all_options.filter(
                 (d) =>
                   d.tier1 === this.state.tier1 &&
@@ -512,7 +512,7 @@ class Main extends Component {
       tier3_options = _.uniq(all_options.map((op) => lookup[op.tier3])),
       tier4_options = _.uniq(all_options.map((op) => lookup[op.tier4])),
       tier5_options = _.uniq(all_options.map((op) => lookup[op.tier5]));
-    
+
     return (
       <div>
         <div className="no-export-to-pdf" id="sentence">
@@ -653,8 +653,10 @@ class Main extends Component {
             <UpdatedVisualization
               options={this.props.options}
               choropleth_map_fill={this.props.choropleth_map_fill}
+              choropleth_map_fill_max={this.props.choropleth_map_fill_max}
               plant_fuels={this.props.plant_fuels}
               plant_dist={this.props.plant_dist}
+              ba_dist={this.props.ba_dist}
               fuel_label_lookup={this.props.fuel_label_lookup}
               fuel_color_lookup={this.props.fuel_color_lookup}
               table_highlight_color={this.props.table_highlight_color}
@@ -664,6 +666,7 @@ class Main extends Component {
               ggl_fill_color={this.props.ggl_fill_color}
               fuel_sentence_code_lookup={this.props.fuel_sentence_code_lookup}
               plant_table_rows={this.props.plant_table_rows}
+              ba_table_rows={this.props.ba_table_rows}
               wrap_long_labels={this.props.wrap_long_labels}
               field={this.state.field}
               title={this.state.title}
@@ -675,6 +678,7 @@ class Main extends Component {
               tier4={this.state.tier4}
               tier5={this.state.tier5}
               plant_data={this.props.plant_data}
+              ba_data={this.props.ba_data}
               state_data={this.props.state_data}
               subrgn_data={this.props.subrgn_data}
               nerc_data={this.props.nerc_data}
@@ -682,8 +686,10 @@ class Main extends Component {
               us_data={this.props.us_data}
               state_layer={this.props.state_layer}
               subrgn_layer={this.props.subrgn_layer}
+              ba_layer={this.props.ba_layer}
               nerc2018_layer={this.props.nerc2018_layer}
               nerc2019_layer={this.props.nerc2019_layer}
+              nerc2020_layer={this.props.nerc2020_layer}
               ggl_layer={this.props.ggl_layer}
             ></UpdatedVisualization>
           </div>

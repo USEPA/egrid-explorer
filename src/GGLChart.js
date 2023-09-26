@@ -98,7 +98,7 @@ class GGLChart extends Component {
         d3.select(this.tooltip.current)
           .html(html)
           .style("position", "absolute")
-          .style("top", d3.event.pageY - 270 + 15 + "px")
+          .style("top", d3.event.pageY + 15 + "px")
           .style("left", d3.event.pageX + 15 + "px")
           .style("opacity", 1);
 
@@ -128,8 +128,8 @@ class GGLChart extends Component {
           .classed("selected", true)
           .style("stroke-width", 1)
           .style("opacity", 1);
-          
-        this.setState({mouseover_region: d.properties.name});
+
+        this.setState({ mouseover_region: d.properties.name });
       })
       .on("mouseout", (d) => {
         d3.select(this.tooltip.current)
@@ -151,8 +151,8 @@ class GGLChart extends Component {
         d3.selectAll("path.region_" + d.properties.id)
           .classed("selected", true)
           .style("stroke-width", 0.5);
-        
-        this.setState({mouseover_region: null});
+
+        this.setState({ mouseover_region: null });
       });
 
     // add labels
@@ -198,7 +198,7 @@ class GGLChart extends Component {
         d3.select(this.tooltip.current)
           .html(html)
           .style("position", "absolute")
-          .style("top", d3.event.pageY - 270 + 15 + "px")
+          .style("top", d3.event.pageY + 15 + "px")
           .style("left", d3.event.pageX + 15 + "px")
           .style("opacity", 1);
 
@@ -228,8 +228,8 @@ class GGLChart extends Component {
           .classed("selected", true)
           .style("stroke-width", 1)
           .style("opacity", 1);
-        
-        this.setState({mouseover_region: d.properties.name});
+
+        this.setState({ mouseover_region: d.properties.name });
       })
       .on("mouseout", (d) => {
         d3.select(this.tooltip.current)
@@ -298,7 +298,7 @@ class GGLChart extends Component {
           width: this.props.window_width,
           height: 550,
           map_width: this.props.window_width,
-          scale: this.props.window_width*0.78
+          scale: this.props.window_width * 0.78
         },
         () => {
           this.initView();
@@ -312,40 +312,40 @@ class GGLChart extends Component {
       <div>
         <p className="title">{this.props.title}</p>
       </div>
-    ); 
+    );
 
     return (
       <div style={{ width: this.state.width }}>
         <div>
           {title}
           <svg
-              ref={this.map}
-              style={{
-                width: this.state.map_width,
-                height: this.state.height,
-              }}
-            >
-              <g ref={this.background} />
-              <g ref={this.paths} />
-              <g ref={this.labels} />
-            </svg>
-            <div
-              className="table-wrapper"
-              style={{
-                width: this.props.table_width,
-                marginTop:
+            ref={this.map}
+            style={{
+              width: this.state.map_width,
+              height: this.state.height,
+            }}
+          >
+            <g ref={this.background} />
+            <g ref={this.paths} />
+            <g ref={this.labels} />
+          </svg>
+          <div
+            className="table-wrapper"
+            style={{
+              width: this.props.table_width,
+              marginTop:
                 this.state.width < 1280
                   ? this.props.margin_top
                   : "5%",
-              }}
-            >
-              <UpdatedTable
-                title={this.props.title}
-                data={this.props.data}
-                region={this.state.mouseover_region}
-                highlight_color={this.props.table_highlight_color}
-              />
-            </div>
+            }}
+          >
+            <UpdatedTable
+              title={this.props.title}
+              data={this.props.data}
+              region={this.state.mouseover_region}
+              highlight_color={this.props.table_highlight_color}
+            />
+          </div>
         </div>
         <div>
           <p ref={this.tooltip} className="tooltip"></p>
