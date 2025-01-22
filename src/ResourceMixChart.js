@@ -5,9 +5,7 @@ import * as d3_composite from "d3-composite-projections";
 import ResourceMixAreaChart from "./ResourceMixAreaChart";
 import Dialog from "./Dialog.js";
 import UpdatedTable from "./Table";
-// import UpdatedTrends from "./Trends";
 import searchIcon from "./assets/img/search_solid.png";
-import { forEach } from "underscore";
 
 class ResourceMixChart extends Component {
   constructor(props) {
@@ -19,6 +17,8 @@ class ResourceMixChart extends Component {
     this.axis_y = React.createRef();
     this.axis_x = React.createRef();
     this.micromap = React.createRef();
+    // would be better to not manually type the years
+    this.years = [2018, 2019, 2020, 2021, 2022, 2023];
     this.state = {
       width: this.props.width,
       height: this.props.barchart_height,
@@ -31,7 +31,7 @@ class ResourceMixChart extends Component {
       area_info: [],
       show_modal: false,
       trendsData: this.props.trendsData,
-      yearIdx: this.props.year === 2021 ? 3 : this.props.year === 2020 ? 2 : this.props.year === 2019 ? this.props.year === 2018 : 0,
+      yearIdx: this.years.indexOf(this.props.year),
     };
     this.sort_text = "Sort by Primary Fuel:";
     this.sort_reset_text = "Reset";
@@ -155,295 +155,299 @@ class ResourceMixChart extends Component {
       let area_info = [];
 
 
-      _.flatten([this.props.us_data, this.props.trendsData]).forEach((d) => {
-        let cumsum = 0;
-        let totalValue = 0;
-        let tempTotalValueArray = [];
-        fuel_names.forEach((f) => {
-          // if (d.Year === this.props.year) {
-          data.push({
-            name: this.props.region === "balancing authority" ? d.BACODE : d.name,
-            id: d.id,
-            unit: this.props.unit,
-            type: this.props.fuel_name_lookup[f],
-            value: d[f],
-            cumsum: cumsum,
-            totalValue: totalValue,
-            year: d.Year
-          });
-          // }
-          tempTotalValueArray.push({
-            totalValue: totalValue,
-            name: this.props.region === "balancing authority" ? d.BACODE : d.name,
-            value: d[f]
-          });
+       _.flatten([this.props.us_data, this.props.trendsData]).forEach((d) => {
+         let cumsum = 0;
+         let totalValue = 0;
+         let tempTotalValueArray = [];
+         fuel_names.forEach((f) => {
+           // if (d.Year === this.props.year) {
+           data.push({
+             name: this.props.region === "balancing authority" ? d.BACODE : d.name,
+             id: d.id,
+             unit: this.props.unit,
+             type: this.props.fuel_name_lookup[f],
+             value: d[f],
+             cumsum: cumsum,
+             totalValue: totalValue,
+             year: d.Year
+           });
+           // }
+           tempTotalValueArray.push({
+             totalValue: totalValue,
+             name: this.props.region === "balancing authority" ? d.BACODE : d.name,
+             value: d[f]
+           });
 
 
-          cumsum = cumsum + d[f];
+           cumsum = cumsum + d[f];
 
 
-          if (d[f] > 0) avail_fuels.push(this.props.fuel_name_lookup[f]);
-        });
+           if (d[f] > 0) avail_fuels.push(this.props.fuel_name_lookup[f]);
+         });
 
 
 
-        totalValue = tempTotalValueArray.reduce((items, item) => {
-          const { name, value } = item;
-          const itemIndex = items.findIndex(item => item.name === name)
-          if (itemIndex === -1) {
-            items.push(item);
-          } else {
-            items[itemIndex].value += value;
-          }
+         totalValue = tempTotalValueArray.reduce((items, item) => {
+           const { name, value } = item;
+           const itemIndex = items.findIndex(item => item.name === name)
+           if (itemIndex === -1) {
+             items.push(item);
+           } else {
+             items[itemIndex].value += value;
+           }
 
-          return items;
-        }, []);
+           return items;
+         }, []);
 
 
-        data.forEach(function (d) {
-          totalValue.forEach(v => {
-            if (v.name === d.name) {
-              d.totalValue = v.value;
-            }
-          })
-          if (d.name === undefined) {
-            d.name = "US"
-          }
-          if (d.id === undefined) {
-            d.id = d.name
-          }
-        });
-        data.sort((a, b) => a.name.localeCompare(b.name));
-        trendsData = d3.nest()
-          .key(function (d) { return d.year })
-          .entries(data);
-      });
+         data.forEach(function (d) {
+           totalValue.forEach(v => {
+             if (v.name === d.name) {
+               d.totalValue = v.value;
+             }
+           })
+           if (d.name === undefined) {
+             d.name = "US"
+           }
+           if (d.id === undefined) {
+             d.id = d.name
+           }
+         });
+         data.sort((a, b) => a.name.localeCompare(b.name));
+         trendsData = d3.nest()
+           .key(function (d) { return d.year })
+           .entries(data);
+       });
 
-      for (var i = data.length - 1; i >= 0; i--) {
+       for (var i = data.length - 1; i >= 0; i--) {
         if (data[i].year === this.props.year) {
-          if (data[i].totalValue == 0) {
+          if (data[i].totalValue === 0) {
             data.splice(i, 1);
           }
         }
       }
-      avail_fuels = _.uniq(avail_fuels);
-      data
-        .filter((e) => e.name === "US")
-        .forEach((e) => {
-          let name = this.props.fuel_label_lookup[e.type];
-          table_info[name] = {};
-          table_info[name].type = e.type;
-          table_info[name]["US_" + e.type] = d3.format(".2f")(e.value);
-          table_info[name][e.type] = "-";
-        });
+      
+       avail_fuels = _.uniq(avail_fuels);
+       data
+       .filter((row) => (row.name === "US" && row.year === this.props.year))
+         .forEach((row) => {
+           let currentName = this.props.fuel_label_lookup[row.type];
+           table_info[currentName] = {};
+           table_info[currentName].type = row.type;
+           table_info[currentName]["US_" + row.type] = d3.format(".2f")(row.value);
+           table_info[currentName][row.type] = "-";
+         });
 
-      trendsData
-        .forEach((e, i) => {
-          e.values.filter((g) => g.name === "US")
-            .forEach((g, idx) => {
-              name = this.props.fuel_label_lookup[g.type];
-              trend_info[name] = {};
-              trend_info[name].type = g.type;
-              trend_info[name]["US_" + g.type] = d3.format(".2f")(g.value);
-              trend_info[name][e.type] = "-";
-              trend_info[name].year = "-";
-              trend_info[name].value = "-";
-            })
-        });
+       trendsData
+         .forEach((row, i) => {
+           row.values.filter((g) => g.name === "US")
+             .forEach((g, idx) => {
+               let currentName = this.props.fuel_label_lookup[g.type];
+               trend_info[currentName] = {};
+               trend_info[currentName].type = g.type;
+               trend_info[currentName]["US_" + g.type] = d3.format(".2f")(g.value);
+               trend_info[currentName][row.type] = "-";
+               trend_info[currentName].year = "-";
+               trend_info[currentName].value = "-";
+             })
+         });
+
+         trendsData.sort((a, b) => d3.ascending(a.key, b.key));
 
 
-      let name = _.uniq(data.filter((d) => d.year === this.props.year).map((d) => d.name));
+       let uniqueNames = _.uniq(data.filter((d) => d.year === this.props.year).map((d) => d.name));
 
-      let barXScale = d3
-        .scaleLinear()
-        .domain([0, 100])
-        .range([0, w - this.props.margin_left - this.props.margin_right]);
-      let barYScale = d3
-        .scaleBand()
-        .domain(name)
-        .range([0, h - this.props.margin_top])
-        .paddingInner(0.1)
-        .paddingOuter(0.2);
+       let barXScale = d3
+         .scaleLinear()
+         .domain([0, 100])
+         .range([0, w - this.props.margin_left - this.props.margin_right]);
+       let barYScale = d3
+         .scaleBand()
+         .domain(uniqueNames)
+         .range([0, h - this.props.margin_top])
+         .paddingInner(0.1)
+         .paddingOuter(0.2);
 
-      // micromap
-      d3.select(this.micromap.current).selectAll("path").remove();
-      let w_micro = d3.select(this.micromap.current).node().clientWidth,
-        h_micro = this.props.filter_height * 0.85;
-      let projection = d3_composite
-        .geoAlbersUsaTerritories()
-        .scale(Math.min(w_micro * 0.8, h_micro * 2))
-        .translate([w_micro / 2, h_micro / 2]);
-      let path = d3.geoPath().projection(projection);
-      d3.select(this.micromap.current)
-        .append("g")
-        .selectAll("path")
-        .data(this.props.layer.features)
-        .enter()
-        .append("path")
-        .attr("d", path)
-        .attr("class", (d) => "map-path mouseover_target region_" + d.id)
-        .style("fill", "transparent")
-        .style("stroke", "#000")
-        .style("stroke-width", 0.5);
+       // micromap
+       d3.select(this.micromap.current).selectAll("path").remove();
+       let w_micro = d3.select(this.micromap.current).node().clientWidth,
+         h_micro = this.props.filter_height * 0.85;
+       let projection = d3_composite
+         .geoAlbersUsaTerritories()
+         .scale(Math.min(w_micro * 0.8, h_micro * 2))
+         .translate([w_micro / 2, h_micro / 2]);
+       let path = d3.geoPath().projection(projection);
+       d3.select(this.micromap.current)
+         .append("g")
+         .selectAll("path")
+         .data(this.props.layer.features)
+         .enter()
+         .append("path")
+         .attr("d", path)
+         .attr("class", (d) => "map-path mouseover_target region_" + d.id)
+         .style("fill", "transparent")
+         .style("stroke", "#000")
+         .style("stroke-width", 0.5);
 
-      d3.select(this.micromap.current)
+       d3.select(this.micromap.current)
         .append("image")
-        .attr("id", "micromap-magnifying-glass")
-        .attr("class", "no-export-to-pdf")
-        .attr("xlink:href", searchIcon)
-        .attr("width", 20)
-        .attr("height", 20)
-        .attr("transform", "translate(" + (w_micro - 30) + "," + (h_micro - 25) + ")")
-        .style("cursor", "pointer")
-        .on("click", () => { this.setState({ show_modal: true }); });
+         .attr("id", "micromap-magnifying-glass")
+         .attr("class", "no-export-to-pdf")
+         .attr("xlink:href", searchIcon)
+         .attr("width", 20)
+         .attr("height", 20)
+         .attr("transform", "translate(" + (w_micro - 30) + "," + (h_micro - 25) + ")")
+         .style("cursor", "pointer")
+         .on("click", () => { this.setState({ show_modal: true }); });
 
 
-      let barchartData = data.filter((d) => d.year === this.props.year);
+       let barchartData = data.filter((d) => d.year === this.props.year);
 
-      // barchart
-      d3.select(this.barchart.current).selectAll("g").remove();
-      d3.select(this.barchart.current)
-        .attr(
-          "transform",
-          "translate(" +
-          this.props.margin_left +
-          "," +
-          this.props.margin_top +
-          ")"
-        )
-        .append("g")
-        .selectAll("rect")
-        .data(barchartData)
-        .enter()
-        .append("rect")
-        .each((d) => {
-          d.cumsum = data.filter((e) => (e.name === d.name && e.type === d.type) && e.year === this.props.year).map((e) => e.cumsum)[0];
-        })
-        .attr("class", (d) => "bars_" + d.id + " bars_" + d.id + "_" + d.type)
-        .attr("x", (d) => barXScale(d.cumsum))
-        .attr("y", (d) => barYScale(d.name))
-        .attr("rx", 4)
-        .attr("ry", 4)
-        .attr("width", (d) => barXScale(d.value))
-        .attr("height", barYScale.bandwidth())
-        .style("cursor", "pointer")
-        .style("fill", (d) => barFillScale(d.type))
+       // barchart
+       d3.select(this.barchart.current).selectAll("g").remove();
+       d3.select(this.barchart.current)
+         .attr(
+           "transform",
+           "translate(" +
+           this.props.margin_left +
+           "," +
+           this.props.margin_top +
+           ")"
+         )
+         .append("g")
+         .selectAll("rect")
+         .data(barchartData)
+         .enter()
+         .append("rect")
+         .each((d) => {
+           d.cumsum = data.filter((row) => (row.name === d.name && row.type === d.type) && row.year === this.props.year).map((row) => row.cumsum)[0];
+         })
+         .attr("class", (d) => "bars_" + d.id + " bars_" + d.id + "_" + d.type)
+         .attr("x", (d) => barXScale(d.cumsum))
+         .attr("y", (d) => barYScale(d.name))
+         .attr("rx", 4)
+         .attr("ry", 4)
+         .attr("width", (d) => barXScale(d.value))
+         .attr("height", barYScale.bandwidth())
+         .style("cursor", "pointer")
+         .style("fill", (d) => barFillScale(d.type))
 
 
-        // Change this back to mousemove
-        .on("mouseenter", (d) => {
-          if (!this.state.clicked_on_bar) {
-            let table_info = {};
-            let trend_info = {};
-            let area_info = [];
-            data
-              .filter((e) => (e.name === d.name || e.name === "US") && e.year === this.props.year)
-              .forEach((e) => {
-                let name = this.props.fuel_label_lookup[e.type];
-                if (Object.keys(table_info).indexOf(name) === -1) {
-                  table_info[name] = {};
-                }
-                table_info[name].type = e.type;
-                if (e.name === "US") {
-                  table_info[name][e.name + "_" + e.type] = d3.format(".2f")(e.value);
-                  if (d.name === "US") table_info[name][e.type] = "-";
-                } else {
-                  table_info[name][e.type] = d3.format(".2f")(e.value);
-                }
-              });
+         // Change this back to mousemove
+         .on("mouseenter", (d) => {
+           if (!this.state.clicked_on_bar) {
+             let table_info = {};
+             let trend_info = {};
+             let area_info = [];
+             data
+               .filter((row) => (row.name === d.name || row.name === "US") && row.year === this.props.year)
+               .forEach((row) => {
+                 let name = this.props.fuel_label_lookup[row.type];
+                 if (Object.keys(table_info).indexOf(name) === -1) {
+                   table_info[name] = {};
+                 }
+                 table_info[name].type = row.type;
+                 if (row.name === "US") {
+                   table_info[name][row.name + "_" + row.type] = d3.format(".2f")(row.value);
+                   if (d.name === "US") table_info[name][row.type] = "-";
+                 } else {
+                   table_info[name][row.type] = d3.format(".2f")(row.value);
+                 }
+               });
 
-            let name, a, b, c;
+             let currentName, a, b, c, f, h;
 
-            // trendsData
-            //   .forEach((e, i) => {
-            //     e.values.forEach(g => {
-            //       if (g.id === d.id) {
-            //         console.log(g)
-            //       }
-            //     })
-            //     // if (e.id === d.id) {
-            //     //   console.log(e)
-            //     // }
-            //   })
-            // console.log(trendsData)
-
-            trendsData
-              .forEach((e, i) => {
-                area_info.push({ year: e.key, Coal: 0, Oil: 0, Gas: 0, Nuclear: 0, Hydro: 0, Biomass: 0, Wind: 0, Solar: 0, 'Geo Thermal': 0, 'Other Fossil': 0, 'Other Unknown': 0, 'All Non-Hydro Renewables': 0, 'All Non Renewables': 0, 'All Combustion': 0, 'All Non Combustion': 0 })
-                e.values.forEach(g => {
-                  name = this.props.fuel_label_lookup[g.type];
-                  if (g.name === d.name) {
-                    if (typeof g.value === "number") {
-                      area_info[i][name] = +d3.format(".2f")(g.value);
-                    }
-                    else {
-                      area_info[i][name] = 0;
-                    }
-                  }
-                })
-                e.values.filter((g) => g.name === d.name || g.name === "US")
-                  .forEach((g, idx) => {
-                    name = this.props.fuel_label_lookup[g.type];
-                    if (Object.keys(trend_info).indexOf(name) === -1) {
-                      trend_info[name] = {};
-                    }
-                    if (g.type) {
-                      trend_info[name].type = g.type;
-                    }
-                    if (g.name === "US") {
-                      trend_info[name][g.name + "_" + g.type] = [d3.format(".2f")(g.value)];
-                      if (d.name === "US") {
-                        trend_info[name][g.type] = "-";
-                        trend_info[name].year = [];
-                        trend_info[name].value = [];
-                        if (trendsData[0].values.filter((g) => g.name === d.name)[idx] != undefined) {
-                          a = trendsData[0].values.filter((g) => g.name === d.name)[idx].value;
-                        } else {
-                          a = 0
+             trendsData
+               .forEach((row, i) => {
+                 area_info.push({ year: row.key, Coal: 0, Oil: 0, Gas: 0, Nuclear: 0, Hydro: 0, Biomass: 0, Wind: 0, Solar: 0, 'Geo Thermal': 0, 'Other Fossil': 0, 'Other Unknown': 0, 'All Non-Hydro Renewables': 0, 'All Non Renewables': 0, 'All Combustion': 0, 'All Non Combustion': 0 })
+                 row.values.forEach(g => {
+                  currentName = this.props.fuel_label_lookup[g.type];
+                   if (g.name === d.name) {
+                     if (typeof g.value === "number") {
+                       area_info[i][currentName] = +d3.format(".2f")(g.value);
+                     }
+                     else {
+                       area_info[i][currentName] = 0;
+                     }
+                   }
+                 })
+                 row.values.filter((g) => g.name === d.name || g.name === "US")
+                   .forEach((g, idx) => {
+                    currentName = this.props.fuel_label_lookup[g.type];
+                     if (Object.keys(trend_info).indexOf(currentName) === -1) {
+                       trend_info[currentName] = {};
+                     }
+                     if (g.type) {
+                       trend_info[currentName].type = g.type;
+                     }
+                     if (g.name === "US") {
+                       trend_info[currentName][g.name + "_" + g.type] = [d3.format(".2f")(g.value)];
+                       if (d.name === "US") {
+                         trend_info[currentName][g.type] = "-";
+                         trend_info[currentName].year = [];
+                         trend_info[currentName].value = [];
+                         if (trendsData[0].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                           a = trendsData[0].values.filter((g) => g.name === d.name)[idx].value;
+                         } else {
+                           a = 0
+                         }
+                         if (trendsData[1].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                           b = trendsData[1].values.filter((g) => g.name === d.name)[idx].value;
+                         } else {
+                           b = 0
+                         }
+                         if (trendsData[2].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                           c = trendsData[2].values.filter((g) => g.name === d.name)[idx].value;
+                         } else {
+                           c = 0
+                         }
+                         if (trendsData[3].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                           f = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
+                         } 
+                         else {
+                           f = 0
+                         }
+                         if (trendsData[4].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                           h = trendsData[4].values.filter((g) => g.name === d.name)[idx].value;
+                         } 
+                        else {
+                          h = 0
                         }
-                        if (trendsData[1].values.filter((g) => g.name === d.name)[idx] != undefined) {
-                          b = trendsData[1].values.filter((g) => g.name === d.name)[idx].value;
-                        } else {
-                          b = 0
-                        }
-                        if (trendsData[2].values.filter((g) => g.name === d.name)[idx] != undefined) {
-                          c = trendsData[2].values.filter((g) => g.name === d.name)[idx].value;
-                        } else {
-                          c = 0
-                        }
-                        if (trendsData[3].values.filter((g) => g.name === d.name)[idx] != undefined) {
-                          e = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
-                        } else {
-                          e = 0
-                        }
-                        trend_info[name].year.push(2018, 2019, 2020, 2021);
-                        trend_info[name].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(e));
+                        trend_info[currentName].year.push(...this.years);
+                        trend_info[currentName].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(f), +d3.format(".2f")(h));
                       }
                     } else {
-                      trend_info[name].year = [];
-                      trend_info[name].value = [];
-                      if (trendsData[0].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                      trend_info[currentName].year = [];
+                      trend_info[currentName].value = [];
+                      if (trendsData[0].values.filter((g) => g.name === d.name)[idx] !== undefined) {
                         a = trendsData[0].values.filter((g) => g.name === d.name)[idx].value;
                       } else {
                         a = 0
                       }
-                      if (trendsData[1].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                      if (trendsData[1].values.filter((g) => g.name === d.name)[idx] !== undefined) {
                         b = trendsData[1].values.filter((g) => g.name === d.name)[idx].value;
                       } else {
                         b = 0
                       }
-                      if (trendsData[2].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                      if (trendsData[2].values.filter((g) => g.name === d.name)[idx] !== undefined) {
                         c = trendsData[2].values.filter((g) => g.name === d.name)[idx].value;
                       } else {
                         c = 0
                       }
-                      if (trendsData[3].values.filter((g) => g.name === d.name)[idx] != undefined) {
-                        e = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
-                      } else {
-                        e = 0
+                      if (trendsData[3].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                        f = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
+                      } 
+                     else {
+                        f = 0
                       }
-                      trend_info[name].year.push(2018, 2019, 2020, 2021);
-                      trend_info[name].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(e));
+                      if (trendsData[4].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                        h = trendsData[4].values.filter((g) => g.name === d.name)[idx].value;
+                      } 
+                     else {
+                        h = 0
+                      }
+                      trend_info[currentName].year.push(...this.years);
+                      trend_info[currentName].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(f), +d3.format(".2f")(h));
                     }
                   })
               });
@@ -460,6 +464,18 @@ class ResourceMixChart extends Component {
               .style("stroke", "#000")
               .style("stroke-width", 1);
 
+              Object.keys(trend_info).forEach(key => {
+                if (trend_info[key].year && trend_info[key].value) {
+                  const sorted = trend_info[key].year.map((year, idx) => ({
+                    year: year,
+                    value: trend_info[key].value[idx]
+                  })).sort((a, b) => a.year - b.year);
+              
+                  trend_info[key].year = sorted.map(d => d.year);
+                  trend_info[key].value = sorted.map(d => d.value);
+                }
+              });
+
             this.setState({
               table_info: table_info,
               selected_region: d.name === "US" ? this.props.region : d.name,
@@ -468,25 +484,25 @@ class ResourceMixChart extends Component {
               area_info: area_info,
             });
           }
-        })
-        .on("mouseout", (d) => {
-          if (!this.state.clicked_on_bar) {
-            d3.selectAll("rect.selected")
-              .classed("selected", false)
-              .style("stroke", "none");
+         })
+         .on("mouseout", (d) => {
+           if (!this.state.clicked_on_bar) {
+             d3.selectAll("rect.selected")
+               .classed("selected", false)
+               .style("stroke", "none");
 
-            d3.selectAll(".map-path").style("fill", "none");
-            d3.selectAll(".tick text").style("font-weight", "normal");
+             d3.selectAll(".map-path").style("fill", "none");
+             d3.selectAll(".tick text").style("font-weight", "normal");
 
-            this.setState({
-              table_info: table_info,
-              selected_region: this.props.region,
-              mouseover_fuel: null,
-              trend_info: trend_info,
-              area_info: [],
-            });
-          }
-        })
+             this.setState({
+               table_info: table_info,
+               selected_region: this.props.region,
+               mouseover_fuel: null,
+               trend_info: trend_info,
+               area_info: [],
+             });
+           }
+         })
         .on("click", (d) => {
           if (
             d3
@@ -515,99 +531,113 @@ class ResourceMixChart extends Component {
             let trend_info = {};
             let area_info = [];
             data
-              .filter((e) => (e.name === d.name || e.name === "US"))
-              .forEach((e) => {
-                let name = this.props.fuel_label_lookup[e.type];
-                if (Object.keys(table_info).indexOf(name) === -1) {
-                  table_info[name] = {};
-                }
-                table_info[name].type = e.type;
-                if (e.name === "US") {
-                  table_info[name][e.name + "_" + e.type] = d3.format(".2f")(e.value);
-                  if (d.name === "US") table_info[name][e.type] = "-";
-                } else {
-                  table_info[name][e.type] = d3.format(".2f")(e.value);
-                }
-              });
-            let a, b, c;
+            .filter((row) => (row.name === d.name || row.name === "US") && row.year === this.props.year)  
+            .forEach((row) => {
+              let currentName = this.props.fuel_label_lookup[row.type];
+              if (Object.keys(table_info).indexOf(currentName) === -1) {
+                table_info[currentName] = {};
+              }
+              table_info[currentName].type = row.type;
+              if (row.name === "US") {
+                table_info[currentName][row.name + "_" + row.type] = d3.format(".2f")(row.value);
+                if (d.name === "US") table_info[currentName][row.type] = "-";
+              } else {
+                table_info[currentName][row.type] = d3.format(".2f")(row.value);
+              }
+            });          
+            let currentName, a, b, c, f, h;
             trendsData
-              .forEach((e, i) => {
-                area_info.push({ year: e.key, Coal: 0, Oil: 0, Gas: 0, Nuclear: 0, Hydro: 0, Biomass: 0, Wind: 0, Solar: 0, 'Geo thermal': 0, 'Other Fossil': 0, 'Other Unknown': 0, 'All Non-Hydro Renewables': 0, 'All Non Renewables': 0, 'All Combustion': 0, 'All Non Combustion': 0 })
-                e.values.forEach(g => {
-                  name = this.props.fuel_label_lookup[g.type];
+              .forEach((row, i) => {
+                area_info.push({ year: row.key, Coal: 0, Oil: 0, Gas: 0, Nuclear: 0, Hydro: 0, Biomass: 0, Wind: 0, Solar: 0, 'Geo thermal': 0, 'Other Fossil': 0, 'Other Unknown': 0, 'All Non-Hydro Renewables': 0, 'All Non Renewables': 0, 'All Combustion': 0, 'All Non Combustion': 0 })
+                row.values.forEach(g => {
+                  currentName = this.props.fuel_label_lookup[g.type];
                   if (g.name === d.name) {
                     if (typeof g.value === "number") {
-                      area_info[i][name] = +d3.format(".2f")(g.value);
+                      area_info[i][currentName] = +d3.format(".2f")(g.value);
                     }
                     else {
-                      area_info[i][name] = 0;
+                      area_info[i][currentName] = 0;
                     }
                   }
                 })
-                e.values.filter((g) => g.name === d.name || g.name === "US")
+                row.values.filter((g) => g.name === d.name || g.name === "US")
                   .forEach((g, idx) => {
-                    name = this.props.fuel_label_lookup[g.type];
-                    if (Object.keys(trend_info).indexOf(name) === -1) {
-                      trend_info[name] = {};
+                    currentName = this.props.fuel_label_lookup[g.type];
+                    if (Object.keys(trend_info).indexOf(currentName) === -1) {
+                      trend_info[currentName] = {};
                     }
                     if (g.type) {
-                      trend_info[name].type = g.type;
+                      trend_info[currentName].type = g.type;
                     }
 
                     if (g.name === "US") {
-                      trend_info[name][g.name + "_" + g.type] = [d3.format(".2f")(g.value)];
+                      trend_info[currentName][g.name + "_" + g.type] = [d3.format(".2f")(g.value)];
                       if (d.name === "US") {
-                        trend_info[name][g.type] = "-";
-                        trend_info[name].year = [];
-                        trend_info[name].value = [];
-                        if (trendsData[0].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        trend_info[currentName][g.type] = "-";
+                        trend_info[currentName].year = [];
+                        trend_info[currentName].value = [];
+                        if (trendsData[0].values.filter((g) => g.name === d.name)[idx] !== undefined) {
                           a = trendsData[0].values.filter((g) => g.name === d.name)[idx].value;
                         } else {
                           a = 0
                         }
-                        if (trendsData[1].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        if (trendsData[1].values.filter((g) => g.name === d.name)[idx] !== undefined) {
                           b = trendsData[1].values.filter((g) => g.name === d.name)[idx].value;
                         } else {
                           b = 0
                         }
-                        if (trendsData[2].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                        if (trendsData[2].values.filter((g) => g.name === d.name)[idx] !== undefined) {
                           c = trendsData[2].values.filter((g) => g.name === d.name)[idx].value;
                         } else {
                           c = 0
                         }
-                        if (trendsData[3].values.filter((g) => g.name === d.name)[idx] != undefined) {
-                          e = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
-                        } else {
-                          e = 0
+                        if (trendsData[3].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                          f = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
+                        } 
+                       else {
+                          f = 0
                         }
-                        trend_info[name].year.push(2018, 2019, 2020, 2021);
-                        trend_info[name].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(e));
+                        if (trendsData[4].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                          h = trendsData[4].values.filter((g) => g.name === d.name)[idx].value;
+                        } 
+                       else {
+                          h = 0
+                        }
+                        trend_info[currentName].year.push(...this.years);
+                        trend_info[currentName].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(f), +d3.format(".2f")(h));
                       }
                     } else {
-                      trend_info[name].year = [];
-                      trend_info[name].value = [];
-                      if (trendsData[0].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                      trend_info[currentName].year = [];
+                      trend_info[currentName].value = [];
+                      if (trendsData[0].values.filter((g) => g.name === d.name)[idx] !== undefined) {
                         a = trendsData[0].values.filter((g) => g.name === d.name)[idx].value;
                       } else {
                         a = 0
                       }
-                      if (trendsData[1].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                      if (trendsData[1].values.filter((g) => g.name === d.name)[idx] !== undefined) {
                         b = trendsData[1].values.filter((g) => g.name === d.name)[idx].value;
                       } else {
                         b = 0
                       }
-                      if (trendsData[2].values.filter((g) => g.name === d.name)[idx] != undefined) {
+                      if (trendsData[2].values.filter((g) => g.name === d.name)[idx] !== undefined) {
                         c = trendsData[2].values.filter((g) => g.name === d.name)[idx].value;
                       } else {
                         c = 0
                       }
-                      if (trendsData[3].values.filter((g) => g.name === d.name)[idx] != undefined) {
-                        e = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
-                      } else {
-                        e = 0
+                      if (trendsData[3].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                        f = trendsData[3].values.filter((g) => g.name === d.name)[idx].value;
+                      } 
+                     else {
+                        f = 0
                       }
-                      trend_info[name].year.push(2018, 2019, 2020, 2021);
-                      trend_info[name].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(e));
+                      if (trendsData[4].values.filter((g) => g.name === d.name)[idx] !== undefined) {
+                        h = trendsData[4].values.filter((g) => g.name === d.name)[idx].value;
+                      } 
+                     else {
+                        h = 0
+                      }
+                      trend_info[currentName].year.push(...this.years);
+                      trend_info[currentName].value.push(+d3.format(".2f")(a), +d3.format(".2f")(b), +d3.format(".2f")(c), +d3.format(".2f")(f), +d3.format(".2f")(h));
                     }
 
                   })
@@ -632,7 +662,7 @@ class ResourceMixChart extends Component {
             d3.selectAll("rect").style("opacity", 0.3);
 
             d3.select(this.wrapper.current)
-              .selectAll("rect.bars_" + "-1")
+              .selectAll("rect.bars_-1")
               .style("opacity", 1);
 
             d3.select(this.wrapper.current)
@@ -640,7 +670,7 @@ class ResourceMixChart extends Component {
               .style("opacity", 1);
 
             d3.select(this.wrapper.current)
-              .select("rect.bars_" + "-1" + "_" + d.type)
+              .select("rect.bars_-1_" + d.type)
               .classed("highlighted", true)
               .style("stroke", "#000")
               .style("stroke-width", 1);
@@ -679,7 +709,7 @@ class ResourceMixChart extends Component {
           "class",
           (d) =>
             "tick mouseover_target region_" +
-            data.filter((e) => e.name === d).map((e) => e.id)[0]
+            data.filter((row) => row.name === d).map((row) => row.id)[0]
         )
         .selectAll("text")
         .style("font-size", (d) => (this.props.layer_type === "balancing authority" ? ".9em" : this.props.layer_type === "state" ? "1.1em" : (this.props.layer_type === "NERC region" ? "1.5em" : "1.2em")))
@@ -773,7 +803,7 @@ class ResourceMixChart extends Component {
           let n = d3
             .select(this.fuels.current)
             .selectAll(".fuel")
-            .filter((e) => e === d)
+            .filter((row) => row === d)
           if (!n.classed("selected")) {
             this.setState({ sort_fuel: d });
           }
@@ -782,7 +812,7 @@ class ResourceMixChart extends Component {
           let n = d3
             .select(this.fuels.current)
             .selectAll(".fuel")
-            .filter((e) => e === d);
+            .filter((row) => row === d);
           if (!n.classed("selected")) {
             n.style("background", this.props.fuel_background_highlight_color);
           }
@@ -791,7 +821,7 @@ class ResourceMixChart extends Component {
           let n = d3
             .select(this.fuels.current)
             .selectAll(".fuel")
-            .filter((e) => e === d);
+            .filter((row) => row === d);
           if (!n.classed("selected")) {
             n.style("background", "none");
           } else {
@@ -833,7 +863,7 @@ class ResourceMixChart extends Component {
     fuels
       .classed("selected", false)
       .style("background", "none")
-      .filter((e) => e === fuel)
+      .filter((row) => row === fuel)
       .classed("selected", true)
       .style("background", this.props.fuel_background_select_color);
 
@@ -907,7 +937,7 @@ class ResourceMixChart extends Component {
         .call(this.props.wrap_long_labels, boxlen_reset);
 
       let data = [];
-      let trendsData = [];
+
 
       _.flatten([this.props.us_data, this.props.trendsData]).forEach((d) => {
         let cumsum = 0;
@@ -959,14 +989,10 @@ class ResourceMixChart extends Component {
 
 
       });
-      // data.sort((a, b) => a.name.localeCompare(b.name));
-      trendsData = d3.nest()
-        .key(function (d) { return d.year })
-        .entries(data);
 
       for (var i = data.length - 1; i >= 0; i--) {
         if (data[i].year === this.props.year) {
-          if (data[i].totalValue == 0) {
+          if (data[i].totalValue === 0) {
             data.splice(i, 1);
           }
         }
@@ -997,7 +1023,7 @@ class ResourceMixChart extends Component {
       d3.select(this.barchart.current)
         .selectAll("rect")
         .each((d) => {
-          d.cumsum = data.filter((e) => (e.name === d.name && e.type === d.type) && e.year === this.props.year).map((e) => e.cumsum)[0];
+          d.cumsum = data.filter((row) => (row.name === d.name && row.type === d.type) && row.year === this.props.year).map((row) => row.cumsum)[0];
         })
         .attr("x", (d) => barXScale(d.cumsum))
         .attr("width", (d) => barXScale(d.value))
@@ -1025,7 +1051,6 @@ class ResourceMixChart extends Component {
       ]);
 
       let data = [];
-      let trendsData = [];
 
       let tempTotalValueArray = [];
       _.flatten([this.props.us_data, this.props.trendsData]).forEach((d) => {
@@ -1065,7 +1090,7 @@ class ResourceMixChart extends Component {
           return items;
         }, []);
 
-        data.forEach(function (d, i) {
+        data.forEach(function (d) {
           totalValue.forEach(v => {
             if (v.name === d.name) {
               d.totalValue = v.value;
@@ -1079,15 +1104,12 @@ class ResourceMixChart extends Component {
           }
         });
         data.sort((a, b) => a.name.localeCompare(b.name));
-        trendsData = d3.nest()
-          .key(function (d) { return d.year })
-          .entries(data);
       });
 
-      for (var i = data.length - 1; i >= 0; i--) {
-        if (data[i].year === this.props.year) {
-          if (data[i].totalValue == 0) {
-            data.splice(i, 1);
+      for (var j = data.length - 1; j >= 0; j--) {
+        if (data[j].year === this.props.year) {
+          if (data[j].totalValue === 0) {
+            data.splice(j, 1);
           }
         }
       }
@@ -1121,7 +1143,7 @@ class ResourceMixChart extends Component {
       d3.select(this.barchart.current)
         .selectAll("rect")
         .each((d) => {
-          d.cumsum = data.filter((e) => (e.name === d.name && e.type === d.type) && e.year === this.props.year).map((e) => e.cumsum)[0];
+          d.cumsum = data.filter((row) => (row.name === d.name && row.type === d.type) && row.year === this.props.year).map((row) => row.cumsum)[0];
         })
         .attr("x", (d) => barXScale(d.cumsum))
         .attr("width", (d) => barXScale(d.value))
@@ -1137,128 +1159,95 @@ class ResourceMixChart extends Component {
         {this.props.title.replace(',', '\n')}
       </p>
     );
-
     return (
       <div id="resourcemix-wrapper" ref={this.wrapper} style={{ width: this.state.width }}>
         {title}
-        <div>
-          <svg
-            style={{
-              width:
-                this.state.width < this.props.ipad_width
+        <div className="resourcemix-content">
+          <div className="resourcemix-top">
+            <svg
+              style={{
+                width: this.state.width < this.props.ipad_width
                   ? this.state.width * 0.4
                   : this.state.width * this.micromap_width_pct,
-              height: this.props.filter_height,
-            }}
-            ref={this.micromap}
-            id="resourcemix-micromap"
-          ></svg>
-          <div
-            className="fuels-selection"
-            style={{
-              width:
-                this.state.width < this.props.ipad_width
+                height: this.props.filter_height,
+              }}
+              ref={this.micromap}
+              id="resourcemix-micromap"
+            ></svg>
+            <div
+              className="fuels-selection"
+              style={{
+                width: this.state.width < this.props.ipad_width
                   ? this.state.width * 0.9
                   : this.state.width * this.fuels_filter_pct,
-              verticalAlign: "top",
-              height: "100%",
-              textAlign: "left"
-            }}
-            ref={this.fuels}
-          ></div>
-        </div>
-        <div>
-
-          <div id="resourcemix-chart">
-            <div>
-              <svg
-                style={{
-                  width:
-                    this.state.width < this.props.ipad_width
+                verticalAlign: "top",
+                height: "100%",
+                textAlign: "left"
+              }}
+              ref={this.fuels}
+            ></div>
+          </div>
+          <div className="resourcemix-bottom">
+            <div id="resourcemix-chart">
+              <div className="barchart-container">
+                <svg
+                  style={{
+                    width: this.state.width < this.props.ipad_width
                       ? this.state.width * 0.9
                       : this.state.width * 0.95 - this.props.table_width,
-                  height: this.props.barchart_height,
-                  marginTop:
-                    this.state.width < this.props.ipad_width
+                    height: this.props.barchart_height,
+                    marginTop: this.state.width < this.props.ipad_width
                       ? this.props.margin_top
                       : 0,
-                }}
-                ref={this.barchart_wrapper}
-              >
-                <g ref={this.barchart}></g>
-                <g ref={this.axis_y} className={"axis axis_y"}></g>
-                <g ref={this.axis_x} className={"axis axis_x"}></g>
-              </svg>
-              {/* <UpdatedTrends
+                  }}
+                  ref={this.barchart_wrapper}
+                >
+                  <g ref={this.barchart}></g>
+                  <g ref={this.axis_y} className={"axis axis_y"}></g>
+                  <g ref={this.axis_x} className={"axis axis_x"}></g>
+                </svg>
+              </div>
+              <div className="table-wrapper">
+                <UpdatedTable
+                  title={this.props.title}
+                  region_level={this.props.region}
+                  region={this.state.selected_region}
+                  type={this.state.mouseover_fuel}
+                  table_info={this.state.table_info}
+                  trend_info={this.state.trend_info}
+                  highlight_color={this.props.table_highlight_color}
+                  trendsData={this.props.trendsData}
+                  year={this.props.year}
+                  fuel_color={this.props.fuel_color_lookup}
+                />
+              </div>
+            </div>
+            <div className="area-chart-container drupal-specific-class">
+              <ResourceMixAreaChart
                 title={this.props.title}
                 region_level={this.props.region}
                 region={this.state.selected_region}
-                type={this.state.mouseover_fuel}
-                table_info={this.state.table_info}
-                trend_info={this.state.trend_info}
+                type={this.props.fuel_label_lookup[this.state.mouseover_fuel]}
+                data={this.state.area_info}
                 highlight_color={this.props.table_highlight_color}
-                trendsData={this.props.trendsData}
                 year={this.props.year}
                 fuel_color={this.props.fuel_color_lookup}
-              /> */}
+                window_width={this.props.window_width}
+                window_height={this.props.window_height}
+                width={this.init_window_width < 800 ? this.init_window_width * 0.8 : 650}
+                barchart_sort={this.props.barchart_sort}
+                height={200}
+                margin_top={10}
+                margin_bottom={30}
+                margin_right={30}
+                margin_left={60}
+                field={this.props.field}
+                us_data={this.props.us_data}
+                usTrendsData={this.props.usTrendsData}
+                unit={this.props.unit}
+              />
             </div>
-            <div
-              className="table-wrapper"
-            // style={{
-            //   width:
-            //     this.state.width < this.props.ipad_width
-            //       ? this.state.width
-            //       : this.props.table_width,
-            //   height: this.props.barchart_height - this.props.margin_top,
-            //   marginTop:
-            //     this.state.width < this.props.ipad_width
-            //       ? this.props.margin_top
-            //       : 0,
-            //   marginLeft: 0,
-            // }}
-            >
-            </div>
-            <UpdatedTable
-              title={this.props.title}
-              region_level={this.props.region}
-              region={this.state.selected_region}
-              type={this.state.mouseover_fuel}
-              table_info={this.state.table_info}
-              trend_info={this.state.trend_info}
-              highlight_color={this.props.table_highlight_color}
-              trendsData={this.props.trendsData}
-              year={this.props.year}
-              fuel_color={this.props.fuel_color_lookup}
-            />
-
           </div>
-          <ResourceMixAreaChart
-            title={this.props.title}
-            region_level={this.props.region}
-            region={this.state.selected_region}
-            type={this.props.fuel_label_lookup[this.state.mouseover_fuel]}
-            data={this.state.area_info}
-            highlight_color={this.props.table_highlight_color}
-            year={this.props.year}
-            fuel_color={this.props.fuel_color_lookup}
-            window_width={this.props.window_width}
-            window_height={this.props.window_height}
-            width={
-              this.init_window_width < 800
-                ? this.init_window_width * 0.8
-                : 650
-            }
-            barchart_sort={this.props.barchart_sort}
-            height={200}
-            margin_top={10}
-            margin_bottom={30}
-            margin_right={30}
-            margin_left={60}
-            field={this.props.field}
-            us_data={this.props.us_data}
-            usTrendsData={this.props.usTrendsData}
-            unit={this.props.unit}
-          />
         </div>
         <Dialog
           id="subregion-map"

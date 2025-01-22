@@ -4,7 +4,6 @@ import Modal from "react-bootstrap/Modal";
 import instruction_sentence from "./assets/img/instruction_sentence.png";
 import instruction_resourcemix from "./assets/img/instruction_resourcemix.png";
 import instruction_zoomable_map from "./assets/img/instruction_zoomable_map.png";
-import instruction_sparklines from "./assets/img/instructions_sparklines.png";
 import instruction_trend_chart from "./assets/img/instructions_trend_chart.png";
 
 import SubregionMap from "./assets/img/2019_egrid_subregions.png";

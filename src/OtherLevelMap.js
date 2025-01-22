@@ -141,10 +141,13 @@ class OtherLevelMap extends Component {
     // add layers
     d3.select(this.map.current)
       .on("mouseenter", () => {
-        d3.select(this.tooltip.current).style("display", null);
+        d3.select("#tooltip-bar").style("display", null);
       })
       .on("mouseleave", () => {
-        d3.select(this.tooltip.current).style("display", "none");
+        d3.select("#tooltip-bar").style("display", "none")
+        .transition()
+        .duration(500)
+        .style("opacity", 0);
       });
 
     d3.select(this.paths.current).selectAll("path").remove();
@@ -307,9 +310,6 @@ class OtherLevelMap extends Component {
               <g ref={this.labels} />
             </svg>
           </div>
-        </div>
-        <div>
-          <p ref={this.tooltip} className="tooltip"></p>
         </div>
       </div>
     );

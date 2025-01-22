@@ -1,9 +1,6 @@
 import React, { Component } from "react";
 import Dialog from "./Dialog.js";
 import * as d3 from "d3";
-import { forEach } from "underscore";
-import { legendSymbol } from "d3-svg-legend";
-import { line } from "d3";
 
 class UpdatedTable extends Component {
   constructor(props) {
@@ -12,7 +9,6 @@ class UpdatedTable extends Component {
     this.state = {
       show_modal: false,
     };
-    let trend;
   }
 
 
@@ -40,14 +36,15 @@ class UpdatedTable extends Component {
         colorArrayList = [];
 
       if (this.props.title.startsWith("Resource Mix")) {
+
         data.forEach(d => {
 
           let valueArray, min, max, yearArray, fuel_color;
-          if (d[1].value == undefined || d[1].year == undefined || d[1].type == undefined || d[1].value.length <= 1 || d[1].year.length <= 1) {
-            valueArray = [undefined, undefined, undefined];
+          if (d[1].value === undefined || d[1].year === undefined || d[1].type === undefined || d[1].value.length <= 1 || d[1].year.length <= 1) {
+            valueArray = [undefined, undefined, undefined, undefined, undefined];
             max = d3.max(valueArray);
             min = d3.min(valueArray);
-            yearArray = [undefined, undefined, undefined];
+            yearArray = [undefined, undefined, undefined, undefined, undefined];
             fuel_color = "steelblue";
           } else {
             valueArray = d[1].value;
@@ -68,22 +65,30 @@ class UpdatedTable extends Component {
         })
       } else {
         data.forEach((d, i) => {
-          if (!d[1] || d[1] == undefined || typeof d[1][0] === "string" || d[1][0] == undefined || d[1][0].length <= 1) {
+          if (!d[1] || d[1] === undefined || typeof d[1][0] === "string" || d[1][0] === undefined || d[1][0].length <= 1) {
             return;
           } else {
-            if (d[1][0].indexOf('2018') == -1) {
+            // needs to be manually updated with new years, highest year should have 0 index in splice. Should make this automatic
+            if (d[1][0].indexOf('2018') === -1) {
               d[1][0].push('2018');
-              d[1][1].splice(2, 0, '-');
-            } else if (d[1][0].indexOf('2019') == -1) {
+              d[1][1].splice(5, 0, '-');
+            } else if (d[1][0].indexOf('2019') === -1) {
               d[1][0].push('2019');
-              d[1][1].splice(1, 0, '-');
-            } else if (d[1][0].indexOf('2020') == -1) {
+              d[1][1].splice(4, 0, '-');
+            } else if (d[1][0].indexOf('2020') === -1) {
               d[1][0].push('2020');
-              d[1][1].splice(0, 0, '-');
-            } else if (d[1][0].indexOf('2021') == -1) {
+              d[1][1].splice(3, 0, '-');
+            } else if (d[1][0].indexOf('2021') === -1) {
               d[1][0].push('2021');
+              d[1][1].splice(2, 0, '-');
+            } else if (d[1][0].indexOf('2022') === -1) {
+              d[1][0].push('2022');
+              d[1][1].splice(1, 0, '-');
+            } else if (d[1][0].indexOf('2023') === -1) {
+              d[1][0].push('2023');
               d[1][1].splice(0, 0, '-');
             }
+            
 
             let valueArray = d[1][1].map(g => g[0]),
               max = d3.max(valueArray.filter(d => typeof d == 'number')),
@@ -94,7 +99,7 @@ class UpdatedTable extends Component {
               return a - b;
             });
             let emptyValIdx = valueArray.indexOf('')
-            if (emptyValIdx != -1) {
+            if (emptyValIdx !== -1) {
               valueArray.splice(emptyValIdx, 0, undefined);
             }
 
@@ -121,25 +126,25 @@ class UpdatedTable extends Component {
 
       let xArray, yArray;
       if (trendYScale && trendYScale) {
-        yArray = yArrayList.map((p, i) => p.map(e => trendYScaleList[i](e)))
-        xArray = xArrayList.map((p, i) => p.map(e => trendXScaleList[i](e)))
+        yArray = yArrayList.map((p, i) => p.map(row => trendYScaleList[i](row)))
+        xArray = xArrayList.map((p, i) => p.map(row => trendXScaleList[i](row)))
       }
 
       if (trendXScale && trendYScale && this.props.title.startsWith("Resource Mix")) {
         trends.append("path")
-          .attr("d", (d, i) => yArray[i][1] === undefined || yArray[i][1] === NaN || typeof yArray[i][1] !== "number" ? '' : line(xArray[i], yArray[i]))
+          .attr("d", (d, i) => yArray[i][1] === undefined || isNaN(yArray[i][1]) || typeof yArray[i][1] !== "number" ? '' : line(xArray[i], yArray[i]))
           .attr("fill", "none")
           .attr("stroke", (d, i) => colorArrayList[i])
           .attr("stroke-width", 1.5);
         // trends.append("text").text((d, i) => yArrayList[i]).attr("y", 0 + height - 5).attr("x", 5);
-        trends.append("text").text((d, i) => yArray[i][1] === undefined || yArray[i][1] === NaN || typeof yArray[i][1] !== "number" ? "No trend data" : "").attr("y", 0 + height - 5).attr("x", 5);
+        trends.append("text").text((d, i) => yArray[i][1] === undefined || isNaN(yArray[i][1]) || typeof yArray[i][1] !== "number" ? "No trend data" : "").attr("y", 0 + height - 5).attr("x", 5);
       } else if (trendXScale && trendYScale && !this.props.title.startsWith("Resource Mix")) {
         trends.append("path")
-          .attr("d", (d, i) => yArray[i][1] === undefined || yArray[i][1] === NaN || typeof yArray[i][1] !== "number" ? "" : line(xArray[i], yArray[i]))
+          .attr("d", (d, i) => yArray[i][1] === undefined || isNaN(yArray[i][1]) || typeof yArray[i][1] !== "number" ? "" : line(xArray[i], yArray[i]))
           .attr("fill", "none")
           .attr("stroke", this.props.map_fill[3])
           .attr("stroke-width", 1.5);
-        trends.append("text").text((d, i) => yArray[i][1] === undefined || yArray[i][1] === NaN || typeof yArray[i][1] !== "number" ? "No trend data" : "").attr("y", 0 + height - 5).attr("x", 5);
+        trends.append("text").text((d, i) => yArray[i][1] === undefined || isNaN(yArray[i][1]) || typeof yArray[i][1] !== "number" ? "No trend data" : "").attr("y", 0 + height - 5).attr("x", 5);
         // trends.append("text").text((d, i) => yArrayList[i]).attr("y", 0 + height - 5).attr("x", 5)
       } else {
         trends.append("text").text("-").attr("y", 0 + height - 5).attr("x", width - 5)
@@ -189,7 +194,7 @@ class UpdatedTable extends Component {
       });
     } else if (this.props.title.startsWith("Resource Mix")) {
       Object.keys(this.props.table_info).forEach((r, i) => {
-        let row, info = this.props.table_info[r];
+        let row = this.props.table_info[r];
         this.trend = this.props.trend_info[r];
         row = (
           <tr
@@ -252,15 +257,7 @@ class UpdatedTable extends Component {
               key={i}
             >
               <td>
-                {r}{" "}
-                <span
-                  className="clickable-cell"
-                  onClick={() => {
-                    this.setState({ show_modal: true });
-                  }}
-                >
-                  (map)
-                </span>
+                {r}
               </td>
               <td>{this.props.table_info[r]}</td>
               <td>-</td>
@@ -319,15 +316,7 @@ class UpdatedTable extends Component {
               key={i}
             >
               <td>
-                {r}{" "}
-                <span
-                  className="clickable-cell"
-                  onClick={() => {
-                    this.setState({ show_modal: true });
-                  }}
-                >
-                  (map)
-                </span>
+                {r}
               </td>
               <td>{this.props.table_info[r]}</td>
               <td>-</td>
@@ -391,8 +380,8 @@ class UpdatedTable extends Component {
           <table id="plant-table">
             <thead>
               <tr>
-                <th>Plant Name</th>
-                <th>{this.props.table_info["Plant Name"]}</th>
+                <th>Data Element</th>
+                <th>Value</th>
                 <th>Trend <br></br> ({this.props.trendsData[0].year} – {this.props.trendsData[this.props.trendsData.length - 1].year})</th>
               </tr>
             </thead>
@@ -404,8 +393,8 @@ class UpdatedTable extends Component {
           <table id="ba-table">
             <thead>
               <tr>
-                <th>Balancing Authority Name</th>
-                <th>{this.props.table_info["Balancing Authority Name"]}</th>
+              <th>Data Element</th>
+                <th>Value</th>
                 <th>Trend <br></br> ({this.props.trendsData[0].year} – {this.props.trendsData[this.props.trendsData.length - 1].year})</th>
               </tr>
             </thead>

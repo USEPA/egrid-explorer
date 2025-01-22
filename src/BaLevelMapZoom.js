@@ -1,20 +1,18 @@
 import React, { Component } from "react";
 import mapboxgl from "mapbox-gl";
-import OtherLevelTrends from "./OtherLevelTrends";
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 import * as d3 from "d3";
 
 import reset_view_icon from "./assets/img/reset_view_icon.jpg";
 import UpdatedTable from "./Table";
 import ba_topo from "./assets/data/json/Control_Areas_simplified.json";
 
+
 mapboxgl.accessToken =
   "pk.eyJ1Ijoia2F0aWVsb25nIiwiYSI6ImNpenpudmY1dzAxZmYzM2tmY2tobDN1MXoifQ._aoE2Zj7vx3dUlZw-gBCrg";
 
 class BALevelMapZoom extends Component {
-
-
   constructor(props) {
     super(props);
 
@@ -24,8 +22,8 @@ class BALevelMapZoom extends Component {
     let table_info = {};
     let trend_info = {};
     Object.keys(this.props.table_rows).forEach((e) => {
-      table_info[this.props.table_rows[e]] = "-"
-      trend_info[this.props.table_rows[e]] = "-"
+      table_info[this.props.table_rows[e]] = "-";
+      trend_info[this.props.table_rows[e]] = "-";
     });
     this.state = {
       selected_ba_id: null,
@@ -43,7 +41,6 @@ class BALevelMapZoom extends Component {
 
     this.zoom_factor = this.max_radius / this.field_factor_divided_by;
 
-
     this.show_ba_info = false;
     this.hoveredBAId = null;
     this.hoveredBA = null;
@@ -51,24 +48,43 @@ class BALevelMapZoom extends Component {
     this.tooltip = new mapboxgl.Popup({
       closeButton: true,
       closeOnClick: false,
-      focusAfterOpen: false
+      focusAfterOpen: false,
     });
 
     this.tooltip2 = new mapboxgl.Popup({
       closeButton: false,
       closeOnClick: false,
-      focusAfterOpen: false
+      focusAfterOpen: false,
     });
-
-    let trendsData = this.props.trendsData,
-      sumstat = d3.nest()
-        .key(function (d) { return d.name })
-        .entries(trendsData), yearLength = sumstat[0].values.length;
 
     this.queryData = props.ba_data;
 
     this.updateTable = this.updateTable.bind(this);
 
+    this.minImg = this.createMarkerImage(this.props.map_fill[0]);
+
+    // Generate SVG and corresponding variables for markers 1 to 4
+    this.markerImages = Array.from({ length: 4 }, (_, index) =>
+      this.createMarkerImage(this.props.map_fill[index + 1])
+    );
+
+    // Generate SVG and corresponding variables for max
+    this.maxImg = this.createMarkerImage(this.props.map_fill_max);
+  }
+
+  createMarkerImage(fillColor) {
+    const markerSVG = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
+        <rect width="25" height="25" fill="${fillColor}" stroke="#000" stroke-width="2"/>
+      </svg>
+    `;
+
+    const markerUrl = "data:image/svg+xml," + encodeURIComponent(markerSVG);
+
+    const markerImg = new Image();
+    markerImg.src = markerUrl;
+
+    return markerImg;
   }
 
   updateTable(table) {
@@ -109,18 +125,15 @@ class BALevelMapZoom extends Component {
   }
 
   updateLegend(features, layer_features, factor) {
-
     // set up scale
     let domainArr = this.props.ba_data.features
       .map((e) => e.properties.value)
       .sort((a, b) => a - b);
     domainArr = domainArr.filter((d, i) => domainArr.indexOf(d) === i);
-    let domain = d3.range(this.props.map_fill.length)
-      .map((d) => {
-        return d3.quantile(domainArr, (d + 1) / this.props.map_fill.length);
-      });
+    let domain = d3.range(this.props.map_fill.length).map((d) => {
+      return d3.quantile(domainArr, (d + 1) / this.props.map_fill.length);
+    });
     domain = domain.filter((d, i) => domain.indexOf(d) === i);
-
 
     // draw legend
     let w = 330,
@@ -137,11 +150,13 @@ class BALevelMapZoom extends Component {
     );
 
     let thresholds = Object.values(domain).slice(0, domain.length + 1);
-    let map_fills = Object.values(this.props.map_fill).slice(0, this.props.map_fill.length + 1);
+    let map_fills = Object.values(this.props.map_fill).slice(
+      0,
+      this.props.map_fill.length + 1
+    );
 
     map_fills.push(this.props.map_fill_max);
     thresholds.push(domain[4]);
-
 
     let fill_values;
     let legend_values;
@@ -158,13 +173,13 @@ class BALevelMapZoom extends Component {
         thresholds = [
           thresholds.slice(0)[0],
           thresholds.slice(0)[0] +
-          (layer_features_extent[1] - thresholds.slice(0)[0]) / 5,
+            (layer_features_extent[1] - thresholds.slice(0)[0]) / 5,
           thresholds.slice(0)[0] +
-          ((layer_features_extent[1] - thresholds.slice(0)[0]) * 2) / 5,
+            ((layer_features_extent[1] - thresholds.slice(0)[0]) * 2) / 5,
           thresholds.slice(0)[0] +
-          ((layer_features_extent[1] - thresholds.slice(0)[0]) * 3) / 5,
+            ((layer_features_extent[1] - thresholds.slice(0)[0]) * 3) / 5,
           thresholds.slice(0)[0] +
-          ((layer_features_extent[1] - thresholds.slice(0)[0]) * 4) / 5,
+            ((layer_features_extent[1] - thresholds.slice(0)[0]) * 4) / 5,
           layer_features_extent[1],
         ];
 
@@ -175,9 +190,7 @@ class BALevelMapZoom extends Component {
       }
       legend_values = thresholds.map((d) => d);
       fill_values = map_fills;
-
     }
-
 
     let legend_cells = d3
       .select("#map-zoomable-legend-ba")
@@ -191,20 +204,21 @@ class BALevelMapZoom extends Component {
       .attr("transform", (d, i) => "translate(" + i * boxlen + "," + 5 + ")");
 
     legend_cells
-      .append("circle")
+      .append("rect") 
       .style("fill", (d, i) => fill_values[i])
       .style("stroke", "black")
-      .attr("r", 18)
-      .attr("cx", boxlen / 2)
-      .attr("cy", Math.min(boxlen, h * 0.5) / 2);
+      .attr("width", 18) 
+      .attr("height", 18)
+      .attr("x", boxlen / 2 - 9) 
+      .attr("y", Math.min(boxlen, h * 0.5) / 2 - 9);
 
     legend_cells
       .append("text")
       .attr("x", boxlen / 2)
-      .attr(
-        "y",
-        Math.min((boxlen, h * 0.5) / 2) + 40
-      )
+      .attr("y", Math.min((boxlen, h * 0.5) / 2) + 40)
+      .on("load", function () {
+        console.log("Image loaded");
+      })
       // toLocaleString()
       .attr("dx", 0)
       .attr("dy", 0)
@@ -221,8 +235,7 @@ class BALevelMapZoom extends Component {
           }
           if (Math.abs(d) > 1000000000) {
             return "≤" + (d / 1000000000).toFixed(2) + "b";
-          }
-          else {
+          } else {
             return "≤" + d.toFixed(1);
           }
         }
@@ -253,8 +266,7 @@ class BALevelMapZoom extends Component {
           }
           if (Math.abs(d) > 1000000000) {
             return (d / 1000000000).toFixed(2) + "b";
-          }
-          else {
+          } else {
             return d.toFixed(1);
           }
         }
@@ -265,21 +277,20 @@ class BALevelMapZoom extends Component {
   updateMap() {
     const data = {
       type: "FeatureCollection",
-      features: this.props.ba_data.features
-        .map((d) => {
-          if (typeof d.properties[this.props.field] !== "number") {
-            d.properties[this.props.field] = 0
-          }
-          d.properties[this.props.field + "_trimmed"] =
-            d.properties[this.props.field];
-          return d;
-        }),
+      features: this.props.ba_data.features.map((d) => {
+        if (typeof d.properties[this.props.field] !== "number") {
+          d.properties[this.props.field] = 0;
+        }
+        d.properties[this.props.field + "_trimmed"] =
+          d.properties[this.props.field];
+        return d;
+      }),
     };
 
     const ba_topo_data = {
       type: "FeatureCollection",
-      features: ba_topo.features
-    }
+      features: ba_topo.features,
+    };
 
     // update map data
     this.map.getSource("bas").setData(data);
@@ -293,41 +304,37 @@ class BALevelMapZoom extends Component {
       this.updateLegend(
         data.features,
         this.map.queryRenderedFeatures({
-          layers: [
-            "bas-" +
-            this.state.map_style,
-          ],
-        }),
+          layers: ["bas-" + this.state.map_style],
+        })
       );
     });
   }
-
 
   setMapFill() {
     let domainArr = this.props.ba_data.features
       .map((e) => e.properties.value)
       .sort((a, b) => a - b);
     domainArr = domainArr.filter((d, i) => domainArr.indexOf(d) === i);
-    let domain = d3.range(this.props.map_fill.length)
-      .map((d) => {
-        return d3.quantile(domainArr, (d + 1) / this.props.map_fill.length);
-      });
+    let domain = d3.range(this.props.map_fill.length).map((d) => {
+      return d3.quantile(domainArr, (d + 1) / this.props.map_fill.length);
+    });
     domain = domain.filter((d, i) => domain.indexOf(d) === i);
 
-    this.map.setPaintProperty("bas-" + this.state.map_style, "circle-color", [
-      'step',
+    // Set the icon-color property for the symbol layer
+    this.map.setLayoutProperty("bas-" + this.state.map_style, "icon-image", [
+      "step",
       ["get", this.props.field + "_trimmed"],
-      this.props.map_fill[0],
+      "min-marker",
       domain[0],
-      this.props.map_fill[1],
+      "marker-1",
       domain[1],
-      this.props.map_fill[2],
+      "marker-2",
       domain[2],
-      this.props.map_fill[3],
+      "marker-3",
       domain[3],
-      this.props.map_fill[4],
+      "marker-4",
       domain[4],
-      this.props.map_fill_max,
+      "max-marker",
     ]);
   }
 
@@ -337,15 +344,14 @@ class BALevelMapZoom extends Component {
     }
   }
 
-
   componentDidMount() {
-
     this._isMounted = true;
+    
 
     let init_zoom =
-      this.props.window_width < 768
-        ? this.props.min_zoom + 0.1
-        : this.props.init_zoom,
+        this.props.window_width < 768
+          ? this.props.min_zoom + 0.1
+          : this.props.init_zoom,
       init_center = this.props.init_center;
 
     // set up map
@@ -360,6 +366,7 @@ class BALevelMapZoom extends Component {
     // add controls
     // zoom control
     this.map.addControl(new mapboxgl.NavigationControl());
+    
 
     // remove compass from navigation control
     d3.select(".mapboxgl-ctrl-compass").style("display", "none");
@@ -472,31 +479,33 @@ class BALevelMapZoom extends Component {
     let forwardGeocoder = (query) => {
       const matchingFeatures = [];
 
-      for (const feature of queryData.features.filter(g => g.properties.Year === this.props.year)) {
+      for (const feature of queryData.features.filter(
+        (g) => g.properties.Year === this.props.year
+      )) {
         // Handle queries with different capitalization
         // than the source data by calling toLowerCase().
 
         if (
-          (feature.properties.BACODE
-            .toLowerCase()
-            .includes(query.toLowerCase())) || (feature.title
-              .toLowerCase()
-              .includes(query.toLowerCase()))
+          feature.properties.BACODE.toLowerCase().includes(
+            query.toLowerCase()
+          ) ||
+          feature.title.toLowerCase().includes(query.toLowerCase())
         ) {
-          feature['place_name'] = `${feature.title}`;
-          feature['center'] = feature.geometry.coordinates;
+          feature["place_name"] = `${feature.title}`;
+          feature["center"] = feature.geometry.coordinates;
           matchingFeatures.push(feature);
         }
       }
       return matchingFeatures;
-    }
+    };
 
+    
 
     let geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
       localGeocoder: forwardGeocoder,
-      localGeocoderOnly: true,
-      placeholder: 'Search balancing authorities',
+      localGeocoderOnly: false,
+      placeholder: "Search by location or by balancing authorities",
       mapboxgl: mapboxgl,
       zoom: 5,
       clearOnBlur: false,
@@ -504,16 +513,24 @@ class BALevelMapZoom extends Component {
     });
     let geocoderResult;
 
-    this.map.addControl(geocoder, 'top-left');
+    this.map.addControl(geocoder, "top-left");
 
-    geocoder.on('result', (result) => {
+    geocoder.on("result", (result) => {
       geocoderResult = result;
-      let trends = [];
-      this.props.data.features.forEach(e => {
-        if (geocoderResult.result.id == e.id) {
+    
+      // Check if the result corresponds to a feature in your data
+      const matchingFeature = this.props.data.features.find(
+        (e) => geocoderResult.result.id === e.id
+      );
+    
+      if (matchingFeature) {
+        let trends = [];
+        trends.push(matchingFeature);
+      this.props.data.features.forEach((e) => {
+        if (geocoderResult.result.id === e.id) {
           trends.push(e);
         }
-      })
+      });
       clearAll();
       if (this._isMounted) {
         this.map.setFeatureState(
@@ -526,33 +543,49 @@ class BALevelMapZoom extends Component {
           { selected: true }
         );
 
-
         let table_info = {};
         let trend_info = {};
         Object.keys(this.props.table_rows).forEach((e) => {
           table_info[this.props.table_rows[e]] =
-            typeof (result.result.properties[e]) === "number" &&
-              e !== "BACODE"
+            typeof result.result.properties[e] === "number" && e !== "BACODE"
               ? this.formatNumber(result.result.properties[e])
-              : (result.result.properties[e]) === ""
-                ? "-"
-                : (result.result.properties[e])
-          let sumstat = d3.nest()
-            .key(function (l) { return l.year })
+              : result.result.properties[e] === ""
+              ? "-"
+              : result.result.properties[e];
+          let sumstat = d3
+            .nest()
+            .key(function (l) {
+              return l.year;
+            })
             .entries(trends);
 
           trend_info[this.props.table_rows[e]] =
-            typeof sumstat.map(g => g.values.map(p => p.properties[e])) === "number" &&
-              e !== "BACODE"
-              ? [sumstat.map(g => g.key), this.formatNumber(sumstat.map(g => g.values.map(p => p.properties[e])))]
+            typeof sumstat.map((g) => g.values.map((p) => p.properties[e])) ===
+              "number" && e !== "BACODE"
+              ? [
+                  sumstat.map((g) => g.key),
+                  this.formatNumber(
+                    sumstat.map((g) => g.values.map((p) => p.properties[e]))
+                  ),
+                ]
               : e === "BANAME" || e === "BACODE"
-                ? "-"
-                : [sumstat.map(l => l.key), sumstat.map(l => l.values.map(p => p.properties[e] >= 0 ? p.properties[e] : "-"))]
+              ? "-"
+              : [
+                  sumstat.map((l) => l.key),
+                  sumstat.map((l) =>
+                    l.values.map((p) =>
+                      p.properties[e] >= 0 ? p.properties[e] : "-"
+                    )
+                  ),
+                ];
         });
 
-
         this.updateTable(table_info);
-        this.setState({ table_info: table_info, trend_info: trend_info, selected_ba_id: Number(result.result.id) });
+        this.setState({
+          table_info: table_info,
+          trend_info: trend_info,
+          selected_ba_id: Number(result.result.id),
+        });
         if (this.hoveredBAId) {
           this.map.setFeatureState(
             { source: "bas", id: this.hoveredBAId },
@@ -567,14 +600,24 @@ class BALevelMapZoom extends Component {
         this.tooltip.remove();
         this.tooltip2.remove();
         this.show_ba_info = true;
-
-
         this.tooltip
-          .setLngLat(geocoderResult.result.geometry.coordinates.slice())
-          .setHTML(geocoderResult.result.properties.name + " (" + geocoderResult.result.properties.BACODE + ")" + "</br>" + geocoderResult.result.properties.value.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          }) + " " + this.props.unit)
-          .addTo(this.map);
+        .setLngLat(geocoderResult.result.geometry.coordinates.slice())
+        .setHTML(
+          geocoderResult.result.properties.name +
+            " (" +
+            geocoderResult.result.properties.BACODE +
+            ")" +
+            "</br>" +
+            geocoderResult.result.properties.value.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            }) +
+            " " +
+            this.props.unit
+        )
+        .addTo(this.map); } 
+        else {
+          console.log('geocoder result', geocoderResult.result)
+        }
 
         d3.selectAll(".mapboxgl-popup-close-button").on("click", () => {
           geocoder.clear();
@@ -583,31 +626,35 @@ class BALevelMapZoom extends Component {
         d3.selectAll(".region_" + result.result.id)
           .classed("selected", true)
           .style("opacity", 1);
-        d3.selectAll(".region_" + result.result.id + " circle")
-          .classed("selected", true);
-        d3.selectAll(".region_" + result.result.id + " path")
-          .classed("selected", true);
-        d3.selectAll(".region_" + result.result.id + " text")
-          .classed("selected", true);
-
+        d3.selectAll(".region_" + result.result.id + " circle").classed(
+          "selected",
+          true
+        );
+        d3.selectAll(".region_" + result.result.id + " path").classed(
+          "selected",
+          true
+        );
+        d3.selectAll(".region_" + result.result.id + " text").classed(
+          "selected",
+          true
+        );
 
         d3.selectAll(`.all_trends:not(.selected)`).attr("display", "none");
-        d3.selectAll(`.all_trends:not(.selected) circle`).attr("display", "none");
+        d3.selectAll(`.all_trends:not(.selected) circle`).attr(
+          "display",
+          "none"
+        );
         d3.selectAll(`.all_trends:not(.selected) path`).attr("display", "none");
         d3.selectAll(`.all_trends:not(.selected) text`).attr("display", "none");
         d3.selectAll(`.selected`).attr("display", "block");
       }
 
-      geocoder.on('clear', () => {
-
+      geocoder.on("clear", () => {
         if (this._isMounted) {
-
           this.map.flyTo({ center: init_center, zoom: init_zoom });
           clearAll();
         }
-
       });
-
     });
 
     let clearAll = () => {
@@ -616,8 +663,8 @@ class BALevelMapZoom extends Component {
       let table_info = {};
       let trend_info = {};
       Object.keys(this.props.table_rows).forEach((e) => {
-        table_info[this.props.table_rows[e]] = "-"
-        trend_info[this.props.table_rows[e]] = ["-"]
+        table_info[this.props.table_rows[e]] = "-";
+        trend_info[this.props.table_rows[e]] = ["-"];
       });
       this.updateTable(table_info);
       this.setState({ table_info: table_info, trend_info: trend_info });
@@ -626,19 +673,18 @@ class BALevelMapZoom extends Component {
         this.map.setFeatureState(
           { source: "bas", id: geocoderResult.result.id },
           { selected: false }
-        )
+        );
         this.map.setFeatureState(
           { source: "bas_topo", id: geocoderResult.result.id },
           { selected: false }
         );
-
       }
 
       this.map.querySourceFeatures("bas", {
-        selected: false
+        selected: false,
       });
       this.map.querySourceFeatures("bas_topo", {
-        selected: false
+        selected: false,
       });
       this.map.setFeatureState(
         { source: "bas", id: this.state.selected_ba_id },
@@ -661,27 +707,20 @@ class BALevelMapZoom extends Component {
       }
       this.tooltip.remove();
       this.hoveredBAId = null;
-      this.state.selected_ba_id = null;
+      this.setState({ selected_plant_id: null });
 
       d3.selectAll(".all_trends")
         .classed("selected", false)
         .style("opacity", 0);
-      d3.selectAll(".all_trends circle")
-        .classed("selected", false);
-      d3.selectAll(".all_trends path")
-        .classed("selected", false);
-      d3.selectAll(".all_trends text")
-        .classed("selected", false);
-
+      d3.selectAll(".all_trends circle").classed("selected", false);
+      d3.selectAll(".all_trends path").classed("selected", false);
+      d3.selectAll(".all_trends text").classed("selected", false);
 
       d3.selectAll(`.all_trends:not(.selected)`).attr("display", "none");
       d3.selectAll(`.all_trends:not(.selected) circle`).attr("display", "none");
       d3.selectAll(`.all_trends:not(.selected) path`).attr("display", "none");
       d3.selectAll(`.all_trends:not(.selected) text`).attr("display", "none");
-    }
-
-
-
+    };
 
     // add legends
     class Legend {
@@ -689,8 +728,14 @@ class BALevelMapZoom extends Component {
         this._map = map;
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl mapbox-legend";
-        this._container.innerHTML =
-          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span class='map-zoomable-legend-title'></span></div><div><svg class='map-zoomable-legend' id='map-zoomable-legend-ba'></svg></div></div>";
+        this._container.innerHTML = this._container.innerHTML =
+          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'>" +
+          "<div><span class='map-zoomable-legend-title'></span></div>" +
+          "<div><svg class='map-zoomable-legend' id='map-zoomable-legend-ba'></svg></div>" +
+          "<div class='map-legend-footnote'>" +
+          "Note: In this map, the data is scaled based on color and shape rather than marker size. " +
+          "</div>" +
+          "</div>";
 
         return this._container;
       }
@@ -713,27 +758,25 @@ class BALevelMapZoom extends Component {
           map_style: d.style.stylesheet.id,
         },
         () => {
-
           // add initial map data
           const data = {
             type: "FeatureCollection",
-            features: this.props.ba_data.features
-              .map((d) => {
-                d.properties[this.props.field + "_trimmed"] =
-                  d.properties[this.props.field];
+            features: this.props.ba_data.features.map((d) => {
+              d.properties[this.props.field + "_trimmed"] =
+                d.properties[this.props.field];
 
-                return d;
-              }),
+              return d;
+            }),
           };
 
           const ba_topo_data = {
             type: "FeatureCollection",
-            features: ba_topo.features
-          }
-
+            features: ba_topo.features,
+          };
 
           // remove source and layer
-          if (this.map.getLayer("bas-" + this.state.map_style)) this.map.removeLayer("bas-" + this.state.map_style);
+          if (this.map.getLayer("bas-" + this.state.map_style))
+            this.map.removeLayer("bas-" + this.state.map_style);
           if (this.map.getSource("bas")) this.map.removeSource("bas");
 
           // add data source to map
@@ -745,57 +788,61 @@ class BALevelMapZoom extends Component {
           // add data source to map
           this.map.addSource("bas_topo", {
             type: "geojson",
-            data: ba_topo_data
+            data: ba_topo_data,
           });
 
           d3.selectAll(`.all_trends :not(.selected)`).attr("display", "none");
-          d3.selectAll(`.region_${this.state.selected_ba_id} .selected`).attr("display", "block");
-
+          d3.selectAll(`.region_${this.state.selected_ba_id} .selected`).attr(
+            "display",
+            "block"
+          );
 
           let BATOPO = this.map.getSource("bas_topo");
 
           let BATOPOFeatures = BATOPO._data.features;
-          BATOPOFeatures.map(feature => Object.assign(feature, { id: feature.properties.ID }));
+          BATOPOFeatures.map((feature) =>
+            Object.assign(feature, { id: feature.properties.ID })
+          );
 
           this.map.addLayer({
-
             id: "bas_topo",
             type: "fill",
             source: "bas_topo",
             minzoom: this.props.min_zoom,
             maxzoom: this.props.max_zoom,
             paint: {
-              'fill-color': '#627BC1',
-              'fill-opacity': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
+              "fill-color": "#627BC1",
+              "fill-opacity": [
+                "case",
+                ["boolean", ["feature-state", "hover"], false],
                 0.5,
-                ['boolean', ['feature-state', 'selected'], false],
+                ["boolean", ["feature-state", "selected"], false],
                 0.5,
-                0
-              ]
+                0,
+              ],
             },
           });
 
+          // add the image to the map
+          this.map.addImage("min-marker", this.minImg);
+          this.map.addImage("marker-1", this.markerImages[0]);
+          this.map.addImage("marker-2", this.markerImages[1]);
+          this.map.addImage("marker-3", this.markerImages[2]);
+          this.map.addImage("marker-4", this.markerImages[3]);
+          this.map.addImage("max-marker", this.maxImg);
 
-          // add map layer
+          // add map layer with square SVG marker
           this.map.addLayer({
-
-            id:
-              "bas-" +
-              this.state.map_style,
-            type: "circle",
-            source: "bas",
+            id: "bas-" + this.state.map_style,
+            type: "symbol",
             minzoom: this.props.min_zoom,
             maxzoom: this.props.max_zoom,
-            paint: {
-              'circle-radius': 10,
-              'circle-stroke-width': 1,
-              'circle-stroke-color': "#000"
+            source: "bas",
+            layout: {
+              "icon-image": "min-marker", // Use the ID of the image defined above
+              "icon-size": 0.8, // Adjust the size as needed
             },
           });
-
-
 
           // set fill of circles
           this.setMapFill();
@@ -896,137 +943,12 @@ class BALevelMapZoom extends Component {
           //   }
           // );
 
-          this.map.on(
-            "mouseenter",
-            "bas-" +
-            this.state.map_style,
-            (d) => {
-              this.map.getCanvas().style.cursor = "pointer";
-              d.features.filter((g, i) => g.properties.Year === undefined)
-              this.hoveredBA = d.features[0];
-              if (!this.show_ba_info) {
-                if (d.features.length > 0) {
-                  if (this.hoveredBAId) {
-                    this.map.setFeatureState(
-                      { source: "bas", id: this.hoveredBAId },
-                      { hover: false }
-                    );
-                    this.map.setFeatureState(
-                      { source: "bas_topo", id: this.hoveredBAId },
-                      { hover: false }
-                    );
-                  }
-                  this.hoveredBAId = this.hoveredBA.id;
-                  this.map.setFeatureState(
-                    { source: "bas", id: this.hoveredBAId },
-                    { hover: true }
-                  );
-                  this.map.setFeatureState(
-                    { source: "bas_topo", id: this.hoveredBAId },
-                    { hover: true }
-                  );
-
-                  let id = this.hoveredBAId
-
-                  d3.selectAll(".all_trends.region_" + id)
-                    .classed("selected", true)
-                    .style("opacity", 1);
-                  d3.selectAll(".all_trends.region_" + id + " circle")
-                    .classed("selected", true);
-                  d3.selectAll(".all_trends.region_" + id + " path")
-                    .classed("selected", true);
-                  d3.selectAll(".all_trends.region_" + id + " text")
-                    .classed("selected", true);
-
-                  d3.selectAll(".all_trends:not(.region_" + id + ")")
-                    .classed("selected", false)
-                    .style("opacity", 0);
-                  d3.selectAll(".all_trends:not(.region_" + id + ") circle")
-                    .classed("selected", false);
-                  d3.selectAll(".all_trends:not(.region_" + id + ") path")
-                    .classed("selected", false);
-                  d3.selectAll(".all_trends:not(.region_" + id + ") text")
-                    .classed("selected", false);
-
-
-                  d3.selectAll(`.all_trends:not(.selected)`).attr("display", "none");
-                  d3.selectAll(`.all_trends:not(.selected) circle`).attr("display", "none");
-                  d3.selectAll(`.all_trends:not(.selected) path`).attr("display", "none");
-                  d3.selectAll(`.all_trends:not(.selected) text`).attr("display", "none");
-                  d3.selectAll(`.selected`).attr("display", "block");
-                }
-
-                while (
-                  Math.abs(
-                    d.lngLat.lng - this.hoveredBA.geometry.coordinates.slice()[0]
-                  ) > 180
-                ) {
-                  this.hoveredBA.geometry.coordinates.slice()[0] +=
-                    d.lngLat.lng > this.hoveredBA.geometry.coordinates.slice()[0]
-                      ? 360
-                      : -360;
-                }
-
-                this.tooltip
-                  .setLngLat(this.hoveredBA.geometry.coordinates.slice())
-                  .setHTML(this.hoveredBA.properties.name + " (" + this.hoveredBA.properties.BACODE + ")" + "</br>" + this.hoveredBA.properties.value.toLocaleString(undefined, {
-                    maximumFractionDigits: 2
-                  }) + " " + this.props.unit).addTo(this.map);
-
-
-                let table_info = {};
-                let trend_info = {};
-
-                Object.keys(this.props.table_rows).forEach((e) => {
-                  table_info[this.props.table_rows[e]] =
-                    typeof this.hoveredBA.properties[e] === "number" &&
-                      e !== "BACODE"
-                      ? this.formatNumber(this.hoveredBA.properties[e])
-                      : this.hoveredBA.properties[e] === ""
-                        ? "-"
-                        : this.hoveredBA.properties[e];
-                  let trends = [];
-                  this.props.data.features.forEach(e => {
-                    if (+e.id === this.hoveredBA.id) {
-                      trends.push(e)
-                    }
-                  })
-                  let result = trends.filter(l => l.year != undefined);
-                  let deduped = [...new Set(result)]
-                  let sumstat = d3.nest()
-                    .key(function (l) { return l.year })
-                    .entries(deduped);
-
-                  trend_info[e] =
-                    typeof sumstat.map(l => l.values.map(p => p.properties[e])) === "number" &&
-                      e !== "BACODE"
-                      ? [sumstat.map(l => l.key), this.formatNumber(sumstat.map(l => l.values.map(p => p.properties[e] > 0 ? p.properties[e] : "-")))]
-                      : e === "BANAME" || e === "BACODE"
-                        ? "-"
-                        : [sumstat.map(l => l.key), sumstat.map(l => l.values.map(p => p.properties[e] > 0 ? p.properties[e] : "-"))]
-                  return d;
-                });
-                this.updateTable(table_info);
-                this.setState({ table_info: table_info, trend_info: trend_info });
-              } else {
-                this.tooltip2
-                  .setLngLat(this.hoveredBA.geometry.coordinates.slice())
-                  .setHTML(this.hoveredBA.properties.name + " (" + this.hoveredBA.properties.BACODE + ")" + "</br>" + this.hoveredBA.properties.value.toLocaleString(undefined, {
-                    maximumFractionDigits: 2
-                  }) + " " + this.props.unit).addTo(this.map);
-              }
-            }
-          );
-
-          this.map.on(
-            "mouseleave",
-            "bas-" +
-            this.state.map_style,
-            () => {
-              this.map.getCanvas().style.cursor = ""
-
-              if (!this.show_ba_info) {
-                this.tooltip.remove();
+          this.map.on("mouseenter", "bas-" + this.state.map_style, (d) => {
+            this.map.getCanvas().style.cursor = "pointer";
+            d.features.filter((g, i) => g.properties.Year === undefined);
+            this.hoveredBA = d.features[0];
+            if (!this.show_ba_info) {
+              if (d.features.length > 0) {
                 if (this.hoveredBAId) {
                   this.map.setFeatureState(
                     { source: "bas", id: this.hoveredBAId },
@@ -1037,166 +959,378 @@ class BALevelMapZoom extends Component {
                     { hover: false }
                   );
                 }
-                this.hoveredBAId = null;
-
-              } else {
-                this.tooltip2.remove();
-                if (this.hoveredBAId) {
-                  this.map.setFeatureState(
-                    { source: "bas", id: this.hoveredBAId },
-                    { hover: true }
-                  );
-                  this.map.setFeatureState(
-                    { source: "bas_topo", id: this.hoveredBAId },
-                    { hover: true }
-                  );
-
-                }
-              }
-            }
-          );
-
-          this.map.on(
-            "click",
-            "bas-" +
-            this.state.map_style,
-            (d) => {
-              let id = this.hoveredBA.id;
-
-              d.features.filter((g, i) => g.properties.Year === undefined)
-              this.hoveredBA = d.features[0];
-              if (geocoderResult !== undefined) {
-                this.map.querySourceFeatures("bas_topo", {
-                  selected: false
-                });
+                this.hoveredBAId = this.hoveredBA.id;
                 this.map.setFeatureState(
-                  { source: "bas_topo", id: Number(geocoderResult.result.id) },
-                  { selected: false }
+                  { source: "bas", id: this.hoveredBAId },
+                  { hover: true }
                 );
-              }
-              this.tooltip.remove();
-              this.tooltip2.remove();
-              if (this.hoveredBA.id === this.state.selected_ba_id) {
-                this.show_ba_info = false;
+                this.map.setFeatureState(
+                  { source: "bas_topo", id: this.hoveredBAId },
+                  { hover: true }
+                );
 
-                d3.selectAll(".region_" + id)
-                  .classed("selected", false)
-                  .style("opacity", 0);
-                d3.selectAll(".region_" + id + " circle")
-                  .classed("selected", false);
-                d3.selectAll(".region_" + id + " path")
-                  .classed("selected", false);
-                d3.selectAll(".region_" + id + " text")
-                  .classed("selected", false);
+                let id = this.hoveredBAId;
 
-              } else {
-                this.show_ba_info = true;
-
-                let prev_id = this.state.selected_ba_id;
-
-                d3.selectAll(".region_" + id)
+                d3.selectAll(".all_trends.region_" + id)
                   .classed("selected", true)
                   .style("opacity", 1);
-                d3.selectAll(".region_" + id + " circle")
-                  .classed("selected", true);
-                d3.selectAll(".region_" + id + " path")
-                  .classed("selected", true);
-                d3.selectAll(".region_" + id + " text")
-                  .classed("selected", true);
+                d3.selectAll(".all_trends.region_" + id + " circle").classed(
+                  "selected",
+                  true
+                );
+                d3.selectAll(".all_trends.region_" + id + " path").classed(
+                  "selected",
+                  true
+                );
+                d3.selectAll(".all_trends.region_" + id + " text").classed(
+                  "selected",
+                  true
+                );
 
-                d3.selectAll(".region_" + prev_id)
+                d3.selectAll(".all_trends:not(.region_" + id + ")")
                   .classed("selected", false)
                   .style("opacity", 0);
-                d3.selectAll(".region_" + prev_id + " circle")
-                  .classed("selected", false);
-                d3.selectAll(".region_" + prev_id + " path")
-                  .classed("selected", false);
-                d3.selectAll(".region_" + prev_id + " text")
-                  .classed("selected", false);
+                d3.selectAll(
+                  ".all_trends:not(.region_" + id + ") circle"
+                ).classed("selected", false);
+                d3.selectAll(
+                  ".all_trends:not(.region_" + id + ") path"
+                ).classed("selected", false);
+                d3.selectAll(
+                  ".all_trends:not(.region_" + id + ") text"
+                ).classed("selected", false);
 
+                d3.selectAll(`.all_trends:not(.selected)`).attr(
+                  "display",
+                  "none"
+                );
+                d3.selectAll(`.all_trends:not(.selected) circle`).attr(
+                  "display",
+                  "none"
+                );
+                d3.selectAll(`.all_trends:not(.selected) path`).attr(
+                  "display",
+                  "none"
+                );
+                d3.selectAll(`.all_trends:not(.selected) text`).attr(
+                  "display",
+                  "none"
+                );
+                d3.selectAll(`.selected`).attr("display", "block");
+              }
 
+              while (
+                Math.abs(
+                  d.lngLat.lng - this.hoveredBA.geometry.coordinates.slice()[0]
+                ) > 180
+              ) {
+                this.hoveredBA.geometry.coordinates.slice()[0] +=
+                  d.lngLat.lng > this.hoveredBA.geometry.coordinates.slice()[0]
+                    ? 360
+                    : -360;
+              }
 
-                if (d.features.length > 0) {
-                  if (this.hoveredBAId) {
-                    this.map.setFeatureState(
-                      { source: "bas", id: this.hoveredBAId },
-                      { hover: false }
-                    );
-                    this.map.setFeatureState(
-                      { source: "bas_topo", id: this.hoveredBAId },
-                      { hover: false }
-                    );
+              this.tooltip
+                .setLngLat(this.hoveredBA.geometry.coordinates.slice())
+                .setHTML(
+                  this.hoveredBA.properties.name +
+                    " (" +
+                    this.hoveredBA.properties.BACODE +
+                    ")" +
+                    "</br>" +
+                    this.hoveredBA.properties.value.toLocaleString(undefined, {
+                      maximumFractionDigits: 2,
+                    }) +
+                    " " +
+                    this.props.unit
+                )
+                .addTo(this.map);
+
+              let table_info = {};
+              let trend_info = {};
+
+              Object.keys(this.props.table_rows).forEach((e) => {
+                table_info[this.props.table_rows[e]] =
+                  typeof this.hoveredBA.properties[e] === "number" &&
+                  e !== "BACODE"
+                    ? this.formatNumber(this.hoveredBA.properties[e])
+                    : this.hoveredBA.properties[e] === ""
+                    ? "-"
+                    : this.hoveredBA.properties[e];
+                let trends = [];
+                this.props.data.features.forEach((e) => {
+                  if (+e.id === this.hoveredBA.id) {
+                    trends.push(e);
                   }
-                  this.hoveredBAId = this.hoveredBA.id;
+                });
+                let result = trends.filter((l) => l.year !== undefined);
+                let deduped = [...new Set(result)];
+                let sumstat = d3
+                  .nest()
+                  .key(function (l) {
+                    return l.year;
+                  })
+                  .entries(deduped);
+
+                trend_info[e] =
+                  typeof sumstat.map((l) =>
+                    l.values.map((p) => p.properties[e])
+                  ) === "number" && e !== "BACODE"
+                    ? [
+                        sumstat.map((l) => l.key),
+                        this.formatNumber(
+                          sumstat.map((l) =>
+                            l.values.map((p) =>
+                              p.properties[e] > 0 ? p.properties[e] : "-"
+                            )
+                          )
+                        ),
+                      ]
+                    : e === "BANAME" || e === "BACODE"
+                    ? "-"
+                    : [
+                        sumstat.map((l) => l.key),
+                        sumstat.map((l) =>
+                          l.values.map((p) =>
+                            p.properties[e] > 0 ? p.properties[e] : "-"
+                          )
+                        ),
+                      ];
+                return d;
+              });
+              this.updateTable(table_info);
+              this.setState({ table_info: table_info, trend_info: trend_info });
+            } else {
+              this.tooltip2
+                .setLngLat(this.hoveredBA.geometry.coordinates.slice())
+                .setHTML(
+                  this.hoveredBA.properties.name +
+                    " (" +
+                    this.hoveredBA.properties.BACODE +
+                    ")" +
+                    "</br>" +
+                    this.hoveredBA.properties.value.toLocaleString(undefined, {
+                      maximumFractionDigits: 2,
+                    }) +
+                    " " +
+                    this.props.unit
+                )
+                .addTo(this.map);
+            }
+          });
+
+          this.map.on("mouseleave", "bas-" + this.state.map_style, () => {
+            this.map.getCanvas().style.cursor = "";
+
+            if (!this.show_ba_info) {
+              this.tooltip.remove();
+              if (this.hoveredBAId) {
+                this.map.setFeatureState(
+                  { source: "bas", id: this.hoveredBAId },
+                  { hover: false }
+                );
+                this.map.setFeatureState(
+                  { source: "bas_topo", id: this.hoveredBAId },
+                  { hover: false }
+                );
+              }
+              this.hoveredBAId = null;
+            } else {
+              this.tooltip2.remove();
+              if (this.hoveredBAId) {
+                this.map.setFeatureState(
+                  { source: "bas", id: this.hoveredBAId },
+                  { hover: true }
+                );
+                this.map.setFeatureState(
+                  { source: "bas_topo", id: this.hoveredBAId },
+                  { hover: true }
+                );
+              }
+            }
+          });
+
+          this.map.on("click", "bas-" + this.state.map_style, (d) => {
+            let id = this.hoveredBA.id;
+
+            d.features.filter((g, i) => g.properties.Year === undefined);
+            this.hoveredBA = d.features[0];
+            if (geocoderResult !== undefined) {
+              this.map.querySourceFeatures("bas_topo", {
+                selected: false,
+              });
+              this.map.setFeatureState(
+                { source: "bas_topo", id: Number(geocoderResult.result.id) },
+                { selected: false }
+              );
+            }
+            this.tooltip.remove();
+            this.tooltip2.remove();
+            if (this.hoveredBA.id === this.state.selected_ba_id) {
+              this.show_ba_info = false;
+
+              d3.selectAll(".region_" + id)
+                .classed("selected", false)
+                .style("opacity", 0);
+              d3.selectAll(".region_" + id + " circle").classed(
+                "selected",
+                false
+              );
+              d3.selectAll(".region_" + id + " path").classed(
+                "selected",
+                false
+              );
+              d3.selectAll(".region_" + id + " text").classed(
+                "selected",
+                false
+              );
+            } else {
+              this.show_ba_info = true;
+
+              let prev_id = this.state.selected_ba_id;
+
+              d3.selectAll(".region_" + id)
+                .classed("selected", true)
+                .style("opacity", 1);
+              d3.selectAll(".region_" + id + " circle").classed(
+                "selected",
+                true
+              );
+              d3.selectAll(".region_" + id + " path").classed("selected", true);
+              d3.selectAll(".region_" + id + " text").classed("selected", true);
+
+              d3.selectAll(".region_" + prev_id)
+                .classed("selected", false)
+                .style("opacity", 0);
+              d3.selectAll(".region_" + prev_id + " circle").classed(
+                "selected",
+                false
+              );
+              d3.selectAll(".region_" + prev_id + " path").classed(
+                "selected",
+                false
+              );
+              d3.selectAll(".region_" + prev_id + " text").classed(
+                "selected",
+                false
+              );
+
+              if (d.features.length > 0) {
+                if (this.hoveredBAId) {
                   this.map.setFeatureState(
                     { source: "bas", id: this.hoveredBAId },
-                    { hover: true }
+                    { hover: false }
                   );
                   this.map.setFeatureState(
                     { source: "bas_topo", id: this.hoveredBAId },
-                    { hover: true }
+                    { hover: false }
                   );
                 }
-
-                this.tooltip
-                  .setLngLat(this.hoveredBA.geometry.coordinates.slice())
-                  .setHTML(this.hoveredBA.properties.name + " (" + this.hoveredBA.properties.BACODE + ")" + "</br>" + this.hoveredBA.properties.value.toLocaleString(undefined, {
-                    maximumFractionDigits: 2
-                  }) + " " + this.props.unit)
-                  .addTo(this.map);
-
-                let table_info = {};
-                let trend_info = {};
-                Object.keys(this.props.table_rows).forEach((e) => {
-                  table_info[this.props.table_rows[e]] =
-                    typeof this.hoveredBA.properties[e] === "number" &&
-                      e !== "BACODE"
-                      ? this.formatNumber(this.hoveredBA.properties[e])
-                      : this.hoveredBA.properties[e] === ""
-                        ? "-"
-                        : this.hoveredBA.properties[e];
-                  let trends = [];
-                  this.props.data.features.forEach(e => {
-                    if (+e.id === this.hoveredBA.id) {
-                      trends.push(e)
-                    }
-                  })
-                  let result = trends.filter(l => l.year != undefined);
-                  let deduped = [...new Set(result)]
-                  let sumstat = d3.nest()
-                    .key(function (l) { return l.year })
-                    .entries(deduped);
-
-                  trend_info[e] =
-                    typeof sumstat.map(l => l.values.map(p => p.properties[e])) === "number" &&
-                      e !== "BACODE"
-                      ? [sumstat.map(l => l.key), this.formatNumber(sumstat.map(l => l.values.map(p => p.properties[e] > 0 ? p.properties[e] : "-")))]
-                      : e === "BANAME" || e === "BACODE"
-                        ? "-"
-                        : [sumstat.map(l => l.key), sumstat.map(l => l.values.map(p => p.properties[e] > 0 ? p.properties[e] : "-"))]
-                  return d;
-                });
-                this.updateTable(table_info);
-                this.setState({
-                  table_info: table_info,
-                  trend_info: trend_info,
-                  selected_ba_id: this.hoveredBAId,
-                });
-
-                d3.selectAll(".mapboxgl-popup-close-button").on("click", () => {
-                  clearAll();
-                });
-
+                this.hoveredBAId = this.hoveredBA.id;
+                this.map.setFeatureState(
+                  { source: "bas", id: this.hoveredBAId },
+                  { hover: true }
+                );
+                this.map.setFeatureState(
+                  { source: "bas_topo", id: this.hoveredBAId },
+                  { hover: true }
+                );
               }
 
-              d3.selectAll(`.all_trends:not(.selected)`).attr("display", "none");
-              d3.selectAll(`.all_trends:not(.selected) circle`).attr("display", "none");
-              d3.selectAll(`.all_trends:not(.selected) path `).attr("display", "none");
-              d3.selectAll(`.all_trends:not(.selected) text `).attr("display", "none");
-              d3.selectAll(`.selected`).attr("display", "block");
-            }
-          );
+              this.tooltip
+                .setLngLat(this.hoveredBA.geometry.coordinates.slice())
+                .setHTML(
+                  this.hoveredBA.properties.name +
+                    " (" +
+                    this.hoveredBA.properties.BACODE +
+                    ")" +
+                    "</br>" +
+                    this.hoveredBA.properties.value.toLocaleString(undefined, {
+                      maximumFractionDigits: 2,
+                    }) +
+                    " " +
+                    this.props.unit
+                )
+                .addTo(this.map);
 
+              let table_info = {};
+              let trend_info = {};
+              Object.keys(this.props.table_rows).forEach((e) => {
+                table_info[this.props.table_rows[e]] =
+                  typeof this.hoveredBA.properties[e] === "number" &&
+                  e !== "BACODE"
+                    ? this.formatNumber(this.hoveredBA.properties[e])
+                    : this.hoveredBA.properties[e] === ""
+                    ? "-"
+                    : this.hoveredBA.properties[e];
+                let trends = [];
+                this.props.data.features.forEach((e) => {
+                  if (+e.id === this.hoveredBA.id) {
+                    trends.push(e);
+                  }
+                });
+                let result = trends.filter((l) => l.year !== undefined);
+                let deduped = [...new Set(result)];
+                let sumstat = d3
+                  .nest()
+                  .key(function (l) {
+                    return l.year;
+                  })
+                  .entries(deduped);
+
+                trend_info[e] =
+                  typeof sumstat.map((l) =>
+                    l.values.map((p) => p.properties[e])
+                  ) === "number" && e !== "BACODE"
+                    ? [
+                        sumstat.map((l) => l.key),
+                        this.formatNumber(
+                          sumstat.map((l) =>
+                            l.values.map((p) =>
+                              p.properties[e] > 0 ? p.properties[e] : "-"
+                            )
+                          )
+                        ),
+                      ]
+                    : e === "BANAME" || e === "BACODE"
+                    ? "-"
+                    : [
+                        sumstat.map((l) => l.key),
+                        sumstat.map((l) =>
+                          l.values.map((p) =>
+                            p.properties[e] > 0 ? p.properties[e] : "-"
+                          )
+                        ),
+                      ];
+                return d;
+              });
+              this.updateTable(table_info);
+              this.setState({
+                table_info: table_info,
+                trend_info: trend_info,
+                selected_ba_id: this.hoveredBAId,
+              });
+
+              d3.selectAll(".mapboxgl-popup-close-button").on("click", () => {
+                clearAll();
+              });
+            }
+
+            d3.selectAll(`.all_trends:not(.selected)`).attr("display", "none");
+            d3.selectAll(`.all_trends:not(.selected) circle`).attr(
+              "display",
+              "none"
+            );
+            d3.selectAll(`.all_trends:not(.selected) path `).attr(
+              "display",
+              "none"
+            );
+            d3.selectAll(`.all_trends:not(.selected) text `).attr(
+              "display",
+              "none"
+            );
+            d3.selectAll(`.selected`).attr("display", "block");
+          });
 
           this.updateMap();
         }
@@ -1208,7 +1342,6 @@ class BALevelMapZoom extends Component {
     this._isMounted = false;
   }
 
-
   render() {
     let title = <p className="title">{this.props.title.replace(",", "\n")}</p>;
 
@@ -1216,11 +1349,13 @@ class BALevelMapZoom extends Component {
       <div id="map-zoomable-wrapper">
         {title}
         <div id="map-zoomable">
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            width: this.props.window_width < 1024 ? "100%" : "62%",
-          }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              width: this.props.window_width < 1024 ? "100%" : "62%",
+            }}
+          >
             <div
               style={{
                 width: "100%",
@@ -1229,8 +1364,7 @@ class BALevelMapZoom extends Component {
               }}
               className="map-container"
               ref={(node) => (this.container = node)}
-            >
-            </div>
+            ></div>
             {/* <OtherLevelTrends
               title={this.props.title}
               data={this.props.data}
@@ -1281,6 +1415,5 @@ class BALevelMapZoom extends Component {
     );
   }
 }
-
 
 export default BALevelMapZoom;

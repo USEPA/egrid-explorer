@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import mapboxgl from "mapbox-gl";
 import * as d3 from "d3";
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import OtherLevelTrends from "./OtherLevelTrends";
-import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 
 import reset_view_icon from "./assets/img/reset_view_icon.jpg";
 import UpdatedTable from "./Table";
@@ -12,7 +11,6 @@ mapboxgl.accessToken =
   "pk.eyJ1Ijoia2F0aWVsb25nIiwiYSI6ImNpenpudmY1dzAxZmYzM2tmY2tobDN1MXoifQ._aoE2Zj7vx3dUlZw-gBCrg";
 
 class PlantLevelMapZoom extends Component {
-
   constructor(props) {
     super(props);
     this._isMounted = false;
@@ -21,8 +19,8 @@ class PlantLevelMapZoom extends Component {
     let table_info = {};
     let trend_info = {};
     Object.keys(this.props.table_rows).forEach((e) => {
-      table_info[this.props.table_rows[e]] = "-"
-      trend_info[this.props.table_rows[e]] = "-"
+      table_info[this.props.table_rows[e]] = "-";
+      trend_info[this.props.table_rows[e]] = "-";
     });
     this.state = {
       selected_plant_id: null,
@@ -49,19 +47,14 @@ class PlantLevelMapZoom extends Component {
     this.tooltip = new mapboxgl.Popup({
       closeButton: true,
       closeOnClick: false,
-      focusAfterOpen: false
+      focusAfterOpen: false,
     });
 
     this.tooltip2 = new mapboxgl.Popup({
       closeButton: false,
       closeOnClick: false,
-      focusAfterOpen: false
+      focusAfterOpen: false,
     });
-
-    let trendsData = this.props.trendsData,
-      sumstat = d3.nest()
-        .key(function (d) { return d.name })
-        .entries(trendsData), yearLength = sumstat[0].values.length;
 
     this.queryData = props.plant_data;
 
@@ -84,50 +77,63 @@ class PlantLevelMapZoom extends Component {
   }
 
   formatLegend(d) {
-    let num = Math.abs(d);
-    if (num < 1) {
-      return d === 0 ? d : d3.format(".3f")(d);
-    } else if (num >= 1000) {
-      let num = d3.format(".3s")(d);
-      let abbr = num.slice(-1);
-      if (abbr === "G") {
-        num = num.substring(0, num.length - 1) + "B";
-      }
-      let chars1 = num.slice(-3);
-      let chars2 = chars1.substring(0, 2);
-      if (chars2 === ".0") {
-        num = num.slice(0, -3) + num.slice(-1);
-        return num;
-      }
-      return num;
+    if (!d || d === undefined || d === null) {
+      return "N/A";
     } else {
-      return d3.format(".3")(d);
+      let num = Math.abs(d);
+      if (num < 1) {
+        let precision = d.toString().split(".")[1].length;
+        return d3.format("." + precision + "f")(d);
+      } else if (num >= 1000) {
+        let numFormatted = d3.format(".3s")(d);
+        let abbr = numFormatted.slice(-1);
+        if (abbr === "G") {
+          numFormatted =
+            numFormatted.substring(0, numFormatted.length - 1) + "B";
+        }
+        let chars1 = numFormatted.slice(-3);
+        let chars2 = chars1.substring(0, 2);
+        if (chars2 === ".0") {
+          numFormatted = numFormatted.slice(0, -3) + numFormatted.slice(-1);
+          return numFormatted;
+        }
+        return numFormatted;
+      } else {
+        return d3.format(".3")(d);
+      }
     }
   }
 
-  updateLegend(features, layer_features, factor) {
-    let field_values, radius_values, scale;
+  updateLegend(features, layer_features) {
+    let field_values, scale;
 
-    // set up scale
-
-
+    // Use the filtered data to calculate field values
     field_values = features
-      .map((d) => d.properties[this.props.field + "_trimmed"])
-      .sort((a, b) => a - b);
-    radius_values = field_values
-      .map((d) =>
-        d3
-          .scaleLinear()
-          .domain([this.props.min_zoom, this.props.max_zoom])
-          .range([d / factor, (d / factor) * this.zoom_factor])(
-            this.map.getZoom()
-          )
+      .map(
+        (d) =>
+          Math.round(d.properties[this.props.field + "_trimmed"] * 100) / 100
       )
       .sort((a, b) => a - b);
-    scale = d3
-      .scaleLinear()
-      .domain(d3.extent(field_values))
-      .range(d3.extent(radius_values));
+
+    const radiusRange = [4, 18];
+
+    // Use a linear scale to map the field values to radius values
+    scale = d3.scaleLinear().domain(d3.extent(field_values)).range(radiusRange);
+
+    // Calculate legend values with a fixed number of buckets
+    const maxNumBuckets = 6;
+    const uniqueFieldValues = Array.from(new Set(field_values));
+    const numBuckets = Math.min(uniqueFieldValues.length, maxNumBuckets);
+
+    const legendValues = d3.range(numBuckets);
+
+    const legendRadiusValues = legendValues.map((position) => {
+      return d3
+        .scaleLinear()
+        .domain([0, numBuckets - 1])
+        .range(radiusRange)
+        .clamp(true)(position);
+    });
 
     // draw legend
     let w = 300,
@@ -138,43 +144,6 @@ class PlantLevelMapZoom extends Component {
     d3.select(".map-zoomable-legend").selectAll("g").remove();
     d3.select(".map-zoomable-legend-title").html(this.props.unit);
 
-    // get features from visible layer
-    let layer_features_extent = d3.extent(
-      layer_features.map((d) => d.properties[this.props.field])
-    );
-    let thresholds = Object.values(
-      this.props.plant_dist[this.props.field]
-    ).slice(0, this.props.plant_dist[this.props.field].length);
-    let legend_values;
-
-    if (
-      layer_features_extent[0] === undefined &&
-      layer_features_extent[1] === undefined
-    ) {
-      legend_values = [];
-    } else {
-      if (
-        layer_features_extent[1] < thresholds.slice(thresholds.length - 1)[0]
-      ) {
-        thresholds = [
-          thresholds.slice(0)[0],
-          thresholds.slice(0)[0] +
-          (layer_features_extent[1] - thresholds.slice(0)[0]) / 5,
-          thresholds.slice(0)[0] +
-          ((layer_features_extent[1] - thresholds.slice(0)[0]) * 2) / 5,
-          thresholds.slice(0)[0] +
-          ((layer_features_extent[1] - thresholds.slice(0)[0]) * 3) / 5,
-          thresholds.slice(0)[0] +
-          ((layer_features_extent[1] - thresholds.slice(0)[0]) * 4) / 5,
-          layer_features_extent[1],
-        ];
-
-        if (layer_features_extent[1] <= thresholds.slice(0)[0]) {
-          thresholds = [thresholds.slice(0)[0]];
-        }
-      }
-      legend_values = thresholds.map((d) => scale(d)).sort((a, b) => a - b);
-    }
 
     let legend_cells = d3
       .select("#map-zoomable-legend-pl")
@@ -182,7 +151,7 @@ class PlantLevelMapZoom extends Component {
       .attr("width", w)
       .attr("height", h)
       .selectAll("g")
-      .data(legend_values)
+      .data(legendRadiusValues)
       .enter()
       .append("g")
       .attr("transform", (d, i) => "translate(" + i * boxlen + "," + 5 + ")");
@@ -194,68 +163,75 @@ class PlantLevelMapZoom extends Component {
       .attr("r", (d) => d)
       .attr("cx", boxlen / 2)
       .attr("cy", Math.min(boxlen, h * 0.5) / 2);
-
     legend_cells
       .append("text")
       .attr("x", boxlen / 2)
       .attr(
         "y",
         Math.min(boxlen, h * 0.5) / 2 +
-        legend_values[legend_values.length - 1] +
-        20
+          legendValues[legendValues.length - 1] +
+          30
       )
       .attr("dx", 0)
       .attr("dy", 0)
-      .text((d, i) =>
-        i === 0
-          ? "≤" + this.formatLegend(scale.invert(d))
-          : i === legend_values.length - 1 &&
-            scale.invert(d) === this.props.plant_dist[this.props.field].max
-            ? "≥" + this.formatLegend(scale.invert(d))
-            : this.formatLegend(scale.invert(d))
-      )
+      .text((d, i) => {
+        const legendText = this.formatLegend(scale.invert(d));
+
+        if (legendValues.length === 1) {
+          return legendText;
+        } else {
+          return i === 0
+            ? "≤" + legendText
+            : i === legendValues.length - 1
+            ? "≥" + legendText
+            : legendText;
+        }
+      })
       .style("text-anchor", "middle");
   }
 
   updateMapWithFuelFilter() {
+    // Filtered data based on selected fuel
+    const filteredFuelData = this.props.plant_data.features.filter(
+      (d) => this.state.selected_fuel.indexOf(d.properties.FUEL) !== -1
+    );
+
+    const filteredMin = d3.min(
+      filteredFuelData,
+      (d) => d.properties[this.props.field]
+    );
+    const filteredMax = d3.max(
+      filteredFuelData,
+      (d) => d.properties[this.props.field]
+    );
+
     const data = {
       type: "FeatureCollection",
-      features: this.props.plant_data.features
-        .filter(
-          (d) => this.state.selected_fuel.indexOf(d.properties.FUEL) !== -1
-        )
-        .map((d) => {
-          if (typeof d.properties[this.props.field] !== "number") {
-            d.properties[this.props.field] = 0
-          }
-          d.properties[this.props.field + "_trimmed"] =
-            d.properties[this.props.field];
-          if (
-            d.properties[this.props.field] >=
-            this.props.plant_dist[this.props.field].max
-          ) {
-            d.properties[this.props.field + "_trimmed"] = this.props.plant_dist[
-              this.props.field
-            ].max;
-          }
-          if (
-            d.properties[this.props.field] <=
-            this.props.plant_dist[this.props.field].min
-          ) {
-            d.properties[this.props.field + "_trimmed"] = this.props.plant_dist[
-              this.props.field
-            ].min;
-          }
-          return d;
-        }),
+      features: filteredFuelData.map((d) => {
+        if (typeof d.properties[this.props.field] !== "number") {
+          d.properties[this.props.field] = 0;
+        }
+        d.properties[this.props.field + "_trimmed"] =
+          d.properties[this.props.field];
+
+        if (d.properties[this.props.field] >= filteredMax) {
+          d.properties[this.props.field + "_trimmed"] = filteredMax;
+        }
+
+        if (d.properties[this.props.field] <= filteredMin) {
+          d.properties[this.props.field + "_trimmed"] = filteredMin;
+        }
+
+        return d;
+      }),
     };
 
     const filteredData = {
       type: "FeatureCollection",
       features: this.props.plant_data.features.filter(
         (d) => this.state.selected_fuel.indexOf(d.properties.FUEL) !== -1
-      )
-    }
+      ),
+    };
 
     // update map data
     this.map.getSource("plants").setData(data);
@@ -264,19 +240,15 @@ class PlantLevelMapZoom extends Component {
 
     // update legend
     let factor =
-      d3.max(
-        data.features.map((d) => d.properties[this.props.field + "_trimmed"])
-      ) / this.field_factor_divided_by;
+      d3.max(data.features.map((d) => d.properties[this.props.field])) /
+      this.field_factor_divided_by;
 
     // update source data event
     this.map.on("sourcedata", (d) => {
       this.updateLegend(
         data.features,
         this.map.queryRenderedFeatures({
-          layers: [
-            "plants-" +
-            this.state.map_style,
-          ],
+          layers: ["plants-" + this.state.map_style],
         }),
         factor
       );
@@ -315,7 +287,7 @@ class PlantLevelMapZoom extends Component {
         })
         .map((d) => {
           if (typeof d.properties[this.props.field] !== "number") {
-            d.properties[this.props.field] = 0
+            d.properties[this.props.field] = 0;
           }
           d.properties[this.props.field + "_trimmed"] =
             d.properties[this.props.field];
@@ -324,18 +296,16 @@ class PlantLevelMapZoom extends Component {
             d.properties[this.props.field] >=
             this.props.plant_dist[this.props.field].max
           ) {
-            d.properties[this.props.field + "_trimmed"] = this.props.plant_dist[
-              this.props.field
-            ].max;
+            d.properties[this.props.field + "_trimmed"] =
+              this.props.plant_dist[this.props.field].max;
           }
 
           if (
             d.properties[this.props.field] <=
             this.props.plant_dist[this.props.field].min
           ) {
-            d.properties[this.props.field + "_trimmed"] = this.props.plant_dist[
-              this.props.field
-            ].min;
+            d.properties[this.props.field + "_trimmed"] =
+              this.props.plant_dist[this.props.field].min;
           }
           return d;
         }),
@@ -345,8 +315,8 @@ class PlantLevelMapZoom extends Component {
       type: "FeatureCollection",
       features: this.props.plant_data.features.filter((d) => {
         return this.props.avail_fuels.indexOf(d.properties.FUEL) > -1;
-      })
-    }
+      }),
+    };
 
     // update map data
     this.map.getSource("plants").setData(data);
@@ -360,14 +330,11 @@ class PlantLevelMapZoom extends Component {
       ) / this.field_factor_divided_by;
 
     // update source data event
-    this.map.on("sourcedata", (d) => {
+    this.map.on("sourcedata", () => {
       this.updateLegend(
         data.features,
         this.map.queryRenderedFeatures({
-          layers: [
-            "plants-" +
-            this.state.map_style,
-          ],
+          layers: ["plants-" + this.state.map_style],
         }),
         factor
       );
@@ -390,28 +357,44 @@ class PlantLevelMapZoom extends Component {
   }
 
   setRadius(features) {
-    let factor =
-      d3.max(features.map((d) => d.properties[this.props.field + "_trimmed"])) /
-      this.field_factor_divided_by;
+    let field_values = features
+      .map(
+        (d) =>
+          Math.round(d.properties[this.props.field + "_trimmed"] * 100) / 100
+      )
+      .sort((a, b) => a - b);
 
-    this.map.setPaintProperty(
-      "plants-" +
-      this.state.map_style,
-      "circle-radius",
-      [
-        "interpolate",
-        ["linear"],
-        ["zoom"],
-        this.props.min_zoom,
-        ["/", ["get", this.props.field + "_trimmed"], factor],
-        this.props.max_zoom,
+    // Set minimum and maximum radius values
+    const minRadius = 4;
+    const maxRadius = 18;
+
+    // Calculate the minimum and maximum values
+    const minValue = Math.min(...field_values);
+    const maxValue = Math.max(...field_values);
+
+    if (minValue === maxValue) {
+      // Set the circle-radius property using average of min and max
+      this.map.setPaintProperty(
+        "plants-" + this.state.map_style,
+        "circle-radius",
+        (minRadius + maxRadius) / 2
+      );
+    } else {
+      // Set the circle-radius property using interpolate expression
+      this.map.setPaintProperty(
+        "plants-" + this.state.map_style,
+        "circle-radius",
         [
-          "/",
+          "interpolate",
+          ["linear"],
           ["get", this.props.field + "_trimmed"],
-          factor / this.zoom_factor,
-        ],
-      ]
-    );
+          minValue,
+          minRadius,
+          maxValue,
+          maxRadius,
+        ]
+      );
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -437,8 +420,8 @@ class PlantLevelMapZoom extends Component {
             let table_info = {};
             let trend_info = {};
             Object.keys(this.state.table_info).forEach((e) => {
-              table_info[e] = "-"
-              trend_info[e] = "-"
+              table_info[e] = "-";
+              trend_info[e] = "-";
             });
             this.updateTable(table_info);
             this.setState({ table_info: table_info, trend_info: trend_info });
@@ -466,9 +449,9 @@ class PlantLevelMapZoom extends Component {
     this._isMounted = true;
 
     let init_zoom =
-      this.props.window_width < 768
-        ? this.props.min_zoom + 0.1
-        : this.props.init_zoom,
+        this.props.window_width < 768
+          ? this.props.min_zoom + 0.1
+          : this.props.init_zoom,
       init_center = this.props.init_center;
 
     // set up map
@@ -590,127 +573,154 @@ class PlantLevelMapZoom extends Component {
     }
     this.map.addControl(new LayerControl());
 
-
-
     let forwardGeocoder = (query) => {
       const matchingFeatures = [];
-      const queryData = this.queryData;
 
-      for (const feature of this.queryData.features.filter(g => g.properties.Year === this.props.year)) {
+      for (const feature of this.queryData.features.filter(
+        (g) => g.properties.Year === this.props.year
+      )) {
         // Handle queries with different capitalization
         // than the source data by calling toLowerCase().
-        if (
-          feature.title
-            .toLowerCase()
-            .includes(query.toLowerCase())
-        ) {
-          feature['place_name'] = `${feature.title}`;
-          feature['center'] = feature.geometry.coordinates;
+        if (feature.title.toLowerCase().includes(query.toLowerCase())) {
+          feature["place_name"] = `${feature.title}`;
+          feature["center"] = feature.geometry.coordinates;
           matchingFeatures.push(feature);
         }
       }
       return matchingFeatures;
-    }
+    };
 
     let geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
       localGeocoder: forwardGeocoder,
-      localGeocoderOnly: true,
-      placeholder: 'Search plants',
+      localGeocoderOnly: false,
+      placeholder: "Search by location or by plant name",
       mapboxgl: mapboxgl,
       zoom: 5,
       clearOnBlur: false,
-      marker: false
+      marker: false,
     });
     let geocoderResult;
 
-    this.map.addControl(geocoder, 'top-left');
+    this.map.addControl(geocoder, "top-left");
 
-    geocoder.on('result', (result) => {
+    geocoder.on("result", (result) => {
       geocoderResult = result;
-      let trends = [];
-      // this.props.data.features.forEach(e => {
-      //   if (e.id === this.hoveredPlant.id) {
-      //     trends.push(e)
-      //   }
-      // })
-      // this.queryData.features.forEach((d, i) => {
-      this.props.data.features.forEach(e => {
-        if (geocoderResult.result.id == e.id) {
-          // if (d.properties.Year != undefined) {
-          trends.push(e);
-          // }
-        }
-      })
-      // })
-      clearAll();
-      if (this._isMounted) {
-        this.map.setFeatureState(
-          { source: "plants", id: Number(result.result.id) },
-          { hover: true }
-        );
 
-        this.map.setFeatureState(
-          { source: "plants", id: Number(result.result.id) },
-          { selected: true }
-        );
+      // Result is a plant
+      const matchingFeature = this.props.data.features.find(
+        (e) => geocoderResult.result.id === e.id
+      );
 
-        let table_info = {};
-        let trend_info = {};
-        Object.keys(this.props.table_rows).forEach((e) => {
-          table_info[this.props.table_rows[e]] =
-            typeof result.result.properties[e] === "number" &&
-              e !== "ORISPL"
-              ? this.formatNumber(result.result.properties[e])
-              : result.result.properties[e] === ""
-                ? "-"
-                : (result.result.properties[e])
-
-          let sumstat = d3.nest()
-            .key(function (l) { return l.year })
-            .entries(trends);
-          trend_info[this.props.table_rows[e]] =
-            typeof sumstat.map(g => g.values.map(p => p.properties[e])) === "number" &&
-              e !== "ORISPL"
-              ? [sumstat.map(g => g.key), this.formatNumber(sumstat.map(g => g.values.map(p => p.properties[e])))]
-              : e === "PNAME" || e === "ORISPL" || e === "SECFUEL" || e === "PLPRMFL" || e === "PSTATABB"
-                ? "-"
-                : [sumstat.map(l => l.key), sumstat.map(l => l.values.map(p => p.properties[e] >= 0 ? p.properties[e] : "-"))]
+      if (matchingFeature) {
+        let trends = [];
+        trends.push(matchingFeature);
+        this.props.data.features.forEach((e) => {
+          if (geocoderResult.result.id === e.id) {
+            trends.push(e);
+          }
         });
-        this.updateTable(table_info);
-        this.setState({ table_info: table_info, trend_info: trend_info });
-      }
+        clearAll();
+        if (this._isMounted) {
+          this.map.setFeatureState(
+            { source: "plants", id: Number(result.result.id) },
+            { hover: true }
+          );
 
-      if (this.hoveredPlantId) {
-        this.map.setFeatureState(
-          { source: "plants", id: this.hoveredPlantId },
-          { hover: false }
+          this.map.setFeatureState(
+            { source: "plants", id: Number(result.result.id) },
+            { selected: true }
+          );
+
+          let table_info = {};
+          let trend_info = {};
+          Object.keys(this.props.table_rows).forEach((e) => {
+            table_info[this.props.table_rows[e]] =
+              typeof result.result.properties[e] === "number" && e !== "ORISPL"
+                ? this.formatNumber(result.result.properties[e])
+                : result.result.properties[e] === ""
+                ? "-"
+                : result.result.properties[e];
+
+            let sumstat = d3
+              .nest()
+              .key(function (l) {
+                return l.year;
+              })
+              .entries(trends);
+            trend_info[this.props.table_rows[e]] =
+              typeof sumstat.map((g) =>
+                g.values.map((p) => p.properties[e])
+              ) === "number" && e !== "ORISPL"
+                ? [
+                    sumstat.map((g) => g.key),
+                    this.formatNumber(
+                      sumstat.map((g) => g.values.map((p) => p.properties[e]))
+                    ),
+                  ]
+                : e === "PNAME" ||
+                  e === "ORISPL" ||
+                  e === "SECFUEL" ||
+                  e === "PLPRMFL" ||
+                  e === "PSTATABB"
+                ? "-"
+                : [
+                    sumstat.map((l) => l.key),
+                    sumstat.map((l) =>
+                      l.values.map((p) =>
+                        p.properties[e] >= 0 ? p.properties[e] : "-"
+                      )
+                    ),
+                  ];
+          });
+          this.updateTable(table_info);
+          this.setState({ table_info: table_info, trend_info: trend_info });
+        }
+
+        if (this.hoveredPlantId) {
+          this.map.setFeatureState(
+            { source: "plants", id: this.hoveredPlantId },
+            { hover: false }
+          );
+        }
+        this.hoveredPlantId = null;
+        this.tooltip.remove();
+        this.tooltip2.remove();
+        this.show_plant_info = true;
+
+        this.tooltip
+          .setLngLat(geocoderResult.result.geometry.coordinates.slice())
+          .setHTML(
+            geocoderResult.result.properties.name +
+              "</br>" +
+              this.formatNumber(geocoderResult.result.properties.value) +
+              " " +
+              this.props.unit
+          )
+          .addTo(this.map);
+
+        d3.selectAll(".region_" + result.result.id)
+          .classed("selected", true)
+          .style("opacity", 1);
+        d3.selectAll(".region_" + result.result.id + " circle").classed(
+          "selected",
+          true
         );
+        d3.selectAll(".region_" + result.result.id + " path").classed(
+          "selected",
+          true
+        );
+        d3.selectAll(".region_" + result.result.id + " text").classed(
+          "selected",
+          true
+        );
+      } else {
+        console.log(geocoderResult.result.properties); 
       }
-      this.hoveredPlantId = null;
-      this.tooltip.remove();
-      this.tooltip2.remove();
-      this.show_plant_info = true;
-
-      this.tooltip
-        .setLngLat(geocoderResult.result.geometry.coordinates.slice())
-        .setHTML(geocoderResult.result.properties.name + "</br>" + this.formatNumber(geocoderResult.result.properties.value) + " " + this.props.unit)
-        .addTo(this.map);
 
       d3.selectAll(".mapboxgl-popup-close-button").on("click", () => {
         geocoder.clear();
       });
-
-      d3.selectAll(".region_" + result.result.id)
-        .classed("selected", true)
-        .style("opacity", 1);
-      d3.selectAll(".region_" + result.result.id + " circle")
-        .classed("selected", true);
-      d3.selectAll(".region_" + result.result.id + " path")
-        .classed("selected", true);
-      d3.selectAll(".region_" + result.result.id + " text")
-        .classed("selected", true);
-
 
       d3.selectAll(`.all_trends:not(.selected)`).attr("display", "none");
       d3.selectAll(`.all_trends:not(.selected) circle`).attr("display", "none");
@@ -719,7 +729,7 @@ class PlantLevelMapZoom extends Component {
       d3.selectAll(`.selected`).attr("display", "block");
     });
 
-    geocoder.on('clear', () => {
+    geocoder.on("clear", () => {
       if (this._isMounted) {
         this.map.flyTo({ center: init_center, zoom: init_zoom });
         clearAll();
@@ -732,8 +742,8 @@ class PlantLevelMapZoom extends Component {
       let table_info = {};
       let trend_info = {};
       Object.keys(this.props.table_rows).forEach((e) => {
-        table_info[this.props.table_rows[e]] = "-"
-        trend_info[this.props.table_rows[e]] = ["-"]
+        table_info[this.props.table_rows[e]] = "-";
+        trend_info[this.props.table_rows[e]] = ["-"];
       });
       this.updateTable(table_info);
       this.setState({ table_info: table_info, trend_info: trend_info });
@@ -742,16 +752,16 @@ class PlantLevelMapZoom extends Component {
         this.map.setFeatureState(
           { source: "plants", id: geocoderResult.result.id },
           { selected: false }
-        )
+        );
 
         this.map.setFeatureState(
           { source: "plants", id: geocoderResult.result.id },
           { hover: false }
-        )
+        );
       }
 
       this.map.querySourceFeatures("plants", {
-        selected: false
+        selected: false,
       });
 
       this.map.setFeatureState(
@@ -772,25 +782,20 @@ class PlantLevelMapZoom extends Component {
       }
       this.tooltip.remove();
       this.hoveredPlantId = null;
-      this.state.selected_plant_id = null;
-
+      this.setState({ selected_plant_id: null });
 
       d3.selectAll(".all_trends")
         .classed("selected", false)
         .style("opacity", 0);
-      d3.selectAll(".all_trends circle")
-        .classed("selected", false);
-      d3.selectAll(".all_trends path")
-        .classed("selected", false);
-      d3.selectAll(".all_trends text")
-        .classed("selected", false);
-
+      d3.selectAll(".all_trends circle").classed("selected", false);
+      d3.selectAll(".all_trends path").classed("selected", false);
+      d3.selectAll(".all_trends text").classed("selected", false);
 
       d3.selectAll(`.all_trends:not(.selected)`).attr("display", "none");
       d3.selectAll(`.all_trends:not(.selected) circle`).attr("display", "none");
       d3.selectAll(`.all_trends:not(.selected) path`).attr("display", "none");
       d3.selectAll(`.all_trends:not(.selected) text`).attr("display", "none");
-    }
+    };
 
     // add legends
     class Legend {
@@ -799,7 +804,14 @@ class PlantLevelMapZoom extends Component {
         this._container = document.createElement("div");
         this._container.className = "mapboxgl-ctrl mapbox-legend";
         this._container.innerHTML =
-          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'><div><span class='map-zoomable-legend-title'></span></div><div><svg class='map-zoomable-legend' id='map-zoomable-legend-pl'></svg></div></div>";
+          "<div class='mapboxgl-ctrl-group' aria-haspopup='true'>" +
+          "<div><span class='map-zoomable-legend-title'></span></div>" +
+          "<div><svg class='map-zoomable-legend' id='map-zoomable-legend-pl'></svg></div>" +
+          "<div class='map-legend-footnote'>" +
+          "Note that circle sizes are proportional to the data point being mapped. " +
+          "The legend provides examples of circle size, but it is not a classification." +
+          "</div>" +
+          "</div>";
 
         return this._container;
       }
@@ -809,6 +821,7 @@ class PlantLevelMapZoom extends Component {
         this._map = undefined;
       }
     }
+
     this.map.addControl(new Legend(), "bottom-right");
 
     // init map
@@ -828,7 +841,8 @@ class PlantLevelMapZoom extends Component {
               h = this.props.filter_height;
             let nbox = this.props.fuels.length + 2;
             let boxlen = w / nbox > 88 ? 88 : Math.max(w / nbox, 75);
-            let boxlen_filter = boxlen, boxlen_reset = boxlen;
+            let boxlen_filter = boxlen,
+              boxlen_reset = boxlen;
 
             d3.selectAll(".fuels-selection").selectAll("div").remove();
             let fuels = d3
@@ -851,7 +865,9 @@ class PlantLevelMapZoom extends Component {
               .attr("r", Math.min(boxlen_filter, h * 0.5) / 4)
               .attr("fill", (d) => this.props.fuel_color_lookup[d])
               .attr("cx", boxlen_filter / 2)
-              .attr("cy", Math.min(boxlen_filter, h * 0.5) / 2);
+              .attr("cy", Math.min(boxlen_filter, h * 0.5) / 2)
+              .attr("stroke", "black")
+              .attr("stroke-width", 1);
 
             fuels_svg
               .append("text")
@@ -863,12 +879,14 @@ class PlantLevelMapZoom extends Component {
               .style("text-anchor", "middle")
               .call(this.props.wrap_long_labels, boxlen_filter * 0.9);
 
-            let filter_div = d3.select(".fuels")
+            let filter_div = d3
+              .select(".fuels")
               .insert("div", ".fuel")
               .style("display", "inline-flex")
               .attr("class", "reset no-export-to-pdf");
 
-            filter_div.append("svg")
+            filter_div
+              .append("svg")
               .attr("width", boxlen_reset)
               .attr("height", h)
               .append("text")
@@ -945,7 +963,7 @@ class PlantLevelMapZoom extends Component {
               })
               .map((d) => {
                 if (typeof d.properties[this.props.field] !== "number") {
-                  d.properties[this.props.field] = 0
+                  d.properties[this.props.field] = 0;
                 }
                 d.properties[this.props.field + "_trimmed"] =
                   d.properties[this.props.field];
@@ -954,18 +972,16 @@ class PlantLevelMapZoom extends Component {
                   d.properties[this.props.field] >=
                   this.props.plant_dist[this.props.field].max
                 ) {
-                  d.properties[
-                    this.props.field + "_trimmed"
-                  ] = this.props.plant_dist[this.props.field].max;
+                  d.properties[this.props.field + "_trimmed"] =
+                    this.props.plant_dist[this.props.field].max;
                 }
 
                 if (
                   d.properties[this.props.field] <=
                   this.props.plant_dist[this.props.field].min
                 ) {
-                  d.properties[
-                    this.props.field + "_trimmed"
-                  ] = this.props.plant_dist[this.props.field].min;
+                  d.properties[this.props.field + "_trimmed"] =
+                    this.props.plant_dist[this.props.field].min;
                 }
 
                 return d;
@@ -973,7 +989,8 @@ class PlantLevelMapZoom extends Component {
           };
 
           // remove source and layer
-          if (this.map.getLayer("plants-" + this.state.map_style)) this.map.removeLayer("plants-" + this.state.map_style);
+          if (this.map.getLayer("plants-" + this.state.map_style))
+            this.map.removeLayer("plants-" + this.state.map_style);
           if (this.map.getSource("plants")) this.map.removeSource("plants");
 
           // add data source to map
@@ -983,50 +1000,24 @@ class PlantLevelMapZoom extends Component {
           });
 
           d3.selectAll(`.all_trends :not(.selected)`).attr("display", "none");
-          d3.selectAll(`.region_${this.state.selected_plant_id} .selected`).attr("display", "block");
+          d3.selectAll(
+            `.region_${this.state.selected_plant_id} .selected`
+          ).attr("display", "block");
 
           // add map layer
           this.map.addLayer({
-            id:
-              "plants-" +
-              this.state.map_style,
+            id: "plants-" + this.state.map_style,
             type: "circle",
             source: "plants",
             minzoom: this.props.min_zoom,
             maxzoom: this.props.max_zoom,
             paint: {
-              "circle-stroke-width": 1,
-              "circle-stroke-color": [
+              "circle-stroke-color": "#000",
+              "circle-stroke-width": [
                 "case",
                 ["boolean", ["feature-state", "hover"], false],
-                "#000",
-                [
-                  "match",
-                  ["get", "FUEL"],
-                  "COAL",
-                  this.props.fuel_color_lookup.COAL,
-                  "OIL",
-                  this.props.fuel_color_lookup.OIL,
-                  "GAS",
-                  this.props.fuel_color_lookup.GAS,
-                  "NUCLEAR",
-                  this.props.fuel_color_lookup.NUCLEAR,
-                  "HYDRO",
-                  this.props.fuel_color_lookup.HYDRO,
-                  "BIOMASS",
-                  this.props.fuel_color_lookup.BIOMASS,
-                  "WIND",
-                  this.props.fuel_color_lookup.WIND,
-                  "SOLAR",
-                  this.props.fuel_color_lookup.SOLAR,
-                  "GEOTHERMAL",
-                  this.props.fuel_color_lookup.GEOTHERMAL,
-                  "OFSL",
-                  this.props.fuel_color_lookup.OFSL,
-                  "OTHF",
-                  this.props.fuel_color_lookup.OTHF,
-                  "#000",
-                ]
+                2,
+                1,
               ],
               "circle-opacity": this.props.circle_opacity,
               "circle-color": [
@@ -1038,14 +1029,14 @@ class PlantLevelMapZoom extends Component {
                 this.props.fuel_color_lookup.OIL,
                 "GAS",
                 this.props.fuel_color_lookup.GAS,
-                "NUCLEAR",
-                this.props.fuel_color_lookup.NUCLEAR,
                 "HYDRO",
                 this.props.fuel_color_lookup.HYDRO,
                 "BIOMASS",
                 this.props.fuel_color_lookup.BIOMASS,
                 "WIND",
                 this.props.fuel_color_lookup.WIND,
+                "NUCLEAR",
+                this.props.fuel_color_lookup.NUCLEAR,
                 "SOLAR",
                 this.props.fuel_color_lookup.SOLAR,
                 "GEOTHERMAL",
@@ -1056,6 +1047,9 @@ class PlantLevelMapZoom extends Component {
                 this.props.fuel_color_lookup.OTHF,
                 "#000",
               ],
+            },
+            layout: {
+              "circle-sort-key": ["*", -1, ["get", "value"]],
             },
           });
 
@@ -1113,7 +1107,6 @@ class PlantLevelMapZoom extends Component {
           //         d3.selectAll(".all_trends:not(.region_" + id + " path)")
           //           .classed("selected", false);
 
-
           //         d3.selectAll(`.all_trends :not(.selected)`).attr("display", "none");
           //         d3.selectAll(`.all_trends .selected`).attr("display", "block");
           //       }
@@ -1164,265 +1157,348 @@ class PlantLevelMapZoom extends Component {
           //   }
           // );
 
+          this.map.on("mouseenter", "plants-" + this.state.map_style, (d) => {
+            this.map.getCanvas().style.cursor = "pointer";
+            d.features.filter((g, i) => g.properties.Year === undefined);
+            this.hoveredPlant = d.features[0];
 
-          this.map.on(
-            "mouseenter",
-            "plants-" +
-            this.state.map_style,
-            (d) => {
-              this.map.getCanvas().style.cursor = "pointer";
-              d.features.filter((g, i) => g.properties.Year === undefined)
-              this.hoveredPlant = d.features[0];
+            if (!this.show_plant_info) {
+              if (d.features.length > 0) {
+                this.hoveredPlantId = this.hoveredPlant.id;
 
-              if (!this.show_plant_info) {
-                if (d.features.length > 0) {
-                  this.hoveredPlantId = this.hoveredPlant.id;
+                let id = this.hoveredPlantId;
 
-                  let id = this.hoveredPlantId
-
-                  d3.selectAll(".all_trends.region_" + id)
-                    .classed("selected", true)
-                    .style("opacity", 1);
-                  d3.selectAll(".all_trends.region_" + id + " circle")
-                    .classed("selected", true);
-                  d3.selectAll(".all_trends.region_" + id + " path")
-                    .classed("selected", true);
-                  d3.selectAll(".all_trends.region_" + id + " text")
-                    .classed("selected", true);
-
-                  d3.selectAll(".all_trends:not(.region_" + id + ")")
-                    .classed("selected", false)
-                    .style("opacity", 0);
-                  d3.selectAll(".all_trends:not(.region_" + id + ") circle")
-                    .classed("selected", false);
-                  d3.selectAll(".all_trends:not(.region_" + id + ") path")
-                    .classed("selected", false);
-                  d3.selectAll(".all_trends:not(.region_" + id + ") text")
-                    .classed("selected", false);
-
-
-                  d3.selectAll(`.all_trends:not(.selected)`).attr("display", "none");
-                  d3.selectAll(`.all_trends:not(.selected) circle`).attr("display", "none");
-                  d3.selectAll(`.all_trends:not(.selected) path`).attr("display", "none");
-                  d3.selectAll(`.all_trends:not(.selected) text`).attr("display", "none");
-                  d3.selectAll(`.selected`).attr("display", "block");
-                }
-
-                while (
-                  Math.abs(
-                    d.lngLat.lng - this.hoveredPlant.geometry.coordinates.slice()[0]
-                  ) > 180
-                ) {
-                  this.hoveredPlant.geometry.coordinates.slice()[0] +=
-                    d.lngLat.lng > this.hoveredPlant.geometry.coordinates.slice()[0]
-                      ? 360
-                      : -360;
-                }
-
-                this.tooltip
-                  .setLngLat(this.hoveredPlant.geometry.coordinates.slice())
-                  .setHTML(this.hoveredPlant.properties.name + "</br>" + this.formatNumber(this.hoveredPlant.properties.value) + " " + this.props.unit)
-                  .addTo(this.map);
-
-
-                let table_info = {};
-                let trend_info = {};
-                Object.keys(this.props.table_rows).forEach((e) => {
-                  table_info[this.props.table_rows[e]] =
-                    typeof this.hoveredPlant.properties[e] === "number" &&
-                      e !== "ORISPL"
-                      ? this.formatNumber(this.hoveredPlant.properties[e])
-                      : this.hoveredPlant.properties[e] === ""
-                        ? "-"
-                        : this.hoveredPlant.properties[e]
-                  let trends = [];
-                  this.props.data.features.forEach(e => {
-                    if (e.id === this.hoveredPlant.id) {
-                      trends.push(e)
-                    }
-                  })
-
-                  let result = trends.filter(l => l.year != undefined);
-                  let deduped = [...new Set(result)]
-                  let sumstat = d3.nest()
-                    .key(function (l) { return l.year })
-                    .entries(deduped);
-                  trend_info[this.props.table_rows[e]] =
-                    typeof sumstat.map(l => l.values.map(p => p.properties[e])) === "number" &&
-                      e !== "ORISPL"
-                      ? [sumstat.map(l => l.key), this.formatNumber(sumstat.map(l => l.values.map(p => p.properties[e] > 0 ? p.properties[e] : "-")))]
-                      : e === "PNAME" || e === "ORISPL" || e === "SECFUEL" || e === "PLPRMFL" || e === "PSTATABB"
-                        ? "-"
-                        : [sumstat.map(l => l.key), sumstat.map(l => l.values.map(p => p.properties[e] > 0 ? p.properties[e] : "-"))]
-
-                });
-                this.updateTable(table_info);
-                this.setState({ table_info: table_info, trend_info: trend_info });
-              }
-              else {
-                this.tooltip2
-                  .setLngLat(this.hoveredPlant.geometry.coordinates.slice())
-                  .setHTML(this.hoveredPlant.properties.name + "</br>" + this.formatNumber(this.hoveredPlant.properties.value) + " " + this.props.unit)
-                  .addTo(this.map);
-              }
-            }
-          );
-
-          this.map.on(
-            "mouseleave",
-            "plants-" +
-            this.state.map_style,
-            () => {
-              this.map.getCanvas().style.cursor = ""
-
-              if (!this.show_plant_info) {
-                this.tooltip.remove();
-                this.hoveredPlantId = null;
-
-              } else {
-                this.tooltip2.remove();
-              }
-            }
-          );
-
-          this.map.on(
-            "click",
-            "plants-" +
-            this.state.map_style,
-            (d) => {
-              d.features.filter((g, i) => g.properties.Year === undefined)
-              this.hoveredPlant = d.features[0];
-
-              if (this.hoveredPlant.id === this.state.selected_plant_id) {
-                this.show_plant_info = false;
-                this.tooltip.remove();
-
-                d3.selectAll(".region_" + this.hoveredPlant.id)
-                  .classed("selected", false)
-                  .style("opacity", 1);
-                d3.selectAll(".region_" + this.hoveredPlant.id + " circle")
-                  .classed("selected", false);
-                d3.selectAll(".region_" + this.hoveredPlant.id + " path")
-                  .classed("selected", false);
-
-              } else {
-                this.show_plant_info = true;
-                let id = this.hoveredPlant.id;
-                let prev_id = this.state.selected_plant_id;
-
-                d3.selectAll(".region_" + id)
+                d3.selectAll(".all_trends.region_" + id)
                   .classed("selected", true)
                   .style("opacity", 1);
-                d3.selectAll(".region_" + id + " circle")
-                  .classed("selected", true);
-                d3.selectAll(".region_" + id + " path")
-                  .classed("selected", true);
-                d3.selectAll(".region_" + id + " text")
-                  .classed("selected", true);
+                d3.selectAll(".all_trends.region_" + id + " circle").classed(
+                  "selected",
+                  true
+                );
+                d3.selectAll(".all_trends.region_" + id + " path").classed(
+                  "selected",
+                  true
+                );
+                d3.selectAll(".all_trends.region_" + id + " text").classed(
+                  "selected",
+                  true
+                );
 
-                d3.selectAll(".region_" + prev_id)
+                d3.selectAll(".all_trends:not(.region_" + id + ")")
                   .classed("selected", false)
                   .style("opacity", 0);
-                d3.selectAll(".region_" + prev_id + " circle")
-                  .classed("selected", false);
-                d3.selectAll(".region_" + prev_id + " path")
-                  .classed("selected", false);
-                d3.selectAll(".region_" + prev_id + " text")
-                  .classed("selected", false);
+                d3.selectAll(
+                  ".all_trends:not(.region_" + id + ") circle"
+                ).classed("selected", false);
+                d3.selectAll(
+                  ".all_trends:not(.region_" + id + ") path"
+                ).classed("selected", false);
+                d3.selectAll(
+                  ".all_trends:not(.region_" + id + ") text"
+                ).classed("selected", false);
 
-                if (d.features.length > 0) {
-                  this.map.setFeatureState(
-                    { source: "plants", id: this.state.selected_plant_id },
-                    { hover: false }
-                  );
-                  if (this.hoveredPlantId) {
-                    this.map.setFeatureState(
-                      { source: "plants", id: this.hoveredPlantId },
-                      { hover: false }
-                    );
-                  }
-                  if (geocoderResult !== undefined) {
-                    this.map.setFeatureState(
-                      { source: "plants", id: geocoderResult.result.id },
-                      { selected: false }
-                    )
+                d3.selectAll(`.all_trends:not(.selected)`).attr(
+                  "display",
+                  "none"
+                );
+                d3.selectAll(`.all_trends:not(.selected) circle`).attr(
+                  "display",
+                  "none"
+                );
+                d3.selectAll(`.all_trends:not(.selected) path`).attr(
+                  "display",
+                  "none"
+                );
+                d3.selectAll(`.all_trends:not(.selected) text`).attr(
+                  "display",
+                  "none"
+                );
+                d3.selectAll(`.selected`).attr("display", "block");
+              }
 
-                    this.map.setFeatureState(
-                      { source: "plants", id: geocoderResult.result.id },
-                      { hover: false }
-                    )
+              while (
+                Math.abs(
+                  d.lngLat.lng -
+                    this.hoveredPlant.geometry.coordinates.slice()[0]
+                ) > 180
+              ) {
+                this.hoveredPlant.geometry.coordinates.slice()[0] +=
+                  d.lngLat.lng >
+                  this.hoveredPlant.geometry.coordinates.slice()[0]
+                    ? 360
+                    : -360;
+              }
+
+              this.tooltip
+                .setLngLat(this.hoveredPlant.geometry.coordinates.slice())
+                .setHTML(
+                  this.hoveredPlant.properties.name +
+                    "</br>" +
+                    this.formatNumber(this.hoveredPlant.properties.value) +
+                    " " +
+                    this.props.unit
+                )
+                .addTo(this.map);
+
+              let table_info = {};
+              let trend_info = {};
+              Object.keys(this.props.table_rows).forEach((e) => {
+                table_info[this.props.table_rows[e]] =
+                  typeof this.hoveredPlant.properties[e] === "number" &&
+                  e !== "ORISPL"
+                    ? this.formatNumber(this.hoveredPlant.properties[e])
+                    : this.hoveredPlant.properties[e] === ""
+                    ? "-"
+                    : this.hoveredPlant.properties[e];
+                let trends = [];
+                this.props.data.features.forEach((e) => {
+                  if (e.id === this.hoveredPlant.id) {
+                    trends.push(e);
                   }
-                  this.hoveredPlantId = this.hoveredPlant.id;
+                });
+
+                let result = trends.filter((l) => l.year !== undefined);
+                let deduped = [...new Set(result)];
+                let sumstat = d3
+                  .nest()
+                  .key(function (l) {
+                    return l.year;
+                  })
+                  .entries(deduped);
+                trend_info[this.props.table_rows[e]] =
+                  typeof sumstat.map((l) =>
+                    l.values.map((p) => p.properties[e])
+                  ) === "number" && e !== "ORISPL"
+                    ? [
+                        sumstat.map((l) => l.key),
+                        this.formatNumber(
+                          sumstat.map((l) =>
+                            l.values.map((p) =>
+                              p.properties[e] > 0 ? p.properties[e] : "-"
+                            )
+                          )
+                        ),
+                      ]
+                    : e === "PNAME" ||
+                      e === "ORISPL" ||
+                      e === "SECFUEL" ||
+                      e === "PLPRMFL" ||
+                      e === "PSTATABB"
+                    ? "-"
+                    : [
+                        sumstat.map((l) => l.key),
+                        sumstat.map((l) =>
+                          l.values.map((p) =>
+                            p.properties[e] > 0 ? p.properties[e] : "-"
+                          )
+                        ),
+                      ];
+              });
+              this.updateTable(table_info);
+              this.setState({ table_info: table_info, trend_info: trend_info });
+            } else {
+              this.tooltip2
+                .setLngLat(this.hoveredPlant.geometry.coordinates.slice())
+                .setHTML(
+                  this.hoveredPlant.properties.name +
+                    "</br>" +
+                    this.formatNumber(this.hoveredPlant.properties.value) +
+                    " " +
+                    this.props.unit
+                )
+                .addTo(this.map);
+            }
+          });
+
+          this.map.on("mouseleave", "plants-" + this.state.map_style, () => {
+            this.map.getCanvas().style.cursor = "";
+
+            if (!this.show_plant_info) {
+              this.tooltip.remove();
+              this.hoveredPlantId = null;
+            } else {
+              this.tooltip2.remove();
+            }
+          });
+
+          this.map.on("click", "plants-" + this.state.map_style, (d) => {
+            d.features.filter((g, i) => g.properties.Year === undefined);
+            this.hoveredPlant = d.features[0];
+
+            if (this.hoveredPlant.id === this.state.selected_plant_id) {
+              this.show_plant_info = false;
+              this.tooltip.remove();
+
+              d3.selectAll(".region_" + this.hoveredPlant.id)
+                .classed("selected", false)
+                .style("opacity", 1);
+              d3.selectAll(
+                ".region_" + this.hoveredPlant.id + " circle"
+              ).classed("selected", false);
+              d3.selectAll(".region_" + this.hoveredPlant.id + " path").classed(
+                "selected",
+                false
+              );
+            } else {
+              this.show_plant_info = true;
+              let id = this.hoveredPlant.id;
+              let prev_id = this.state.selected_plant_id;
+
+              d3.selectAll(".region_" + id)
+                .classed("selected", true)
+                .style("opacity", 1);
+              d3.selectAll(".region_" + id + " circle").classed(
+                "selected",
+                true
+              );
+              d3.selectAll(".region_" + id + " path").classed("selected", true);
+              d3.selectAll(".region_" + id + " text").classed("selected", true);
+
+              d3.selectAll(".region_" + prev_id)
+                .classed("selected", false)
+                .style("opacity", 0);
+              d3.selectAll(".region_" + prev_id + " circle").classed(
+                "selected",
+                false
+              );
+              d3.selectAll(".region_" + prev_id + " path").classed(
+                "selected",
+                false
+              );
+              d3.selectAll(".region_" + prev_id + " text").classed(
+                "selected",
+                false
+              );
+
+              if (d.features.length > 0) {
+                this.map.setFeatureState(
+                  { source: "plants", id: this.state.selected_plant_id },
+                  { hover: false }
+                );
+                if (this.hoveredPlantId) {
                   this.map.setFeatureState(
                     { source: "plants", id: this.hoveredPlantId },
-                    { hover: true }
+                    { hover: false }
                   );
                 }
+                if (geocoderResult !== undefined) {
+                  this.map.setFeatureState(
+                    { source: "plants", id: geocoderResult.result.id },
+                    { selected: false }
+                  );
 
-                this.tooltip
-                  .setLngLat(this.hoveredPlant.geometry.coordinates.slice())
-                  .setHTML(this.hoveredPlant.properties.name + "</br>" + this.formatNumber(this.hoveredPlant.properties.value) + " " + this.props.unit)
-                  .addTo(this.map);
-
-                let table_info = {};
-                let trend_info = {};
-                Object.keys(this.props.table_rows).forEach((e) => {
-                  table_info[this.props.table_rows[e]] =
-                    typeof this.hoveredPlant.properties[e] === "number" &&
-                      e !== "ORISPL"
-                      ? this.formatNumber(this.hoveredPlant.properties[e])
-                      : this.hoveredPlant.properties[e] === ""
-                        ? "-"
-                        : this.hoveredPlant.properties[e]
-
-                  let trends = [];
-                  this.props.data.features.forEach(e => {
-                    if (e.id === this.hoveredPlant.id) {
-                      trends.push(e)
-                    }
-                  })
-
-                  let result = trends.filter(l => l.year != undefined);
-                  let deduped = [...new Set(result)]
-                  let sumstat = d3.nest()
-                    .key(function (l) { return l.year })
-                    .entries(deduped);
-
-                  trend_info[this.props.table_rows[e]] =
-                    typeof sumstat.map(l => l.values.map(p => p.properties[e])) === "number" &&
-                      e !== "ORISPL"
-                      ? [sumstat.map(l => l.key), this.formatNumber(sumstat.map(l => l.values.map(p => p.properties[e] > 0 ? p.properties[e] : "-")))]
-                      : e === "PNAME" || e === "ORISPL" || e === "SECFUEL" || e === "PLPRMFL" || e === "PSTATABB"
-                        ? "-"
-                        : [sumstat.map(l => l.key), sumstat.map(l => l.values.map(p => p.properties[e] > 0 ? p.properties[e] : "-"))]
-
-                });
-
-                this.updateTable(table_info);
-                this.setState({
-                  table_info: table_info,
-                  trend_info: trend_info,
-                  selected_plant_id: this.hoveredPlantId,
-                });
-
-
-                d3.selectAll(".mapboxgl-popup-close-button").on("click", () => {
-                  clearAll();
+                  this.map.setFeatureState(
+                    { source: "plants", id: geocoderResult.result.id },
+                    { hover: false }
+                  );
                 }
+                this.hoveredPlantId = this.hoveredPlant.id;
+                this.map.setFeatureState(
+                  { source: "plants", id: this.hoveredPlantId },
+                  { hover: true }
                 );
               }
-              d3.selectAll(`.all_trends:not(.selected)`).attr("display", "none");
-              d3.selectAll(`.all_trends:not(.selected) circle`).attr("display", "none");
-              d3.selectAll(`.all_trends:not(.selected) path `).attr("display", "none");
-              d3.selectAll(`.all_trends:not(.selected) text `).attr("display", "none");
-              d3.selectAll(`.selected`).attr("display", "block");
+
+              this.tooltip
+                .setLngLat(this.hoveredPlant.geometry.coordinates.slice())
+                .setHTML(
+                  this.hoveredPlant.properties.name +
+                    "</br>" +
+                    this.formatNumber(this.hoveredPlant.properties.value) +
+                    " " +
+                    this.props.unit
+                )
+                .addTo(this.map);
+
+              let table_info = {};
+              let trend_info = {};
+              Object.keys(this.props.table_rows).forEach((e) => {
+                table_info[this.props.table_rows[e]] =
+                  typeof this.hoveredPlant.properties[e] === "number" &&
+                  e !== "ORISPL"
+                    ? this.formatNumber(this.hoveredPlant.properties[e])
+                    : this.hoveredPlant.properties[e] === ""
+                    ? "-"
+                    : this.hoveredPlant.properties[e];
+
+                let trends = [];
+                this.props.data.features.forEach((e) => {
+                  if (e.id === this.hoveredPlant.id) {
+                    trends.push(e);
+                  }
+                });
+
+                let result = trends.filter((l) => l.year !== undefined);
+                let deduped = [...new Set(result)];
+                let sumstat = d3
+                  .nest()
+                  .key(function (l) {
+                    return l.year;
+                  })
+                  .entries(deduped);
+
+                trend_info[this.props.table_rows[e]] =
+                  typeof sumstat.map((l) =>
+                    l.values.map((p) => p.properties[e])
+                  ) === "number" && e !== "ORISPL"
+                    ? [
+                        sumstat.map((l) => l.key),
+                        this.formatNumber(
+                          sumstat.map((l) =>
+                            l.values.map((p) =>
+                              p.properties[e] > 0 ? p.properties[e] : "-"
+                            )
+                          )
+                        ),
+                      ]
+                    : e === "PNAME" ||
+                      e === "ORISPL" ||
+                      e === "SECFUEL" ||
+                      e === "PLPRMFL" ||
+                      e === "PSTATABB"
+                    ? "-"
+                    : [
+                        sumstat.map((l) => l.key),
+                        sumstat.map((l) =>
+                          l.values.map((p) =>
+                            p.properties[e] > 0 ? p.properties[e] : "-"
+                          )
+                        ),
+                      ];
+              });
+
+              this.updateTable(table_info);
+              this.setState({
+                table_info: table_info,
+                trend_info: trend_info,
+                selected_plant_id: this.hoveredPlantId,
+              });
+
+              d3.selectAll(".mapboxgl-popup-close-button").on("click", () => {
+                clearAll();
+              });
             }
-          );
+            d3.selectAll(`.all_trends:not(.selected)`).attr("display", "none");
+            d3.selectAll(`.all_trends:not(.selected) circle`).attr(
+              "display",
+              "none"
+            );
+            d3.selectAll(`.all_trends:not(.selected) path `).attr(
+              "display",
+              "none"
+            );
+            d3.selectAll(`.all_trends:not(.selected) text `).attr(
+              "display",
+              "none"
+            );
+            d3.selectAll(`.selected`).attr("display", "block");
+          });
 
           // set data for map layer, set legend, update zoom event for layer
-          if (this.state.selected_fuel.length !== 0) {
-            this.updateMapWithFuelFilter();
-          } else if (this.state.selected_fuel.length === 0) {
+          // if (this.state.selected_fuel.length !== 0) {
+          //   this.updateMapWithFuelFilter();
+          // }
+          if (this.state.selected_fuel.length === 0) {
             this.updateMapWithNOFuelFilter();
           }
         }
@@ -1448,11 +1524,13 @@ class PlantLevelMapZoom extends Component {
           ></div>
         )}
         <div id="map-zoomable">
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            width: this.props.window_width < 1024 ? "100%" : "62%",
-          }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              width: this.props.window_width < 1024 ? "100%" : "62%",
+            }}
+          >
             <div
               style={{
                 width: "100%",
@@ -1461,8 +1539,7 @@ class PlantLevelMapZoom extends Component {
               }}
               className="map-container"
               ref={(node) => (this.container = node)}
-            >
-            </div>
+            ></div>
             {/* <OtherLevelTrends
               title={this.props.title}
               data={this.props.data}

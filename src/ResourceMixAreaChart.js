@@ -2,8 +2,7 @@ import React, { Component } from "react";
 
 
 import * as d3 from "d3";
-import { forEach } from "underscore";
-import { style } from "d3";
+
 class ResourceMixAreaChart extends Component {
   constructor(props) {
     super(props);
@@ -135,7 +134,8 @@ class ResourceMixAreaChart extends Component {
 
     let width = this.state.width - this.props.margin_left - this.props.margin_right,
       height = this.state.height - this.props.margin_top - this.props.margin_bottom,
-      trendXScale = d3.scaleLinear().domain([2018, 2021]).range([0, width]),
+      // year needs to be updated every time we add new year data. Should fix this
+      trendXScale = d3.scaleLinear().domain([2018, 2023]).range([0, width]),
       trendYScale = d3.scaleLinear().domain([0, 100]).range([height, 0]);
 
     d3.select(this.trends.current).selectAll("svg").remove();
@@ -192,7 +192,7 @@ class ResourceMixAreaChart extends Component {
 
     }
 
-    let paths = trends.selectAll("path")
+   trends.selectAll("path")
       .on("mousemove", handleMouseMove)
       .on('mouseout', handleMouseOut);
 
@@ -306,27 +306,17 @@ class ResourceMixAreaChart extends Component {
   }
 
   resize() {
-    if (this.props.window_width < this.props.ipad_width) {
+    const containerWidth = this.trends.current.parentNode.offsetWidth;
       this.setState(
         {
-          width: this.props.window_width * 0.8,
-          scale: this.props.window_width,
+          width: containerWidth,
+          scale: containerWidth,
         },
         () => {
           this.initView();
         }
       );
-    } else {
-      this.setState(
-        {
-          width: this.props.window_width * 0.8,
-          scale: this.props.window_width,
-        },
-        () => {
-          this.initView();
-        }
-      );
-    }
+
   }
 
   render() {
@@ -337,7 +327,6 @@ class ResourceMixAreaChart extends Component {
       </div>
     );
     return (
-      <div style={{ width: this.state.width }}>
         <div id="trends" style={{ position: "relative" }}>
           {title}
           <div ref={this.trends}>
@@ -347,8 +336,6 @@ class ResourceMixAreaChart extends Component {
           </div>
 
         </div>
-
-      </div>
     );
   }
 }

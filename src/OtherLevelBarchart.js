@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-
 import * as d3 from "d3";
-import { forEach } from "underscore";
+
 class OtherLevelBarchart extends Component {
   constructor(props) {
     super(props);
@@ -140,10 +139,11 @@ class OtherLevelBarchart extends Component {
       trendXScale,
       trendYScale;
 
-
-
-    let sumstat = d3.nest()
-      .key(function (d) { return d.name })
+    let sumstat = d3
+      .nest()
+      .key(function (d) {
+        return d.name;
+      })
       .entries(trendsData);
 
     sumstat.sort(function (a, b) {
@@ -160,24 +160,30 @@ class OtherLevelBarchart extends Component {
     let allTrendsHeight = trendHeight * sumstat.length;
 
     // bars scale
-    let height = this.state.height - this.props.margin_top - this.props.margin_bottom,
-      width = this.state.width - this.props.margin_left - this.props.margin_right,
+    let height =
+        this.state.height - this.props.margin_top - this.props.margin_bottom,
+      width =
+        this.state.width - this.props.margin_left - this.props.margin_right,
       trendLabelWidth = this.props.layer_type === "state" ? 8 : 30,
-      trendWidth = width - trendLabelWidth,
-      parseTime = d3.timeParse("%Y");
-
+      trendWidth = width - trendLabelWidth;
 
     let barFillScale = d3.scaleThreshold().range(this.props.map_fill),
       barXScale = d3
         .scaleLinear()
-        .range([
-          0,
-          width,
-        ])
-        .domain([Math.min(0, d3.min(this.props.data, (e) => e.value)), d3.max(this.props.data, (e) => e.value)]),
+        .range([0, width])
+        .domain([
+          Math.min(
+            0,
+            d3.min(this.props.data, (e) => e.value)
+          ),
+          d3.max(this.props.data, (e) => e.value),
+        ]),
       barYScale = d3
         .scaleBand()
-        .range([0, this.props.layer_type === "state" ? height : allTrendsHeight])
+        .range([
+          0,
+          this.props.layer_type === "state" ? height : allTrendsHeight,
+        ])
         .domain(this.props.data.map((d) => d.name))
         .paddingInner(0.1)
         .paddingOuter(0.2);
@@ -191,8 +197,6 @@ class OtherLevelBarchart extends Component {
     domain = domain.filter((d, i) => domain.indexOf(d) === i);
     barFillScale.domain(domain);
 
-    let allKeys = sumstat.map(function (d) { return d.key })
-
     d3.select(this.trends.current).selectAll("svg").remove();
 
     let trends = d3
@@ -201,10 +205,10 @@ class OtherLevelBarchart extends Component {
       .attr(
         "transform",
         "translate(" +
-        this.props.margin_left +
-        "," +
-        this.props.margin_top +
-        ")"
+          this.props.margin_left +
+          "," +
+          this.props.margin_top +
+          ")"
       )
       .data(sumstat)
       .enter()
@@ -214,25 +218,39 @@ class OtherLevelBarchart extends Component {
       .attr("height", trendHeight)
       .style("border-bottom", "1px solid black")
       .append("g")
-      .attr("class", (d, i) => "region_" + d.values[0].id)
+      .attr("class", (d, i) => "region_" + d.values[0].id);
 
-    trendXScale = d3.scaleLinear().domain(d3.extent(trendsData, d => d.year)).rangeRound([trendLabelWidth + trendLabelWidth, trendWidth - 5]);
-    trendYScale = d3.scaleLinear().domain([0, d3.max(trendsData, d => d.value)]).rangeRound([trendHeight - 5, 5]);
+    trendXScale = d3
+      .scaleLinear()
+      .domain(d3.extent(trendsData, (d) => d.year))
+      .rangeRound([trendLabelWidth + trendLabelWidth, trendWidth - 5]);
+    trendYScale = d3
+      .scaleLinear()
+      .domain([0, d3.max(trendsData, (d) => d.value)])
+      .rangeRound([trendHeight - 5, 5]);
 
-    trends.append("path")
+    trends
+      .append("path")
       // .attr('id', d => 'data-path' + d.value)
       .attr("fill", "none")
       .attr("stroke", this.props.map_fill[3])
       .attr("stroke-width", 1.5)
       .attr("d", function (d) {
-        return d3.line()
-          .x(function (d) { return trendXScale(d.year); })
-          .y(function (d) { return trendYScale(+d.value); })
-          (d.values)
-
+        return d3
+          .line()
+          .x(function (d) {
+            return trendXScale(d.year);
+          })
+          .y(function (d) {
+            return trendYScale(+d.value);
+          })(d.values);
       });
 
-    trends.append("text").text((d) => d.values.length < 2 ? "No data available" : "").attr("width", width).attr("y", (trendHeight / 2) + 5)
+    trends
+      .append("text")
+      .text((d) => (d.values.length < 2 ? "No data available" : ""))
+      .attr("width", width)
+      .attr("y", trendHeight / 2 + 5)
       .attr("x", trendLabelWidth * 2);
 
     // Add titles
@@ -241,9 +259,11 @@ class OtherLevelBarchart extends Component {
       .attr("width", trendLabelWidth)
       .attr("class", "labels")
       .attr("text-anchor", "start")
-      .attr("y", (trendHeight / 2) + 5)
+      .attr("y", trendHeight / 2 + 5)
       .attr("x", 0)
-      .text(function (d) { return (d.key) })
+      .text(function (d) {
+        return d.key;
+      })
       .attr("font-family", "helvetica")
       .attr("font-weight", "normal")
       .style(
@@ -251,8 +271,8 @@ class OtherLevelBarchart extends Component {
         this.props.layer_type === "state"
           ? "0.4em"
           : this.props.layer_type === "NERC region"
-            ? "0.8em"
-            : "0.6em"
+          ? "0.8em"
+          : "0.6em"
       );
 
     // bars
@@ -262,10 +282,10 @@ class OtherLevelBarchart extends Component {
       .attr(
         "transform",
         "translate(" +
-        this.props.margin_left +
-        "," +
-        this.props.margin_top +
-        ")"
+          this.props.margin_left +
+          "," +
+          this.props.margin_top +
+          ")"
       )
       .append("g")
       .selectAll("g")
@@ -274,8 +294,7 @@ class OtherLevelBarchart extends Component {
       .append("g")
       .attr(
         "class",
-        (d) =>
-          "bars mouseover_target barchart_mouseover_target " + " region_" + d.id
+        (d) => "bars mouseover_target barchart_mouseover_target region_" + d.id
       )
       .attr("transform", (d) => "translate(0," + barYScale(d.name) + ")");
 
@@ -301,8 +320,8 @@ class OtherLevelBarchart extends Component {
         this.props.layer_type === "state"
           ? "0.6em"
           : this.props.layer_type === "NERC region"
-            ? "1em"
-            : "0.8em"
+          ? "1em"
+          : "0.8em"
       );
 
     // axis
@@ -319,10 +338,10 @@ class OtherLevelBarchart extends Component {
       .attr(
         "transform",
         "translate(" +
-        this.props.margin_left +
-        "," +
-        this.props.margin_top +
-        ")"
+          this.props.margin_left +
+          "," +
+          this.props.margin_top +
+          ")"
       )
       .call(axis_x)
       .selectAll("text")
@@ -334,10 +353,10 @@ class OtherLevelBarchart extends Component {
       .attr(
         "transform",
         "translate(" +
-        (this.state.width - this.props.margin_right + 5) +
-        "," +
-        this.props.margin_top +
-        ")"
+          (this.state.width - this.props.margin_right + 5) +
+          "," +
+          this.props.margin_top +
+          ")"
       )
       .style("fill", "#000")
       .style("text-anchor", "start")
@@ -351,10 +370,10 @@ class OtherLevelBarchart extends Component {
       .attr(
         "transform",
         "translate(" +
-        this.props.margin_left +
-        "," +
-        this.props.margin_top +
-        ")"
+          this.props.margin_left +
+          "," +
+          this.props.margin_top +
+          ")"
       )
       .attr("class", "axis_y")
       .call(d3.axisLeft(barYScale))
@@ -371,8 +390,8 @@ class OtherLevelBarchart extends Component {
         this.props.layer_type === "state"
           ? "1.1em"
           : this.props.layer_type === "NERC region"
-            ? "1.5em"
-            : "1.2em"
+          ? "1.5em"
+          : "1.2em"
       );
 
     d3.select(this.barchart.current, this.trends.current)
@@ -386,103 +405,123 @@ class OtherLevelBarchart extends Component {
       });
 
     let setStateTrue = (d) => {
-      this.state.isActive = true;
-      this.state.selected_state = d;
-      if (d.key) {
-        this.state.selected_state_id = d.values[0].id;
-      } else {
-        this.state.selected_state_id = d.id;
-      }
-      d3.selectAll(`.all_trends :not(.selected)`).attr("display", "none");
-      d3.selectAll(`.region_${this.state.selected_state_id} .selected`).attr("display", "block");
-    }
+      const newState = {
+        isActive: true,
+        selected_state: d,
+        selected_state_id: d.key ? d.values[0].id : d.id,
+      };
+
+      this.setState(newState, () => {
+        d3.selectAll(`.all_trends :not(.selected)`).attr("display", "none");
+        d3.selectAll(`.region_${this.state.selected_state_id} .selected`).attr(
+          "display",
+          "block"
+        );
+      });
+    };
 
     let setStateFalse = () => {
-      this.state.isActive = false;
-      this.state.selected_state = [];
-      this.state.selected_state_id = undefined;
-      d3.select(this.tooltip.current)
-        .transition()
-        .duration(500)
-        .style("opacity", 0);
+      const newState = {
+        isActive: false,
+        selected_state: [],
+        selected_state_id: undefined,
+      };
 
-      d3.selectAll(".deemphasized")
-        .classed("deemphasized", false)
-        .style("opacity", 1)
-        .style("transition", "opacity 0.5s");
+      this.setState(newState, () => {
+        d3.select(this.tooltip.current)
+          .transition()
+          .duration(500)
+          .style("opacity", 0);
 
-      d3.selectAll(".mouseover_target rect")
-        .classed("selected", false)
-        .style("stroke", "none");
-      d3.selectAll(".mouseover_target text")
-        .classed("selected", false)
-        .style("font-weight", "normal");
-      d3.selectAll("path.mouseover_target")
-        .classed("selected", false)
-        .style("stroke-width", 0.5);
-      d3.selectAll(".mouseover_target path")
-        .classed("selected", false)
-        .style("stroke-width", 1.5);
-      d3.selectAll(".mouseover_target circle")
-        .classed("selected", false);
-      d3.selectAll(".all_trends :not(.US_trend)")
-        .classed("selected", false)
-      d3.selectAll(`.all_trends :not(.selected)`).attr("display", "none");
-      d3.selectAll(`.region_${this.state.selected_state_id} .selected`).attr("display", "block");
+        d3.selectAll(".deemphasized")
+          .classed("deemphasized", false)
+          .style("opacity", 1)
+          .style("transition", "opacity 0.5s");
 
-    }
+        d3.selectAll(".mouseover_target rect")
+          .classed("selected", false)
+          .style("stroke", "none");
+        d3.selectAll(".mouseover_target text")
+          .classed("selected", false)
+          .style("font-weight", "normal");
+        d3.selectAll("path.mouseover_target")
+          .classed("selected", false)
+          .style("stroke-width", 0.5);
+        d3.selectAll(".mouseover_target path")
+          .classed("selected", false)
+          .style("stroke-width", 1.5);
+        d3.selectAll(".mouseover_target circle").classed("selected", false);
+        d3.selectAll(".all_trends :not(.US_trend)").classed("selected", false);
+        d3.selectAll(`.all_trends :not(.selected)`).attr("display", "none");
+        d3.selectAll(`.region_${this.state.selected_state_id} .selected`).attr(
+          "display",
+          "block"
+        );
+      });
+    };
 
-    d3.selectAll(".mouseover_target")
-      .on("click", (d) => {
-        if (!this.state.isActive) {
-          setStateTrue(d)
-        } else {
-          setStateFalse();
-        }
-      })
+    d3.selectAll(".mouseover_target").on("click", (d) => {
+      if (!this.state.isActive) {
+        setStateTrue(d);
+      } else {
+        setStateFalse();
+      }
+    });
 
     // set selected state to false on outside click
-    d3.select("body")
-      .on("click", (d) => {
-        let target = d3.event.target;
-        if (target.classList.contains("mouseover_target") || target.parentNode.classList.contains("mouseover_target")) {
-          return;
-        } else {
-          if (this.state.isActive) {
-            setStateFalse();
-          }
+    d3.select("body").on("click", (d) => {
+      let target = d3.event.target;
+      if (
+        target.classList.contains("mouseover_target") ||
+        target.parentNode.classList.contains("mouseover_target")
+      ) {
+        return;
+      } else {
+        if (this.state.isActive) {
+          setStateFalse();
         }
-      })
-
+      }
+    });
 
     d3.selectAll(".mouseover_target")
       .on("mouseover", (d) => {
         if (!this.state.isActive) {
-          this.state.selected_state = d;
-          if (d.key) {
-            this.state.selected_state_id = d.values[0].id;
-          } else {
-            this.state.selected_state_id = d.id;
-          }
+          this.setState(() => {
+            const newSelectedState = d;
+            const newSelectedStateId = d.key ? d.values[0].id : d.id;
+
+            return {
+              selected_state: newSelectedState,
+              selected_state_id: newSelectedStateId,
+            };
+          });
+
+          // Handle the tooltip and visibility
           d3.select(this.tooltip.current)
             .transition()
             .duration(100)
             .style("opacity", 1);
           d3.selectAll(`.all_trends :not(.selected)`).attr("display", "none");
-          d3.selectAll(`.region_${this.state.selected_state_id} .selected`).attr("display", "block");
+          d3.selectAll(
+            `.region_${this.state.selected_state_id} .selected`
+          ).attr("display", "block");
         } else {
-
+          return;
         }
       })
       .on("mousemove", (d) => {
         let html, id, value, unit;
 
         if (!this.state.isActive) {
-          this.state.selected_state = d;
+          let newSelectedStateId;
+
+          // Determine id and html based on the type of 'd'
           if (typeof d === "object" && !d.key) {
             id = d.id;
-            this.state.selected_state_id = d.id;
-            value = d.value ? this.formatNumber(d.value) : this.formatNumber(d.properties.value);
+            newSelectedStateId = d.id;
+            value = d.value
+              ? this.formatNumber(d.value)
+              : this.formatNumber(d.properties.value);
             unit = d.unit ? d.unit : d.properties.unit;
             html =
               "<span><b>" +
@@ -496,8 +535,12 @@ class OtherLevelBarchart extends Component {
               unit +
               "</b>.</span>";
           } else if (typeof d === "string" && !d.key) {
-            id = this.props.data.filter((e) => e.name === d).map((e) => e.id)[0];
-            this.state.selected_state_id = this.props.data.filter((e) => e.name === d).map((e) => e.id)[0];
+            id = this.props.data
+              .filter((e) => e.name === d)
+              .map((e) => e.id)[0];
+            newSelectedStateId = this.props.data
+              .filter((e) => e.name === d)
+              .map((e) => e.id)[0];
             html =
               "<span><b>" +
               this.props.title.slice(0, 1) +
@@ -509,12 +552,21 @@ class OtherLevelBarchart extends Component {
                 .filter((e) => e.name === d)
                 .map((e) => this.formatNumber(e.value))[0] +
               " " +
-              this.props.data.filter((e) => e.name === d).map((e) => e.unit)[0] +
+              this.props.data
+                .filter((e) => e.name === d)
+                .map((e) => e.unit)[0] +
               "</b>.</span>";
           } else if (d.key) {
             id = d.values[0].id;
-            this.state.selected_state_id = d.values[0].id;
+            newSelectedStateId = d.values[0].id;
           }
+
+          // Use setState to update the state
+          this.setState({
+            selected_state: d,
+            selected_state_id: newSelectedStateId,
+          });
+
           if (!d.key) {
             d3.select(this.tooltip.current)
               .html(html)
@@ -523,6 +575,8 @@ class OtherLevelBarchart extends Component {
               .style("left", d3.event.pageX + 15 + "px")
               .style("opacity", 1);
           }
+
+          // De-emphasize targets
           d3.selectAll(".mouseover_target rect")
             .classed("deemphasized", true)
             .style("opacity", 0.5)
@@ -544,9 +598,10 @@ class OtherLevelBarchart extends Component {
             .style("opacity", 0.5)
             .style("transition", "opacity 0.5s");
 
+          // Highlight selected region
           d3.selectAll(".region_" + id + " .rects")
             .style("stroke", "#000")
-            .style("stroke-width", 1)
+            .style("stroke-width", 1);
           d3.selectAll(".region_" + id + " rect")
             .classed("selected", true)
             .style("opacity", 1);
@@ -569,57 +624,78 @@ class OtherLevelBarchart extends Component {
             .style("opacity", 1);
 
           d3.selectAll(`.all_trends :not(.selected)`).attr("display", "none");
-          d3.selectAll(`.region_${this.state.selected_state_id} .selected`).attr("display", "block");
+          d3.selectAll(
+            `.region_${this.state.selected_state_id} .selected`
+          ).attr("display", "block");
         } else {
-
+          return;
         }
       })
       .on("mouseout", (d) => {
         let id;
 
         if (!this.state.isActive) {
-          this.state.selected_state = [];
-          this.state.selected_state_id = undefined;
+          this.setState({
+            selected_state: [],
+            selected_state_id: undefined,
+          });
+
+          // Determine the id based on the type of 'd'
           if (typeof d === "object" && !d.key) {
             id = d.id;
           } else if (typeof d === "string" && !d.key) {
-            id = this.props.data.filter((e) => e.name === d).map((e) => e.id)[0];
+            id = this.props.data.find((e) => e.name === d)?.id; // Using find() for better readability
           } else if (d.key) {
             id = d.values[0].id;
           }
+
+          // Tooltip transition
           d3.select(this.tooltip.current)
             .transition()
             .duration(500)
             .style("opacity", 0);
 
+          // Resetting deemphasized elements
           d3.selectAll(".deemphasized")
             .classed("deemphasized", false)
             .style("opacity", 1)
             .style("transition", "opacity 0.5s");
 
-          d3.selectAll(".region_" + id + " rect")
+          // Reset selected styles
+          d3.selectAll(`.region_${id} rect`)
             .classed("selected", false)
             .style("stroke", "none");
-          d3.selectAll(".region_" + id + " circle")
-            .classed("selected", false);
-          d3.selectAll(".region_" + id + " text")
+          d3.selectAll(`.region_${id} circle`).classed("selected", false);
+          d3.selectAll(`.region_${id} text`)
             .classed("selected", false)
             .style("font-weight", "normal");
-          d3.selectAll("path.region_" + id)
+          d3.selectAll(`path.region_${id}`)
             .classed("selected", false)
             .style("stroke-width", 0.5);
-          d3.selectAll(".region_" + id + " path")
+          d3.selectAll(`.region_${id} path`)
             .classed("selected", false)
             .style("stroke-width", 1.5);
+
+          // Show and hide trends
           d3.selectAll(`.all_trends :not(.selected)`).attr("display", "none");
-          d3.selectAll(`.region_${this.state.selected_state_id} .selected`).attr("display", "block");
+          d3.selectAll(
+            `.region_${this.state.selected_state_id} .selected`
+          ).attr("display", "block");
         } else {
-
+          return;
         }
-
       });
-    this.state.trendPaddingOffset = (document.getElementById("sort-buttons").getBoundingClientRect().height) + (document.getElementById("axis_x").getBoundingClientRect().height);
-    this.updateView(by);
+    this.setState(
+      () => ({
+        trendPaddingOffset:
+          document.getElementById("sort-buttons").getBoundingClientRect()
+            .height +
+          document.getElementById("axis_x").getBoundingClientRect().height,
+      }),
+      () => {
+        this.updateView(by);
+      }
+    );
   }
 
   updateView(by) {
@@ -629,10 +705,14 @@ class OtherLevelBarchart extends Component {
       } else if (a.key < b.key) {
         return -1;
       }
-    })
+      return 0;
+    });
 
-    let sumstat = d3.nest()
-      .key(function (d) { return d.name })
+    let sumstat = d3
+      .nest()
+      .key(function (d) {
+        return d.name;
+      })
       .entries(trendsData);
 
     sumstat.sort(function (a, b) {
@@ -644,7 +724,6 @@ class OtherLevelBarchart extends Component {
       }
       return 0;
     });
-
 
     let trendHeight = 25;
     let allTrendsHeight = trendHeight * sumstat.length;
@@ -662,15 +741,23 @@ class OtherLevelBarchart extends Component {
 
     d3.selectAll(".selected-button").classed("selected-button", false);
     d3.selectAll(".not-selected-button").classed("not-selected-button", false);
-    d3.select(selected_input).classed("selected-button", true).classed("btn-primary", true).classed("btn-primary-outline", false);
-    d3.select(non_selected_input).classed("not-selected-button", true).classed("btn-primary-outline", true).classed("btn-primary", false);
+    d3.select(selected_input)
+      .classed("selected-button", true)
+      .classed("btn-primary", true)
+      .classed("btn-primary-outline", false);
+    d3.select(non_selected_input)
+      .classed("not-selected-button", true)
+      .classed("btn-primary-outline", true)
+      .classed("btn-primary", false);
 
     // update chart
     let barYScale = d3
       .scaleBand()
       .range([
         0,
-        this.props.layer_type === "state" ? this.state.height - this.props.margin_top - this.props.margin_bottom : allTrendsHeight,
+        this.props.layer_type === "state"
+          ? this.state.height - this.props.margin_top - this.props.margin_bottom
+          : allTrendsHeight,
       ])
       .domain(
         this.props.data
@@ -696,10 +783,7 @@ class OtherLevelBarchart extends Component {
       .transition()
       .duration(100)
       .call(d3.axisLeft(barYScale));
-
   }
-
-
 
   componentDidMount() {
     this.initView(this.state.sort_by);
@@ -730,8 +814,7 @@ class OtherLevelBarchart extends Component {
           this.initView(this.state.sort_by);
         }
       );
-    }
-    else if (this.props.window_width < 1150) {
+    } else if (this.props.window_width < 1150) {
       this.setState(
         {
           width: this.props.window_width * 0.5,
@@ -754,10 +837,21 @@ class OtherLevelBarchart extends Component {
 
   render() {
     return (
-      <div id="barchart-wrapper" style={{ width: '100%' }}>
-        <div style={{ display: 'flex', flexFlow: 'row wrap' }}>
-          <div id="barchart" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="sort-buttons no-export-to-pdf blue-segmented-buttongroup" id="sort-buttons">
+      <div id="barchart-wrapper" style={{ width: "100%" }}>
+        <div style={{ display: "flex", flexFlow: "row wrap" }}>
+          <div
+            id="barchart"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              className="sort-buttons no-export-to-pdf blue-segmented-buttongroup"
+              id="sort-buttons"
+            >
               <input
                 style={{
                   fontSize: this.state.width / 2 < 160 ? "0.7em" : "1em",
@@ -800,31 +894,52 @@ class OtherLevelBarchart extends Component {
               <g ref={this.bars}></g>
             </svg>
           </div>
-          {
-            this.props.layer_type !== "state" && this.props.layer_type !== "NERC region" && this.props.layer_type !== "eGRID subregion" ?
-              <div id="trends">
-                <div
-                  style={{ width: this.state.width, height: this.state.height, display: 'flex', flexDirection: 'column', flexWrap: 'wrap', alignItems: 'center', paddingTop: this.state.trendPaddingOffset }}
-                  ref={this.trends}
+          {this.props.layer_type !== "state" &&
+          this.props.layer_type !== "NERC region" &&
+          this.props.layer_type !== "eGRID subregion" ? (
+            <div id="trends">
+              <div
+                style={{
+                  width: this.state.width,
+                  height: this.state.height,
+                  display: "flex",
+                  flexDirection: "column",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  paddingTop: this.state.trendPaddingOffset,
+                }}
+                ref={this.trends}
+              >
+                <p
+                  style={{
+                    fontSize: this.state.width / 2 < 100 ? "0.8em" : "1em",
+                    margin: "0px",
+                  }}
                 >
-                  <p
-                    style={{
-                      fontSize: this.state.width / 2 < 100 ? "0.8em" : "1em", margin: '0px',
-                    }}
-                  >
-                    {"Trend"}
-                  </p>
-                  <p style={{
-                    fontSize: this.state.width / 2 < 100 ? "0.8em" : "1em", margin: '0px',
-                  }}>{"(" + this.props.usTrendsData[0].year + "–" + this.props.usTrendsData[this.props.usTrendsData.length - 1].year + ")"}</p>
-                  {/* <g ref={this.trends}></g> */}
-                </div>
+                  {"Trend"}
+                </p>
+                <p
+                  style={{
+                    fontSize: this.state.width / 2 < 100 ? "0.8em" : "1em",
+                    margin: "0px",
+                  }}
+                >
+                  {"(" +
+                    this.props.usTrendsData[0].year +
+                    "–" +
+                    this.props.usTrendsData[this.props.usTrendsData.length - 1]
+                      .year +
+                    ")"}
+                </p>
+                {/* <g ref={this.trends}></g> */}
               </div>
-              : ""
-          }
+            </div>
+          ) : (
+            ""
+          )}
         </div>
         <div>
-          <p className="tooltip" ref={this.tooltip}></p>
+          <p className="tooltip" ref={this.tooltip} id="tooltip-bar"></p>
         </div>
       </div>
     );

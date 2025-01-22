@@ -3,8 +3,7 @@ import React, { Component } from "react";
 
 import * as d3 from "d3";
 import d3sB from "d3-scale-break";
-import { forEach } from "underscore";
-import { style } from "d3";
+
 class OtherLevelTrends extends Component {
   constructor(props) {
     super(props);
@@ -142,7 +141,7 @@ class OtherLevelTrends extends Component {
       || this.props.layer_type === "plant"
       || this.props.layer_type === "balancing authority") {
       data = this.props.trendsData.concat(this.props.usTrendsData).reduce(function (filtered, option) {
-        if (option.year != undefined && option.name !== 'US') {
+        if (option.year !== undefined && option.name !== 'US') {
           let filteredData = { name: option.name, year: option.year, value: option.value, unit: option.unit, id: option.id, label: option.label }
           filtered.push(filteredData);
         }
@@ -150,7 +149,7 @@ class OtherLevelTrends extends Component {
       }, []);
     } else {
       data = this.props.trendsData.concat(this.props.usTrendsData).reduce(function (filtered, option) {
-        if (option.year != undefined) {
+        if (option.year !== undefined) {
           let filteredData = { name: option.name, year: option.year, value: option.value, unit: option.unit, id: option.id, label: option.label }
           filtered.push(filteredData);
         }
@@ -175,7 +174,7 @@ class OtherLevelTrends extends Component {
       var target = array[from];
       var increment = to < from ? -1 : 1;
 
-      for (var k = from; k != to; k += increment) {
+      for (var k = from; k !== to; k += increment) {
         array[k] = array[k + increment];
       }
       array[to] = target;
@@ -195,10 +194,9 @@ class OtherLevelTrends extends Component {
       height = this.state.height - this.props.margin_top - this.props.margin_bottom,
       trendXScale = d3.scaleLinear().domain(d3.extent(data, d => d.year)).rangeRound([0, width]),
       breakValue,
-      trendYScale,
-      bisectDate = d3.bisector(d => d.year).left;
+      trendYScale;
 
-    if (d3.quantile(Array.from(data, d => d.value), .75) == 0) {
+    if (d3.quantile(Array.from(data, d => d.value), .75) === 0) {
       breakValue = d3.quantile(Array.from(data, d => d.value), 1);
       trendYScale = d3sB.scaleLinear()
         .domain([[d3.min(data, d => d.value), breakValue], [breakValue, d3.max(data, d => d.value)]])
@@ -266,7 +264,7 @@ class OtherLevelTrends extends Component {
       ).classed("US_trend selected", d => d.key === "US" ? true : false)
 
 
-    let lines = g.append("path")
+      g.append("path")
       .attr("fill", "none")
       .attr("class", d => d.key === "US" ? "US_trend selected" : "")
       .attr("stroke", d => d.key === "US" ? "black" : this.props.map_fill[3])
@@ -276,7 +274,7 @@ class OtherLevelTrends extends Component {
           .x(function (d) { return trendXScale(d.year); })
           .y(function (d) { return trendYScale(d.value); })
           .defined(function (d) {
-            return d.value !== ""
+            return d.value !== "" && d.value !== null && !isNaN(d.value);
           })
           (d.values)
       })
@@ -320,38 +318,45 @@ class OtherLevelTrends extends Component {
       .attr("cy", function (d) { return trendYScale(d.value) })
       .attr("r", 3)
 
-    circles.on("mouseenter", (d, i) => {
-      let html;
-      let idx = sumstat.length;
-      let thisVal = this.formatNumber(d.value);
-
-      if (this.props.title.includes("Total generation")
-        || this.props.title.includes("eat input")
-        || this.props.title.includes("Nameplate capacity")
-        || this.props.title.includes("total emissions")
-        || this.props.layer_type === "plant"
-        || this.props.layer_type === "balancing authority") {
-        html = "<span>" + d.name + ": <span style='color:" + this.props.map_fill[3] + "'>" + thisVal + "</span>";
-      }
-      else {
-        let USval = this.formatNumber(sumstat[0].values[i].value);
-        if (d.name === "US") {
-          html = "US avg: " + thisVal;
+      circles.on("mouseenter", (d, i) => {
+        let html;
+        let thisVal = this.formatNumber(d.value);
+        let USval;
+      
+        // Find the corresponding US data point
+        let USdataPoint = sumstat[0].values.find(usPoint => usPoint.year === d.year);
+      
+        if (USdataPoint) {
+          USval = this.formatNumber(USdataPoint.value);
         } else {
-          html = "<span>" + d.name + ": <span style='color:" + this.props.map_fill[3] + "'>" + thisVal + "</span> <br> US avg: " + USval + "</span>";
+          USval = "N/A";
         }
-      }
-
-      d3.select(this.tooltip.current)
-        .html(html)
-        .transition()
-        .duration(100)
-        .style("opacity", 1)
-        .style("display", null)
-        .style("position", "absolute")
-        .style("top", trendYScale(d.value) - height - this.props.margin_bottom + "px")
-        .style("left", trendXScale(d.year) + "px")
-    })
+      
+        if (this.props.title.includes("Total generation")
+          || this.props.title.includes("eat input")
+          || this.props.title.includes("Nameplate capacity")
+          || this.props.title.includes("total emissions")
+          || this.props.layer_type === "plant"
+          || this.props.layer_type === "balancing authority") {
+          html = "<span>" + d.name + ": <span style='color:" + this.props.map_fill[3] + "'>" + thisVal + "</span>";
+        } else {
+          if (d.name === "US") {
+            html = "US avg: " + thisVal;
+          } else {
+            html = "<span>" + d.name + ": <span style='color:" + this.props.map_fill[3] + "'>" + thisVal + "</span> <br> US avg: " + USval + "</span>";
+          }
+        }
+      
+        d3.select(this.tooltip.current)
+          .html(html)
+          .transition()
+          .duration(100)
+          .style("opacity", 1)
+          .style("display", null)
+          .style("position", "absolute")
+          .style("top", trendYScale(d.value) - height - this.props.margin_bottom + "px")
+          .style("left", trendXScale(d.year) + "px")
+      })
 
     d3.select(this.trends.current)
       .on("mouseleave", () => {
@@ -425,7 +430,7 @@ class OtherLevelTrends extends Component {
           {title}
           <div ref={this.trends}></div>
           <div style={{ position: "relative" }}>
-            <p className="tooltip trends-tooltip" ref={this.tooltip}></p>
+          <p className="tooltip trends-tooltip" ref={this.tooltip} style={{ display: "none" }}></p>
           </div>
         </div>
 

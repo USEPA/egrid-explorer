@@ -235,7 +235,7 @@ class App extends Component {
 
     // table names
     this.plant_table_rows = {
-      // PNAME: "Plant Name",
+      PNAME: "Plant Name",
       ORISPL: "Facility ID",
       PSTATABB: "Plant State",
       SUBRGN: "eGRID Subregion",
@@ -272,7 +272,7 @@ class App extends Component {
 
     // table names
     this.ba_table_rows = {
-      // BANAME: "Balancing Authority Name",
+      BANAME: "Balancing Authority Name",
       BACODE: "Balancing Authority Code",
       BANAMEPCAP: "Nameplate Capacity (MW)",
       BANGENAN: "Total Generation (MWh)",

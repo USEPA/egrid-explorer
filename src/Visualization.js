@@ -471,12 +471,10 @@ class Visualization extends Component {
                 Object.keys(this.props.plant_table_rows).forEach((c, i) => {
                   let row_name = this.props.plant_table_rows[c].split(' ').map(w => Object.keys(lookup_pollutant).indexOf(w) > -1 ? lookup_pollutant[w] : w).join(' ');
                   csv +=
-                    '"' +
-                    row_name +
-                    '","' +
+                  row_name +
+                  ", " +
                     this.state.specific_plant_data_export[this.props.plant_table_rows[c]] +
-                    '"\r\n';
-                  if (i === 0) csv += "Year, " + lookup[this.props.tier5] + "\r\n";
+                    '\r\n';
                 });
                 filename = this.state.specific_plant_data_export["Plant Name"] + ',' + this.state.name.split(',').splice(-1);
               } else {
@@ -488,14 +486,12 @@ class Visualization extends Component {
                 Object.keys(this.props.ba_table_rows).forEach((c, i) => {
                   let row_name = this.props.ba_table_rows[c].split(' ').map(w => Object.keys(lookup_pollutant).indexOf(w) > -1 ? lookup_pollutant[w] : w).join(' ');
                   csv +=
-                    '"' +
                     row_name +
-                    '","' +
+                    ", " +
                     this.state.specific_ba_data_export[this.props.ba_table_rows[c]] +
-                    '"\r\n';
-                  if (i === 0) csv += "Year, " + lookup[this.props.tier5] + "\r\n";
+                    '\r\n';
                 });
-                filename = this.state.specific_ba_data_export["Plant Name"] + ',' + this.state.name.split(',').splice(-1);
+                filename = this.state.specific_ba_data_export["Balancing Authority Name"] + ',' + this.state.name.split(',').splice(-1);
               } else {
                 this.setState({ show_alert: true });
                 return;
@@ -507,17 +503,17 @@ class Visualization extends Component {
                 this.state.data,
               ]);
 
-              csv += "Region, " + title + "\r\n";
+              csv += "Region, " + title + ", Year\r\n";
               export_table.forEach((r) => {
                 csv +=
-                  r.name.toString().replace(/,/g, " ") + "," + r.value + "\r\n";
+                  r.name.toString().replace(/,/g, " ") + "," + r.value + "," + (r.Year || r.year) + "\r\n"; 
               });
             }
-          } else if (+this.state.tier1 === 7) {
+          } 
+          else if (+this.state.tier1 === 7) {
             export_table = _.flatten([
-              this.state.us_data[0],
+              this.state.us_data,
               this.state.resource_mix_data,
-              this.state.resource_mix_data_trends,
             ]);
 
             let fuel_name_lookup = {};
@@ -561,7 +557,7 @@ class Visualization extends Component {
               "Region," +
               Object.keys(fuel_name_lookup)
                 .map((c) => this.props.fuel_label_lookup[fuel_name_lookup[c]])
-                .join(",") +
+                .join(",") + ", Year" +
               "\r\n";
 
             export_table.forEach((r) => {
@@ -569,14 +565,14 @@ class Visualization extends Component {
               csv += Object.keys(fuel_name_lookup)
                 .map((c) => r[c].toString() + "%")
                 .join(",");
-              csv += "\r\n";
+              csv += "," + (r.Year || r.year) + "\r\n"; 
             });
           } else if (+this.state.tier1 === 9) {
             export_table = this.state.data;
             csv +=
-              "Region, Associated eGRID Subregions, Grid Gross Loss Rates (%)\r\n";
+              "Region, Associated eGRID Subregions, Grid Gross Loss Rates (%), Year\r\n";
             export_table.forEach((r) => {
-              csv += r.name + ',"' + r.subregion + '",' + r.value + "\r\n";
+              csv += r.name + ',"' + r.subregion + '",' + r.value + "," + (r.Year || r.year) + "\r\n"; 
             });
           }
 
